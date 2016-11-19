@@ -1,5 +1,5 @@
 
-LIB = libs
+LIB_BUILD = libs/build
 
 BUILD_PRINT = @echo -e "\e[1;32mBuilding $< -> $@\e[0m"
 
@@ -16,7 +16,7 @@ echronos_lib: $(SYSTEM_NAME).prx
 		--search-path . \
 		--output $(ECHRONOS_BUILD) \
 		build $(SYSTEM_NAME)
-	cp $(ECHRONOS_BUILD)/system $(LIB)/$(ECHRONOS_LIB)
+	cp $(ECHRONOS_BUILD)/system $(LIB_BUILD)/$(ECHRONOS_LIB)
 	rm -r out
 
 all: echronos_lib

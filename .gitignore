@@ -1,4 +1,5 @@
-echronos/build
+echronos/build/*
+libs/build/*
 *.a
 *.o
 out
