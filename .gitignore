@@ -1,5 +1,6 @@
 echronos/build/*
 libs/build/*
 *.a
+*.d
 *.o
 out
