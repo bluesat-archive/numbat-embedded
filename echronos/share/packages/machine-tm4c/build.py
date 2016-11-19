@@ -53,4 +53,4 @@ def system_build(system):
 
     # Perform final link
     obj_files = asm_obj_files + c_obj_files
-    execute(['arm-none-eabi-ld', '-T', system.linker_script, '-o', system.output_file] + obj_files)
+    execute(['arm-none-eabi-ld', '-fPIC', '-shared', '-o', system.output_file] + obj_files)
