@@ -35,7 +35,7 @@ def system_build(system):
     inc_path_args = ['-I%s' % i for i in system.include_paths]
     common_flags = ['-mthumb', '-g3', '-mlittle-endian', '-mcpu=cortex-m4', '-mfloat-abi=hard', '-mfpu=fpv4-sp-d16']
     a_flags = common_flags
-    c_flags = common_flags + ['-Os']
+    c_flags = common_flags + ['-Os', '-ffunction-sections', '-fdata-sections']
 
     # Compile all C files.
     c_obj_files = [os.path.join(system.output, os.path.basename(c.replace('.c', '.o'))) for c in system.c_files]
@@ -53,4 +53,4 @@ def system_build(system):
 
     # Perform final link
     obj_files = asm_obj_files + c_obj_files
-    execute(['arm-none-eabi-ld', '-fPIC', '-shared', '-o', system.output_file] + obj_files)
+    execute(['arm-none-eabi-ld', '--no-gc-sections', '-r', '-o', system.output_file] + obj_files)

@@ -30,7 +30,6 @@ CFLAGS=-mthumb             \
        ${FPU}              \
        -ffunction-sections \
        -fdata-sections     \
-       -MD                 \
        -std=c99            \
        -Wall               \
        -pedantic           \
