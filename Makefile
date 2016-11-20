@@ -22,15 +22,16 @@ echronos_lib: $(SYSTEM_NAME).prx
 
 echronos_lib_clean:
 	$(CLEAN_PRINT)
-	rm -r $(ECHRONOS_BUILD)
-	rm $(LIB_BUILD)/$(ECHRONOS_LIB)
+	rm -r -f out
+	rm -r -f $(ECHRONOS_BUILD)
+	rm -f $(LIB_BUILD)/$(ECHRONOS_LIB)
 
 TI_LIBS = libs/ti
 TI_LIB_DIRS = $(TI_LIBS)/driverlib \
 			  $(TI_LIBS)/sensorlib \
 			  $(TI_LIBS)/usblib
 
-ti_libs::
+ti_libs:
 	$(BUILD_PRINT)
 	@for i in ${TI_LIB_DIRS};           \
 	 do                                 \
@@ -41,7 +42,7 @@ ti_libs::
 	     fi;                            \
 	 done
 
-ti_libs_clean::
+ti_libs_clean:
 	$(CLEAN_PRINT)
 	@for i in ${TI_LIB_DIRS};           \
 	 do                                 \
@@ -50,8 +51,9 @@ ti_libs_clean::
 	         make -C $${i} clean;       \
 	     fi;                            \
 	 done
-	rm $(LIB_BUILD)/*.a
+	rm -f $(LIB_BUILD)/*.a
 
+.DEFAULT_GOAL := all
 all: echronos_lib ti_libs
 
 clean: echronos_lib_clean ti_libs_clean
