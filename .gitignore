@@ -1,5 +1,6 @@
 echronos/build/*
 libs/build/*
+build
 *.swp
 *.swo
 *.a

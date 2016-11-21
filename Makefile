@@ -86,6 +86,7 @@ build_dir:
 # wish to compile. TODO: Perhaps streamline this.
 # It is easy to have more modules with shared code
 # by making new linker lines with different elf names.
+# HOWEVER need to support multiple .prx files as well (TODO)
 
 $(BUILD_DIR)/main.o: $(SRC)/main.c build_dir
 	$(BUILD_PRINT)
