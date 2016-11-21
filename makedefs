@@ -28,8 +28,6 @@ AFLAGS=-mthumb \
 CFLAGS=-mthumb             \
        ${CPU}              \
        ${FPU}              \
-       -ffunction-sections \
-       -fdata-sections     \
        -std=c99            \
        -Wall               \
        -pedantic           \
@@ -109,29 +107,3 @@ ${COMPILER}${SUFFIX}/%.a:
 	     echo ${AR} -cr ${@} ${^}; \
 	 fi
 	@${AR} -cr ${@} ${^}
-
-# The rule for linking the application.
-${COMPILER}${SUFFIX}/%.axf:
-	@if [ 'x${SCATTERgcc_${notdir ${@:.axf=}}}' = x ];                    \
-	 then                                                                 \
-	     ldname="${ROOT}/gcc/standalone.ld";                              \
-	 else                                                                 \
-	     ldname="${SCATTERgcc_${notdir ${@:.axf=}}}";                     \
-	 fi;                                                                  \
-	 if [ 'x${VERBOSE}' = x ];                                            \
-	 then                                                                 \
-	     echo "  LD    ${@} ${LNK_SCP}";                                  \
-	 else                                                                 \
-	     echo ${LD} -T $${ldname}                                         \
-	          --entry ${ENTRY_${notdir ${@:.axf=}}}                       \
-	          ${LDFLAGSgcc_${notdir ${@:.axf=}}}                          \
-	          ${LDFLAGS} -o ${@} $(filter %.o %.a, ${^})                  \
-	          '${LIBM}' '${LIBC}' '${LIBGCC}';                            \
-	 fi;                                                                  \
-	${LD} -T $${ldname}                                                   \
-	      --entry ${ENTRY_${notdir ${@:.axf=}}}                           \
-	      ${LDFLAGSgcc_${notdir ${@:.axf=}}}                              \
-	      ${LDFLAGS} -o ${@} $(filter %.o %.a, ${^})                      \
-	      '${LIBM}' '${LIBC}' '${LIBGCC}'
-	@${OBJCOPY} -O binary ${@} ${@:.axf=.bin}
-
