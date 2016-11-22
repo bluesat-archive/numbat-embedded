@@ -80,23 +80,14 @@ IPATH+=$(SRC)
 build_dir:
 	mkdir -p $(BUILD_DIR)
 
-# NUMBAT MODULE SOURCES BEGIN HERE
-
-# Add an object target for each source file that you
-# wish to compile. TODO: Perhaps streamline this.
-# It is easy to have more modules with shared code
-# by making new linker lines with different elf names.
-# HOWEVER need to support multiple .prx files as well (TODO)
-
-$(BUILD_DIR)/main.o: $(SRC)/main.c build_dir
+$(BUILD_DIR)/%.o: $(SRC)/%.c build_dir
 	$(BUILD_PRINT)
 	${CC} ${CFLAGS} -D${COMPILER} -o ${@} ${<}
 
-
-$(BUILD_DIR)/numbat_module.elf: build/main.o
+$(BUILD_DIR)/%.elf:
 	$(BUILD_PRINT)
 	${LD} \
-		  $(BUILD_DIR)/main.o					\
+		  ${^} 								    \
 		  $(LIB_BUILD)/libusb.a                 \
 		  $(LIB_BUILD)/libdriver.a				\
 		  $(LIB_BUILD)/libsensor.a				\
@@ -106,13 +97,25 @@ $(BUILD_DIR)/numbat_module.elf: build/main.o
 		  -o ${@}
 	$(MODULE_PRINT)
 
+# NUMBAT MODULE SOURCES BEGIN HERE
+
+# Add an object target for each source file that you
+# wish to compile. TODO: Perhaps streamline this.
+# It is easy to have more modules with shared code
+# by making new linker lines with different elf names.
+# HOWEVER need to support multiple .prx files as well (TODO)
+
+$(BUILD_DIR)/main.o: $(SRC)/main.c
+$(BUILD_DIR)/numbat_module.elf: $(BUILD_DIR)/main.o
+
 # NUMBAT MODULE SOURCES END HERE
 modules_clean:
 	$(CLEAN_PRINT)
 	rm $(BUILD_DIR)/*
 
-
 .DEFAULT_GOAL := all
 all: echronos_lib ti_libs build/numbat_module.elf
 
 clean: modules_clean echronos_lib_clean ti_libs_clean
+	$(CLEAN_PRINT)
+	rm -rf $(BUILD_DIR) $(LIB_BUILD)
