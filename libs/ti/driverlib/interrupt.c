@@ -132,30 +132,6 @@ static const uint32_t g_pui32UnpendRegs[] =
 
 //*****************************************************************************
 //
-//! \internal
-//! The default interrupt handler.
-//!
-//! This is the default interrupt handler for all interrupts.  It simply loops
-//! forever so that the system state is preserved for observation by a
-//! debugger.  Since interrupts must be disabled before unregistering the
-//! corresponding handler, this should never be called during normal operation.
-//!
-//! \return None.
-//
-//*****************************************************************************
-static void
-_IntDefaultHandler(void)
-{
-    //
-    // Go into an infinite loop.
-    //
-    while(1)
-    {
-    }
-}
-
-//*****************************************************************************
-//
 // The processor vector table.
 //
 // This contains a list of the handlers for the various interrupt sources in
@@ -181,8 +157,6 @@ void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void) __attribute__ ((aligned(1024)));
 #pragma DATA_SECTION(g_pfnRAMVectors, ".vtable")
 void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void);
 #else
-static __attribute__((section("vtable")))
-void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void) __attribute__((aligned(1024)));
 #endif
 
 //*****************************************************************************
@@ -308,44 +282,8 @@ IntMasterDisable(void)
 void
 IntRegister(uint32_t ui32Interrupt, void (*pfnHandler)(void))
 {
-    uint32_t ui32Idx, ui32Value;
-
-    //
-    // Check the arguments.
-    //
-    ASSERT(ui32Interrupt < NUM_INTERRUPTS);
-
-    //
-    // Make sure that the RAM vector table is correctly aligned.
-    //
-    ASSERT(((uint32_t)g_pfnRAMVectors & 0x000003ff) == 0);
-
-    //
-    // See if the RAM vector table has been initialized.
-    //
-    if(HWREG(NVIC_VTABLE) != (uint32_t)g_pfnRAMVectors)
-    {
-        //
-        // Copy the vector table from the beginning of FLASH to the RAM vector
-        // table.
-        //
-        ui32Value = HWREG(NVIC_VTABLE);
-        for(ui32Idx = 0; ui32Idx < NUM_INTERRUPTS; ui32Idx++)
-        {
-            g_pfnRAMVectors[ui32Idx] = (void (*)(void))HWREG((ui32Idx * 4) +
-                                                             ui32Value);
-        }
-
-        //
-        // Point the NVIC at the RAM vector table.
-        //
-        HWREG(NVIC_VTABLE) = (uint32_t)g_pfnRAMVectors;
-    }
-
-    //
-    // Save the interrupt handler.
-    //
-    g_pfnRAMVectors[ui32Interrupt] = pfnHandler;
+    // NEVER USE THIS FUNCTION, ECHRONOS HANDLES IRQ REGISTRATION
+    ASSERT(0);
 }
 
 //*****************************************************************************
@@ -380,15 +318,8 @@ IntRegister(uint32_t ui32Interrupt, void (*pfnHandler)(void))
 void
 IntUnregister(uint32_t ui32Interrupt)
 {
-    //
-    // Check the arguments.
-    //
-    ASSERT(ui32Interrupt < NUM_INTERRUPTS);
-
-    //
-    // Reset the interrupt handler.
-    //
-    g_pfnRAMVectors[ui32Interrupt] = _IntDefaultHandler;
+    // NEVER USE THIS FUNCTION, ECHRONOS HANDLES IRQ REGISTRATION
+    ASSERT(0);
 }
 
 //*****************************************************************************

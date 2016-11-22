@@ -1,33 +1,31 @@
 LIB_BUILD = libs/build
+MODULES_DIR = modules
 
-BUILD_PRINT = @echo -e "\e[1;32mBuilding $< -> $@\e[0m"
+BUILD_PRINT = @echo -e "\e[1;32mBuilding $^ -> $@\e[0m"
 CLEAN_PRINT = @echo -e "\e[1;32mCleaning -> $@\e[0m"
 MODULE_PRINT = @echo -e "\e[1;32mSuccessfully built module -> $@\e[0m"
 
 # BEGIN ECHRONOS BUILD MACHINERY
 
-SYSTEM_NAME = numbat-system
 PRJ_TOOL = echronos/bin/prj.sh
 ECHRONOS_BUILD = echronos/build
-ECHRONOS_LIB = echronos-kochab.a
 
-echronos_lib: $(SYSTEM_NAME).prx
+.SECONDEXPANSION:
+$(LIB_BUILD)/%.a: $$(wildcard $(MODULES_DIR)/*/%.prx)
 	$(BUILD_PRINT)
 	$(PRJ_TOOL) \
 		--no-project \
 		--search-path echronos/share/packages \
 		--search-path . \
-		--output $(ECHRONOS_BUILD) \
-		build $(SYSTEM_NAME)
-	mkdir -p $(LIB_BUILD)
-	cp $(ECHRONOS_BUILD)/system.a $(LIB_BUILD)/$(ECHRONOS_LIB)
+		--output $(ECHRONOS_BUILD)/${*} \
+		build $(subst .prx,,$(subst /,.,${<}))
+	cp $(ECHRONOS_BUILD)/${*}/system.a ${@}
 	rm -r out
 
 echronos_lib_clean:
 	$(CLEAN_PRINT)
 	rm -r -f out
 	rm -r -f $(ECHRONOS_BUILD)
-	rm -f $(LIB_BUILD)/$(ECHRONOS_LIB)
 
 # END ECHRONOS BUILD MACHINERY
 
@@ -74,15 +72,13 @@ include makedefs
 SRC=src
 BUILD_DIR=build
 IPATH=$(TI_LIBS)
-IPATH+=$(ECHRONOS_BUILD)
-IPATH+=$(SRC)
 
-build_dir:
-	mkdir -p $(BUILD_DIR)
-
-$(BUILD_DIR)/%.o: $(SRC)/%.c build_dir
+$(BUILD_DIR)/%.o: $(wildcard $(MODULES_DIR)/*/%.c)
 	$(BUILD_PRINT)
-	${CC} ${CFLAGS} -D${COMPILER} -o ${@} ${<}
+	${CC} ${CFLAGS} \
+		-I$(ECHRONOS_BUILD)/$(subst modules/,,$(<D))-echronos/ \
+		-I$(<D) \
+		-D${COMPILER} -o ${@} ${<}
 
 $(BUILD_DIR)/%.elf:
 	$(BUILD_PRINT)
@@ -91,9 +87,8 @@ $(BUILD_DIR)/%.elf:
 		  $(LIB_BUILD)/libusb.a                 \
 		  $(LIB_BUILD)/libdriver.a				\
 		  $(LIB_BUILD)/libsensor.a				\
-		  $(LIB_BUILD)/$(ECHRONOS_LIB)			\
 		  '${LIBM}' '${LIBC}' '${LIBGCC}'       \
-		  -T $(ECHRONOS_BUILD)/default.ld       \
+		  -T $(ECHRONOS_BUILD)/$(*F)-echronos/default.ld       \
 		  -o ${@}
 	$(MODULE_PRINT)
 
@@ -101,20 +96,53 @@ $(BUILD_DIR)/%.elf:
 
 # Add an object target for each source file that you
 # wish to compile. TODO: Perhaps streamline this.
-# It is easy to have more modules with shared code
-# by making new linker lines with different elf names.
-# HOWEVER need to support multiple .prx files as well (TODO)
 
-$(BUILD_DIR)/main.o: $(SRC)/main.c
-$(BUILD_DIR)/numbat_module.elf: $(BUILD_DIR)/main.o
+# *************
+# BLINKY MODULE
+# *************
+
+MODULE_NAME=blinky
+MODULE_DIR=$(MODULES_DIR)/$(MODULE_NAME)
+MODULE_ECHRONOS=$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
+$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.c $(MODULE_ECHRONOS)
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/blinky.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+$(MODULE_ECHRONOS): $(MODULE_DIR)/$(MODULE_NAME).prx
+
+# ********************
+# ECHRONOS TEST MODULE
+# ********************
+
+MODULE_NAME=echronos_test
+MODULE_DIR=$(MODULES_DIR)/$(MODULE_NAME)
+MODULE_ECHRONOS=$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
+$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS)
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/echronos_test.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+$(MODULE_ECHRONOS): $(MODULE_DIR)/$(MODULE_NAME).prx
+
+# WHAT WE SHOULD TRY AND BUILD WHEN MAKE IS RUN
+TARGETS=\
+	$(BUILD_DIR)/blinky.elf \
+	$(BUILD_DIR)/echronos_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
+
 modules_clean:
 	$(CLEAN_PRINT)
-	rm $(BUILD_DIR)/*
+	rm -rf $(BUILD_DIR)/*
 
 .DEFAULT_GOAL := all
-all: echronos_lib ti_libs build/numbat_module.elf
+
+dirs:
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(LIB_BUILD)
+
+all: dirs ti_libs $(TARGETS)
 
 clean: modules_clean echronos_lib_clean ti_libs_clean
 	$(CLEAN_PRINT)
