@@ -30,7 +30,7 @@ ROOT=../../..
 #
 # Include the common make definitions.
 #
-include ${ROOT}/makedefs
+include ${ROOT}/.ti_makedefs
 
 #
 # Where to find header files that do not live in the source directory.

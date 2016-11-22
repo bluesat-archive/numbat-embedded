@@ -1,0 +1,30 @@
+# BEGIN LIBRARY BUILD MACHINERY
+
+TI_LIBS = libs/ti
+TI_LIB_DIRS = $(TI_LIBS)/driverlib \
+			  $(TI_LIBS)/sensorlib \
+			  $(TI_LIBS)/usblib
+
+ti_libs:
+	$(BUILD_PRINT)
+	@for i in ${TI_LIB_DIRS};           \
+	 do                                 \
+		 if [ -f $${i}/Makefile ];      \
+		 then                           \
+			 make -C $${i} || exit $$?; \
+			 cp $${i}/gcc/*.a $(LIB_BUILD); \
+		 fi;                            \
+	 done
+
+ti_libs_clean:
+	$(CLEAN_PRINT)
+	@for i in ${TI_LIB_DIRS};           \
+	 do                                 \
+		 if [ -f $${i}/Makefile ];      \
+		 then                           \
+			 make -C $${i} clean;       \
+		 fi;                            \
+	 done
+	rm -f $(LIB_BUILD)/*.a
+
+# END LIBRARY BUILD MACHINERY
