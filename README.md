@@ -34,7 +34,8 @@ If everything goes well, you will end up with a bunch of .elf files in the build
 
 # eChronos configuration
 
-(insert brief .prx tutorial and then refer to documentation)
+Each numbat module contains a `.prx` file, which is an eChronos configuration file. The `.prx` file is used for declaring OS primitives, like tasks, mutexes, semaphores, interrupts, etc. When a numbat module is built, a customized version of eChronos is constructed from this file.
+For information as to how to use this file, see the 'Configuration Reference' section of the eChronos manual `docs/echronos/*`
 
 # Adding new modules
 
@@ -64,8 +65,10 @@ Hit make, and all compiling well you should get your shiny new module in `build`
 
 # Help & Documentation
 
-* **eChronos armv7m kochab**: (documentation link)
+The following manuals are kept in this repository **in case of upstream changes**. We do **not** claim ownership over any of the contents of these manuals.:
 
-* **TI peripheral libraries**: (documentation link)
+* **eChronos manual**: `docs/echronos/*`. Note that this is for the kochab (feature set) armv7m (platform) echronos variant *only*, which is what we are using.
 
-* **TI example code**: (ti software framework link)
+* **TI library user guide**: `docs/ti/*`. API documentation for the various TI libraries available to numbat modules.
+
+* Note: **TI example code**: This can be found on TI's website inside their software package (TivaWare for EK-TM4C123GXL). Useful for figuring out how to use some peripherals. It is not distributed here for copyright reasons but mostly because it is huge.
