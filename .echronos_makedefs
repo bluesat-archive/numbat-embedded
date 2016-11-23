@@ -1,7 +1,6 @@
 # BEGIN ECHRONOS BUILD MACHINERY
 
 PRJ_TOOL = echronos/bin/prj.sh
-ECHRONOS_BUILD = echronos/build
 
 .SECONDEXPANSION:
 $(LIB_BUILD)/%.a: $$(wildcard $(MODULES_DIR)/*/%.prx)
