@@ -1,0 +1,7 @@
+# Cross-compiler prefix, may need to change this on your system
+PREFIX:=arm-none-eabi
+
+# The commands for calling the compiler.
+CC=${PREFIX}-gcc
+AR=${PREFIX}-ar
+LD=${PREFIX}-ld
