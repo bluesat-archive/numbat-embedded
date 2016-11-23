@@ -1,6 +1,7 @@
 LIB_BUILD = libs/build
 MODULES_DIR = modules
 
+include .compiler_makedefs
 include .utility_makedefs
 include .echronos_makedefs
 include .lib_makedefs

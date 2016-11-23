@@ -1,19 +1,5 @@
 COMPILER=gcc
 
-# Get the prefix for the tools to use.  Use arm-stellaris-eabi if it exists,
-# otherwise fall back to arm-none-eabi.
-PREFIX:=arm-none-eabi
-
-# The commands for calling the compiler.
-CC=${PREFIX}-gcc
-AR=${PREFIX}-ar
-LD=${PREFIX}-ld
-
-# The location of the C compiler
-# ARMGCC_ROOT is used by some makefiles that need to know where the compiler
-# is installed.
-ARMGCC_ROOT:=${shell dirname '${shell sh -c "which ${CC}"}'}/..
-
 # Set the compiler CPU/FPU options.
 CPU=-mcpu=cortex-m4
 FPU=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
