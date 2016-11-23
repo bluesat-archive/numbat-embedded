@@ -22,11 +22,7 @@ In the root folder, run:
 
     make
 
-to build all modules, or
-
-    make build/blinky.elf
-
-to build specific modules only - which is useful if you have a large codebase.
+to build all modules.
 
 If you are having problems, check your prerequisites are being met.
 
