@@ -3,11 +3,11 @@ This is all the code that runs on numbat's embedded module computers
 
 It contains a few key components:
 
-- *Module-specific codebases* - these define the behaviour of different numbat modules. This is found in the `modules` directory.
-- *eChronos* - an open-source Real Time Operating System that provides cool stuff like task scheduling & prioritisation. (See https://github.com/echronos/echronos). An echronos distribution is found in the `echronos` directory.
-- *The TI software framework* - A bunch of driver libraries that make developing on our hardware easier, abstracting away lots of painful operations. This can be found in the `libs/ti` directory.
+- **Module-specific codebases** - these define the behaviour of different numbat modules. This is found in the `modules` directory.
+- **eChronos** - an open-source Real Time Operating System that provides cool stuff like task scheduling & prioritisation. (See https://github.com/echronos/echronos). An echronos distribution is found in the `echronos` directory.
+- **The TI software framework** - A bunch of driver libraries that make developing on our hardware easier, abstracting away lots of painful operations. This can be found in the `libs/ti` directory.
 
-*To grab the source*:
+**To grab the source**:
 
     git clone https://github.com/bluesat/numbat-embedded.git
     cd numbat-embedded
@@ -68,8 +68,8 @@ Hit make, and all compiling well you should get your shiny new module in `build`
 
 # Help & Documentation
 
-* *eChronos armv7m kochab*: (documentation link)
+* **eChronos armv7m kochab**: (documentation link)
 
-* *TI peripheral libraries*: (documentation link)
+* **TI peripheral libraries**: (documentation link)
 
-* *TI example code*: (ti software framework link)
+* **TI example code**: (ti software framework link)
