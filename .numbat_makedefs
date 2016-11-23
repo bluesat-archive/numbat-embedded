@@ -21,6 +21,7 @@ $(BUILD_DIR)/%.elf:
 	${LD} \
 		  ${^} 								    \
 		  $(LIB_BUILD)/libusb.a                 \
+		  $(LIB_BUILD)/libutil.a                \
 		  $(LIB_BUILD)/libdriver.a				\
 		  $(LIB_BUILD)/libsensor.a				\
 		  '${LIBM}' '${LIBC}' '${LIBGCC}'       \

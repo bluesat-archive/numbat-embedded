@@ -3,6 +3,7 @@
 TI_LIBS = libs/ti
 TI_LIB_DIRS = $(TI_LIBS)/driverlib \
 			  $(TI_LIBS)/sensorlib \
+			  $(TI_LIBS)/utils \
 			  $(TI_LIBS)/usblib
 
 ti_libs:
