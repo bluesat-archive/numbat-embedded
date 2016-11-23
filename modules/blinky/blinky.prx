@@ -38,27 +38,24 @@
             </tasks>
 
             <signal_labels>
-
                 <signal_label>
-                    <name>timer</name>
+                    <name>blink_delay</name>
                 </signal_label>
-
             </signal_labels>
 
-            <interrupt_events>
-                <interrupt_event>
-                    <name>tick</name>
+            <timers>
+                <timer>
+                    <name>blink_delay_timer</name>
+                    <enabled>true</enabled>
+                    <reload>10</reload>
                     <task>task_blink</task>
-                    <sig_set>timer</sig_set>
-                </interrupt_event>
-            </interrupt_events>
+                    <sig_set>blink_delay</sig_set>
+                </timer>
+            </timers>
 
             <mutex>
                 <stats>false</stats>
             </mutex>
         </module>
-
-        <module name="machine-armv7m-common.example.machine-timer" />
-
     </modules>
 </system>
