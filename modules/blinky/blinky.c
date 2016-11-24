@@ -10,13 +10,20 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/rom.h"
 #include "driverlib/systick.h"
+#include "driverlib/uart.h"
+#include "driverlib/gpio.h"
+#include "driverlib/pin_map.h"
+#include "utils/uartstdio.h"
 
 #define SYSTICKS_PER_SECOND     100
 
+#define RED_LED   GPIO_PIN_1
+#define BLUE_LED  GPIO_PIN_2
+#define GREEN_LED GPIO_PIN_3
+#define ALL_LEDS (RED_LED|BLUE_LED|GREEN_LED)
+
 void fatal(const RtosErrorId error_id) {
-    debug_print("FATAL ERROR: ");
-    debug_printhex32(error_id);
-    debug_println("");
+    UARTprintf("FATAL ERROR: 0x%x\n", error_id);
     for (;;);
 }
 
@@ -27,26 +34,52 @@ bool tick_irq(void) {
 
 void task_blink_fn(void) {
 
-    // Enable the GPIO pin for the LED (PF3).  Set the direction as output, and
+    UARTprintf("Entered blinky task\n");
+
+    // Enable the GPIO pin for the LEDs (PF3).  Set the direction as output, and
     // enable the GPIO pin for digital function.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
 
+    UARTprintf("Initialized GPIOS\n");
+
     // Loop forever.
     while(1) {
-        // Turn on the LED.
-        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3);
+        // Turn off all but the red LED.
+        GPIOPinWrite(GPIO_PORTF_BASE, ALL_LEDS, RED_LED);
 
-        // Delay for a bit.
         rtos_signal_wait( RTOS_SIGNAL_ID_BLINK_DELAY );
 
-        // Turn off the LED.
-        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x0);
+        // Turn off all but the green LED.
+        GPIOPinWrite(GPIO_PORTF_BASE, ALL_LEDS, GREEN_LED);
 
-        // Delay for a bit.
+        rtos_signal_wait( RTOS_SIGNAL_ID_BLINK_DELAY );
+
+        // Turn off all but the blue LED.
+        GPIOPinWrite(GPIO_PORTF_BASE, ALL_LEDS, BLUE_LED);
+
         rtos_signal_wait( RTOS_SIGNAL_ID_BLINK_DELAY );
     }
+}
+
+void InitializeUARTStdio(void) {
+    // Enable the GPIO Peripheral used by the UART.
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    // Enable UART0
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+
+    // Configure GPIO Pins for UART mode.
+    ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
+    ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
+    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+    // Use the internal 16MHz oscillator as the UART clock source.
+    UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
+
+    // Initialize the UART for console I/O.
+    UARTStdioConfig(0, 115200, 16000000);
 }
 
 int main(void) {
@@ -65,8 +98,11 @@ int main(void) {
     ROM_SysTickIntEnable();
     ROM_SysTickEnable();
 
+    // Initialize the UART for stdio so we can use UARTPrintf
+    InitializeUARTStdio();
+
     // Actually start the RTOS
-    debug_println("Starting RTOS");
+    UARTprintf("Starting RTOS...\n");
     rtos_start();
 
     /* Should never reach here, but if we do, an infinite loop is
