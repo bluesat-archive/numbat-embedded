@@ -36,7 +36,11 @@ SECTIONS
         .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
         { *(.text.startup) *(.text) }
 
-        .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
+        . = LOADADDR (.text) + SIZEOF(.text);
+        . = ALIGN(4);
+        ro_data_start = .;
+
+        .rodata : AT (ro_data_start)
         { *(.rodata*) }
 
         ro_end = ALIGN(4);
