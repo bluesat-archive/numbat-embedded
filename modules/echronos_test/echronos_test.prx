@@ -12,7 +12,12 @@
             </trampolines>
         </module>
         <module name="armv7m.vectable">
-            <flash_load_addr>0x8000000</flash_load_addr>
+            <flash_load_addr>0x0000000</flash_load_addr>
+            <nmi>nmi</nmi>
+            <hardfault>hardfault</hardfault>
+            <memmanage>memmanage</memmanage>
+            <usagefault>usagefault</usagefault>
+            <busfault>busfault</busfault>
             <preemption>true</preemption>
             <systick>exception_preempt_trampoline_systick</systick>
         </module>
@@ -33,20 +38,18 @@
                     <name>a</name>
                     <function>fn_a</function>
                     <priority>30</priority>
-                    <stack_size>8192</stack_size>
+                    <stack_size>512</stack_size>
                 </task>
 
                 <task>
                     <name>b</name>
                     <function>fn_b</function>
                     <priority>10</priority>
-                    <stack_size>8192</stack_size>
+                    <stack_size>512</stack_size>
                 </task>
-
             </tasks>
 
             <signal_labels>
-
                 <signal_label>
                     <name>timer</name>
                 </signal_label>
@@ -54,7 +57,6 @@
                 <signal_label>
                     <name>test</name>
                 </signal_label>
-
             </signal_labels>
 
             <interrupt_events>
@@ -74,8 +76,5 @@
                 <stats>false</stats>
             </mutex>
         </module>
-
-        <module name="machine-armv7m-common.example.machine-timer" />
-
     </modules>
 </system>

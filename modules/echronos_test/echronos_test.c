@@ -1,117 +1,126 @@
-/*
- * eChronos Real-Time Operating System
- * Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, version 3, provided that these additional
- * terms apply under section 7:
- *
- *   No right, title or interest in or to any trade mark, service mark, logo
- *   or trade name of of National ICT Australia Limited, ABN 62 102 206 173
- *   ("NICTA") or its licensors is granted. Modified versions of the Program
- *   must be plainly marked as such, and must not be distributed using
- *   "eChronos" as a trade mark or product name, or misrepresented as being
- *   the original Program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "rtos-kochab.h"
-#include "machine-timer.h"
 #include "debug.h"
 
-bool tick_irq(void);
-void fatal(RtosErrorId error_id);
-void fn_a(void);
-void fn_b(void);
+#include "inc/hw_memmap.h"
+#include "driverlib/gpio.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/rom.h"
+#include "driverlib/systick.h"
+#include "driverlib/uart.h"
+#include "driverlib/gpio.h"
+#include "driverlib/pin_map.h"
+#include "utils/uartstdio.h"
 
-bool
-tick_irq(void)
-{
-    machine_timer_tick_isr();
+#define SYSTICKS_PER_SECOND     2
 
+void nmi() { for(;;); }
+void hardfault() { for(;;); }
+void memmanage() { for(;;); }
+void busfault() { for(;;); }
+void usagefault() { for(;;); }
+
+void __error__( char *pcFilename, uint32_t ui32Line ) {
+    for(;;);
+}
+
+void fatal(const RtosErrorId error_id) {
+    UARTprintf("FATAL ERROR: 0x%x\n", error_id);
+    for (;;);
+}
+
+bool tick_irq(void) {
+    rtos_timer_tick();
     rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_TICK);
-
     return true;
 }
 
-void
-fatal(const RtosErrorId error_id)
-{
-    debug_print("FATAL ERROR: ");
-    debug_printhex32(error_id);
-    debug_println("");
-    for (;;)
-    {
-    }
-}
-
-void
-fn_a(void)
-{
+void fn_a(void) {
     uint8_t count;
 
-    debug_println("task a: taking lock");
+    UARTprintf("task a: taking lock\n");
     rtos_mutex_lock(RTOS_MUTEX_ID_M0);
-    if (rtos_mutex_try_lock(RTOS_MUTEX_ID_M0))
-    {
-        debug_println("unexpected mutex not locked.");
+
+    if (rtos_mutex_try_lock(RTOS_MUTEX_ID_M0)) {
+        UARTprintf("unexpected mutex not locked.\n");
     }
-    debug_println("task a: releasing lock");
+
+    UARTprintf("task a: releasing lock\n");
     rtos_mutex_unlock(RTOS_MUTEX_ID_M0);
 
-    for (count = 0; count < 10; count++)
-    {
-        debug_println("task a");
-        if (count % 5 == 0)
-        {
-            debug_println("unblocking b");
+    for (count = 0; count < 10; count++) {
+        UARTprintf("task a\n");
+        if (count % 5 == 0) {
+            UARTprintf("unblocking b\n");
             rtos_signal_send_set(RTOS_TASK_ID_B, RTOS_SIGNAL_SET_TEST);
         }
     }
 
-    debug_println("A now waiting for ticks");
-    for (;;)
-    {
+    UARTprintf("A now waiting for ticks\n");
+
+    for (;;) {
         (void) rtos_signal_wait_set(RTOS_SIGNAL_SET_TIMER);
-        debug_println("tick");
+        UARTprintf("tick\n");
         rtos_signal_send_set(RTOS_TASK_ID_B, RTOS_SIGNAL_SET_TEST);
     }
 }
 
-void
-fn_b(void)
-{
-    debug_println("task b: attempting lock");
+void fn_b(void) {
+    UARTprintf("task b: attempting lock\n");
     rtos_mutex_lock(RTOS_MUTEX_ID_M0);
-    debug_println("task b: got lock");
+    UARTprintf("task b: got lock\n");
 
     while (1) {
         if (rtos_signal_poll_set(RTOS_SIGNAL_SET_TEST)) {
-            debug_println("task b blocking");
+            UARTprintf("task b blocking\n");
             (void) rtos_signal_wait_set(RTOS_SIGNAL_SET_TEST);
-            debug_println("task b unblocked");
+            UARTprintf("task b unblocked\n");
         }
     }
 }
 
-int
-main(void)
-{
-    machine_timer_start((void (*)(void))tick_irq);
+void InitializeUARTStdio(void) {
+    // Enable the GPIO Peripheral used by the UART.
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 
-    debug_println("Starting RTOS");
+    // Enable UART0
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+
+    // Configure GPIO Pins for UART mode.
+    ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
+    ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
+    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+    // Use the internal 16MHz oscillator as the UART clock source.
+    UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
+
+    // Initialize the UART for console I/O.
+    UARTStdioConfig(0, 115200, 16000000);
+}
+
+int main(void) {
+    // Enable lazy stacking for interrupt handlers.  This allows floating-point
+    // instructions to be used within interrupt handlers, but at the expense of
+    // extra stack usage.
+    ROM_FPULazyStackingEnable();
+
+    // Set the clocking to run from the PLL at 50 MHz.
+    ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
+                       SYSCTL_XTAL_16MHZ);
+
+    // Set up the systick interrupt used by the RTOS
+    ROM_SysTickPeriodSet(ROM_SysCtlClockGet() / SYSTICKS_PER_SECOND);
+    ROM_SysTickIntEnable();
+    ROM_SysTickEnable();
+
+    // Initialize the UART for stdio so we can use UARTPrintf
+    InitializeUARTStdio();
+
+    // Actually start the RTOS
+    UARTprintf("Starting RTOS...\n");
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is
        easier to debug than returning somewhere random. */
