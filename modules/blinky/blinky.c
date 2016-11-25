@@ -22,6 +22,16 @@
 #define GREEN_LED GPIO_PIN_3
 #define ALL_LEDS (RED_LED|BLUE_LED|GREEN_LED)
 
+void nmi() { for(;;); }
+void hardfault() { for(;;); }
+void memmanage() { for(;;); }
+void busfault() { for(;;); }
+void usagefault() { for(;;); }
+
+void __error__( char *pcFilename, uint32_t ui32Line ) {
+    for(;;);
+}
+
 void fatal(const RtosErrorId error_id) {
     UARTprintf("FATAL ERROR: 0x%x\n", error_id);
     for (;;);
@@ -40,7 +50,7 @@ void task_blink_fn(void) {
     // enable the GPIO pin for digital function.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));
-    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, RED_LED|GREEN_LED|BLUE_LED);
 
     UARTprintf("Initialized GPIOS\n");
 
@@ -60,6 +70,9 @@ void task_blink_fn(void) {
         GPIOPinWrite(GPIO_PORTF_BASE, ALL_LEDS, BLUE_LED);
 
         rtos_signal_wait( RTOS_SIGNAL_ID_BLINK_DELAY );
+
+        // Print a dot so that we look alive on the console
+        UARTprintf(".");
     }
 }
 
