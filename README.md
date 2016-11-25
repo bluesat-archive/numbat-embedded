@@ -30,7 +30,55 @@ If everything goes well, you will end up with a bunch of .elf files in the build
 
 # Running modules on real hardware
 
-(insert brief openocd tutorial here)
+To flash your elf files and test your code, you'll need OpenOCD. This is an open-source debugging interface tool that allows you to use GDB to flash images and debug your code.
+
+You have 2 options here. You can install OpenOCD from your distributions package manager, or install OpenOCD from source. See (https://github.com/ntfreak/openocd) for the second option
+
+Once you have OpenOCD installed
+    - connect the EK-TM4C123GXL board to your computer via the USB connector labelled 'debug'
+    - Make sure the 'PWR SELECT' switch is set to 'DEBUG' and the jumpers are in their default places.
+
+Open a connection to the board:
+
+    sudo openocd -f board/ek-tm4c1294xl.cfg
+
+If everything goes well, you shouldn't see any error messages. If you are using OpenOCD from source, your commands look a little different. If you built it at `~/openocd`, your commands will look something like:
+
+    cd ~/openocd/tcl
+    sudo ~/openocd/src/openocd -f ~/openocd/tcl/board/ek-tm4c1294xl.cfg
+
+If you get stuck, there are plenty of tutorials on the internet for getting OpenOCD up and running.
+
+### Flashing & Debugging
+
+Once you have started OpenOCD, it's time to flash and debug your image! This repository includes a script that does this all for you, `flash.sh`. Take a look at it to see what it's doing if you're curious.
+
+To try the blinky example, (making sure you have built everything!):
+
+    ./flash.sh build/blinky.elf
+
+GDB should fire up, connect to your OpenOCD server, flash the image, reset and then break on your `main` function. To see cool stuff happen, press `c` to continue execution.
+
+Hopefully, you get some blinky lights!
+
+Note that you can also use any of the conventional GDB commands - stepping, watching, breakpoints etc. Plenty of resources on the internet for this.
+
+Use CTRL-C and CTRL-D to exit GDB.
+
+### Serial terminal & `printf`
+
+Any use of the `UARTPrintf` instructions in your codebase will spit out strings on a serial device. You can observe these by firing up a serial terminal, usually the device is called `ttyACMX` where X is some number. I enjoy `picocom`, but your choice of serial terminal is up to you. `gtkterm` is also good. Make sure you set your baud rates and settings to `115200-8-n-1`. E.g for picocom:
+
+    picocom -b 115200 /dev/ttyACM0
+
+If you have issues, make sure your user has been added to the `dialout` group or equivalent - or just run `picocom` as sudo.
+
+To test this, you can try the `blinky` example - you should see something like:
+
+    Starting RTOS...
+    Entered blinky task
+    Initialized GPIOS
+    ..................................
 
 # eChronos configuration
 
