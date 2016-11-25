@@ -1,36 +1,8 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include "boilerplate.h"
 
 #include "rtos-kochab.h"
-#include "debug.h"
-
-#include "inc/hw_memmap.h"
-#include "driverlib/gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/rom.h"
-#include "driverlib/systick.h"
-#include "driverlib/uart.h"
-#include "driverlib/gpio.h"
-#include "driverlib/pin_map.h"
-#include "utils/uartstdio.h"
 
 #define SYSTICKS_PER_SECOND     2
-
-void nmi() { for(;;); }
-void hardfault() { for(;;); }
-void memmanage() { for(;;); }
-void busfault() { for(;;); }
-void usagefault() { for(;;); }
-
-void __error__( char *pcFilename, uint32_t ui32Line ) {
-    for(;;);
-}
-
-void fatal(const RtosErrorId error_id) {
-    UARTprintf("FATAL ERROR: 0x%x\n", error_id);
-    for (;;);
-}
 
 bool tick_irq(void) {
     rtos_timer_tick();
@@ -80,25 +52,6 @@ void fn_b(void) {
             UARTprintf("task b unblocked\n");
         }
     }
-}
-
-void InitializeUARTStdio(void) {
-    // Enable the GPIO Peripheral used by the UART.
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-
-    // Enable UART0
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-
-    // Configure GPIO Pins for UART mode.
-    ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
-    ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
-    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-    // Use the internal 16MHz oscillator as the UART clock source.
-    UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
-
-    // Initialize the UART for console I/O.
-    UARTStdioConfig(0, 115200, 16000000);
 }
 
 int main(void) {

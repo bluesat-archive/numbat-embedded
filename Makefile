@@ -14,6 +14,12 @@ include .numbat_makedefs
 
 # NUMBAT MODULE SOURCES BEGIN HERE
 
+# ****************
+# BOILERPLATE CODE
+# ****************
+
+$(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
+
 # *************
 # BLINKY MODULE
 # *************
@@ -24,6 +30,7 @@ include .construct_numbat_module
 $(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.c $(MODULE_ECHRONOS)
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.o \
+	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 # ********************
@@ -36,6 +43,7 @@ include .construct_numbat_module
 $(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS)
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/echronos_test.o \
+	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 # **********************

@@ -16,7 +16,8 @@ flags = [
     '-Wall',
     '-pedantic',
     "-Ilibs/ti",
-    "-Iechronos/build/blinky-echronos",
+    "-Iechronos/build/echronos_test-echronos",
+    "-Imodules/boilerplate"
 ]
 
 compilation_database_folder = ''
