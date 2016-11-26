@@ -16,7 +16,7 @@ flags = [
     '-Wall',
     '-pedantic',
     "-Ilibs/ti",
-    "-Iechronos/build/echronos_test-echronos",
+    "-Iechronos/build/timer_test-echronos",
     "-Imodules/boilerplate"
 ]
 

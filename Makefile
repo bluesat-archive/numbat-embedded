@@ -33,6 +33,19 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
+# *****************
+# TIMER TEST MODULE
+# *****************
+
+MODULE_NAME=timer_test
+include .construct_numbat_module
+
+$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS)
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/timer_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
 # ********************
 # ECHRONOS TEST MODULE
 # ********************
@@ -52,6 +65,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 TARGETS=\
 	$(BUILD_DIR)/blinky.elf \
+	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/echronos_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
