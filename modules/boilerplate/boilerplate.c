@@ -19,6 +19,20 @@ void fatal(const uint8_t error_id) {
     for (;;);
 }
 
+void InitializeFPU(void) {
+
+    // Magic taken from vector tables from TI examples
+    // This turns on the FPU and initializes it.
+    HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
+                         ~(NVIC_CPAC_CP10_M | NVIC_CPAC_CP11_M)) |
+                        NVIC_CPAC_CP10_FULL | NVIC_CPAC_CP11_FULL);
+
+    // Enable lazy stacking for interrupt handlers.  This allows floating-point
+    // instructions to be used within interrupt handlers, but at the expense of
+    // extra stack usage.
+    ROM_FPULazyStackingEnable();
+}
+
 void InitializeUARTStdio(void) {
     // Enable the GPIO Peripheral used by the UART.
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);

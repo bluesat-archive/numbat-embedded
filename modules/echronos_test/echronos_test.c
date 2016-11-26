@@ -55,10 +55,9 @@ void fn_b(void) {
 }
 
 int main(void) {
-    // Enable lazy stacking for interrupt handlers.  This allows floating-point
-    // instructions to be used within interrupt handlers, but at the expense of
-    // extra stack usage.
-    ROM_FPULazyStackingEnable();
+
+    // Initialize the floating-point unit.
+    InitializeFPU();
 
     // Set the clocking to run from the PLL at 50 MHz.
     ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
