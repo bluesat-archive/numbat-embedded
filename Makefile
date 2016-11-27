@@ -27,7 +27,7 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 MODULE_NAME=blinky
 include .construct_numbat_module
 
-$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.c $(MODULE_ECHRONOS)
+$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.o \
 	$(BUILD_DIR)/boilerplate.o \
@@ -40,7 +40,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=timer_test
 include .construct_numbat_module
 
-$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS)
+$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/timer_test.o \
 	$(BUILD_DIR)/boilerplate.o \
@@ -53,7 +53,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=echronos_test
 include .construct_numbat_module
 
-$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS)
+$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/echronos_test.o \
 	$(BUILD_DIR)/boilerplate.o \
