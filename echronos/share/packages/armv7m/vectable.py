@@ -7,12 +7,12 @@
 # the Free Software Foundation, version 3, provided that these additional
 # terms apply under section 7:
 #
-#   No right, title or interest in or to any trade mark, service mark, logo
-#   or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+#   No right, title or interest in or to any trade mark, service mark, logo or
+#   trade name of of National ICT Australia Limited, ABN 62 102 206 173
 #   ("NICTA") or its licensors is granted. Modified versions of the Program
 #   must be plainly marked as such, and must not be distributed using
-#   "eChronos" as a trade mark or product name, or misrepresented as being
-#   the original Program.
+#   "eChronos" as a trade mark or product name, or misrepresented as being the
+#   original Program.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,6 +21,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @TAG(NICTA_AGPL)
 #
 
 from prj import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
@@ -37,8 +39,10 @@ class EntryModule(Module):
     xml_schema = """
 <schema>
     <entry name="flash_load_addr" type="int" default="0" />
+    <entry name="flash_size" type="int" default="0x40000" />
     <entry name="code_addr" type="int" default="0" />
     <entry name="data_addr" type="int" default="0x20000000" />
+    <entry name="ram_size" type="int" default="0x8000" />
     <entry name="stack_size" type="int" default="0x1000" />
     <entry name="bitband_base" type="int" default="0x20000000" />
     <entry name="bitband_size" type="int" default="0x100000" />
@@ -66,7 +70,7 @@ class EntryModule(Module):
     files = [
         {'input': 'bitband.h'},
         {'input': 'vectable.s', 'render': True, 'type': 'asm'},
-        {'input': 'default.ld', 'render': True, 'type': 'linker_script', 'stage': 'post_prepare'},
+        {'input': 'new.ld', 'render': True, 'type': 'linker_script', 'stage': 'post_prepare'},
     ]
 
     def configure(self, xml_config):

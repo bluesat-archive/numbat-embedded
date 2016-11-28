@@ -26,6 +26,7 @@ $(BUILD_DIR)/%.elf:
 		  $(LIB_BUILD)/libdriver.a				\
 		  $(LIB_BUILD)/libsensor.a				\
 		  '${LIBM}' '${LIBC}' '${LIBGCC}'       \
-		  -T $(ECHRONOS_BUILD)/$(*F)-echronos/default.ld       \
-		  -o ${@}
+		  -T $(ECHRONOS_BUILD)/$(*F)-echronos/new.ld       \
+		  -o ${@} \
+          --print-memory-usage
 	$(MODULE_PRINT)
