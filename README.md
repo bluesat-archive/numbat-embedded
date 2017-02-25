@@ -38,14 +38,11 @@ Once you have OpenOCD installed
     - connect the EK-TM4C123GXL board to your computer via the USB connector labelled 'debug'
     - Make sure the 'PWR SELECT' switch is set to 'DEBUG' and the jumpers are in their default places.
 
-Open a connection to the board:
+Open a connection to the board (`&` loads it in the background):
 
-    sudo openocd -f board/ek-tm4c1294xl.cfg
+    sudo openocd -f board/ek-tm4c123gxl.cfg &
 
-If everything goes well, you shouldn't see any error messages. If you are using OpenOCD from source, your commands look a little different. If you built it at `~/openocd`, your commands will look something like:
-
-    cd ~/openocd/tcl
-    sudo ~/openocd/src/openocd -f ~/openocd/tcl/board/ek-tm4c1294xl.cfg
+If everything goes well, you shouldn't see any error messages.
 
 If you get stuck, there are plenty of tutorials on the internet for getting OpenOCD up and running.
 
