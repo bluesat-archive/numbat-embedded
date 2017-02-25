@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "inc/hw_can.h"
+#include "inc/hw_ints.h"
 #include "inc/hw_nvic.h"
 #include "inc/hw_types.h"
 #include "inc/hw_memmap.h"
@@ -16,6 +18,7 @@
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/timer.h"
+#include "driverlib/can.h"
 #include "utils/uartstdio.h"
 
 void InitializeUARTStdio(void);
