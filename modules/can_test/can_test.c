@@ -18,11 +18,20 @@ void task_can_fn(void) {
 
     UARTprintf("Entered CAN task. Initializing...\n");
 
+    // pre-existing seb code, need to work out what this does
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     GPIOPinConfigure(GPIO_PB4_CAN0RX);
     GPIOPinConfigure(GPIO_PB5_CAN0TX);
     GPIOPinTypeCAN(GPIO_PORTB_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+
+    //activate the can module
     SysCtlPeripheralEnable(SYSCTL_PERIPH_CAN0);
+    // and then we wait for it to be ready. I need to check with Seb how the process management works on
+    // echronos, this might be dumb
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_CAN0)) {}
+
+
+
     CANInit(CAN0_BASE);
     CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
 
@@ -37,8 +46,8 @@ void task_can_fn(void) {
 
     tCANMsgObject can_message;
     can_message.ui32MsgID = 1; // This is the sender ID
-    can_message.ui32MsgIDMask = 0; // Used for ID filtering for RX (not using here)
-    can_message.ui32Flags = MSG_OBJ_TX_INT_ENABLE; // TODO: enable TX INT flag for interrupt-driven CAN tx
+    //can_message.ui32MsgIDMask = 0; // Used for ID filtering for RX (not using here)
+    //can_message.ui32Flags = MSG_OBJ_TX_INT_ENABLE; // TODO: enable TX INT flag for interrupt-driven CAN tx
     unsigned char message_data[] = {0xDE, 0xAD, 0xBE, 0xEF};
     can_message.ui32MsgLen = 4;
     can_message.pui8MsgData = message_data;

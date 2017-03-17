@@ -7,3 +7,7 @@ build
 *.d
 *.o
 out
+
+# clion ide files
+.idea
+cmake-build-debug
