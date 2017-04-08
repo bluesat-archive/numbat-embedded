@@ -3,7 +3,7 @@
     <modules>
         <module name="machine-tm4c.build" />
         <module name="armv7m.ctxt-switch-preempt" />
-        <module name="armv7m.exception-preempt">
+        <module name="armv7m.exception-preempt" />
         <module name="armv7m.vectable">
             <flash_load_addr>0x0000000</flash_load_addr>
             <nmi>nmi</nmi>

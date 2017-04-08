@@ -1,5 +1,6 @@
 #include "boilerplate.h"
 #include "rtos-kochab.h"
+#include "driverlib/pwm.h"
 
 void task_pwm_test_fn(void) {
 
@@ -19,10 +20,12 @@ void task_pwm_test_fn(void) {
                                           PWM_GEN_MODE_GEN_NO_SYNC);
 
     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 0xFFFF);
-    PWMGenPulseWidthSet(PWM0_BASE, PWM_GEN_0, 0x8FFF);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 0x8FFF);
 
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
-    PWMOutputEnable(PWM0_BASE, PWM_OUT_0_BIT, 1);
+    PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT, 1);
+
+    UARTprintf("PWM initialisation complete...\n");
     
     while (1);                           
 }
@@ -35,11 +38,6 @@ int main(void) {
     // Set the clocking to run from the PLL at 50 MHz.
     ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
                        SYSCTL_XTAL_16MHZ);
-
-    // Set up the systick interrupt used by the RTOS
-    ROM_SysTickPeriodSet(ROM_SysCtlClockGet() / SYSTICKS_PER_SECOND);
-    ROM_SysTickIntEnable();
-    ROM_SysTickEnable();
 
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
