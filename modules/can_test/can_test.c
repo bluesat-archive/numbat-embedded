@@ -31,15 +31,17 @@ void can0_int_handler(void) {
     // in this case we are reciving a status interupt
     if(can_status == CAN_INT_INTID_STATUS) {
         // read the error status and store it to be handled latter
-        error_flag |= can_status;
+        error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
     } else {
         // we are reciving a message, TODO: handle this
         // for now we clear the interup so we can continue
-        CANIntClear(CAN0_BASE, can_status);
+        CANIntClear(CAN0_BASE, 1);
 
         // clear the error flag (otherwise we will store recive or write statuses)
         error_flag = 0;
     }
+
+    UARTprintf("Error Code %x\n", can_status);
 }
 
 void task_can_fn(void) {
@@ -103,7 +105,7 @@ void init_can(void) {
 
     //TODO: change this to use the eChronos clock
     // Set the bitrate for the CAN BUS. It uses the system clock
-    CANBitRateSet(CAN0_BASE, SysCtlClockGet(), CAN_BITRATE);
+    CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
 
     // enable can interupts
     CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR | CAN_INT_STATUS);
