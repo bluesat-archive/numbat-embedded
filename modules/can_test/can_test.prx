@@ -22,7 +22,7 @@
             <systick>exception_preempt_trampoline_systick</systick>
             <external_irqs>
                 <external_irq>
-                    <number>55</number>
+                    <number>39</number>
                     <handler>can0_int_handler</handler>
                 </external_irq>
             </external_irqs>
