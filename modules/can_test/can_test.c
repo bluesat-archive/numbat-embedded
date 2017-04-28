@@ -17,6 +17,8 @@ bool tick_irq(void) {
     return true;
 }
 
+bool sent_message;
+
 static uint32_t error_flag;
 
 /**
@@ -39,9 +41,16 @@ void can0_int_handler(void) {
 
         // clear the error flag (otherwise we will store recive or write statuses)
         error_flag = 0;
+
+        // if we haven't just sent a message read.
+        if(!sent_message) {
+            CANMessageGet(CAN0_BASE, can_status, &rx_object, 0);
+            UARTprintf("Received: %c\n", can_input_buffer);
+        }
+        sent_message = false;
     }
 
-    UARTprintf("Error Code %x\n", can_status);
+    UARTprintf("A Error Code %x\n", can_status);
 }
 
 void task_can_fn(void) {
@@ -55,9 +64,11 @@ void task_can_fn(void) {
             UARTprintf("Error occured 0x%X\n", error_flag);
         }
         UARTprintf("Preparing to write\n");
-        buff[0] = 1;
-        buff[1] = 2;
+        buff[0] = 'a';
+        buff[1] = 'b';
+        buff[2] = 'c';
         UARTprintf("Write!\n");
+        sent_message = true;
         write_can(1, buff , CAN_MSG_LEN);
     }
 }
