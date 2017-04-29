@@ -27,7 +27,7 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 MODULE_NAME=blinky
 include .construct_numbat_module
 
-$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.o \
 	$(BUILD_DIR)/boilerplate.o \

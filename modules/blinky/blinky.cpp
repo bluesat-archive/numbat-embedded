@@ -1,5 +1,9 @@
-#include "boilerplate.h"
 #include "rtos-kochab.h"
+
+extern "C" {
+#include "boilerplate.h"
+}
+
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -8,12 +12,12 @@
 #define GREEN_LED GPIO_PIN_3
 #define ALL_LEDS (RED_LED|BLUE_LED|GREEN_LED)
 
-bool tick_irq(void) {
+extern "C" bool tick_irq(void) {
     rtos_timer_tick();
     return true;
 }
 
-void task_blink_fn(void) {
+extern "C" void task_blink_fn(void) {
 
     UARTprintf("Entered blinky task\n");
 
