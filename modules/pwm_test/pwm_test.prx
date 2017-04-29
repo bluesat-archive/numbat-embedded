@@ -12,6 +12,12 @@
             <usagefault>usagefault</usagefault>
             <busfault>busfault</busfault>
             <preemption>true</preemption>
+            <external_irqs>
+                <external_irq>
+                    <number>10</number>
+                    <handler>pwm0_0_isr</handler>
+                </external_irq>
+            </external_irqs>
         </module>
         <module name="armv7m.semihost-debug" />
         <module name="generic.debug" />
@@ -30,7 +36,7 @@
                     <name>task_pwm_test</name>
                     <function>task_pwm_test_fn</function>
                     <priority>30</priority>
-                    <stack_size>512</stack_size>
+                    <stack_size>1024</stack_size>
                 </task>
             </tasks>
 
