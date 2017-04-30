@@ -24,7 +24,7 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 # ****************
 # ROS LIB
 # ****************
-$(LIB_BUILD)/ros_echronos.o: $(LIB_DIR)/ros_echronos/ros.cpp
+ros_echronos: $(LIB_DIR)/ros_echronos/ros.cpp
 
 # *************
 # BLINKY MODULE
@@ -33,12 +33,11 @@ $(LIB_BUILD)/ros_echronos.o: $(LIB_DIR)/ros_echronos/ros.cpp
 MODULE_NAME=blinky
 include .construct_numbat_module
 
-$(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.opp \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
-	$(LIB_BUILD)/ros_echronos.o
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 # *****************
 # TIMER TEST MODULE

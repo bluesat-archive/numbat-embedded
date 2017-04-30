@@ -2,10 +2,24 @@
 
 #include "boilerplate.h"
 
-class thing {
+class Thing {
     public:
-        int derp() {return 0;}
+        Thing();
+        int derp();
+
+    private:
+        int a;
 };
+
+Thing::Thing() {
+    UARTprintf("aaa\n");
+};
+
+int Thing::derp() {
+    UARTprintf("Derp\n");
+    a = 2;
+    return 0;
+}
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -56,6 +70,7 @@ extern "C" void task_blink_fn(void) {
 
 int main(void) {
 
+
     // Initialize the floating-point unit.
     InitializeFPU();
 
@@ -70,6 +85,9 @@ int main(void) {
 
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
+
+    Thing t;
+    t.derp();
 
     // Actually start the RTOS
     UARTprintf("Starting RTOS...\n");

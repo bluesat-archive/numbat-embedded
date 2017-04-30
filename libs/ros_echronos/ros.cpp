@@ -7,9 +7,3 @@
  * Copyright BLUEsat UNSW, 2017
  */
 
-class Test {
-    public:
-        Test() {
-
-        }
-};
