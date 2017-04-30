@@ -33,9 +33,9 @@ $(LIB_BUILD)/ros_echronos.o: $(LIB_DIR)/ros_echronos/ros.cpp
 MODULE_NAME=blinky
 include .construct_numbat_module
 
-$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/blinky.o \
+	$(BUILD_DIR)/blinky.opp \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(LIB_BUILD)/ros_echronos.o

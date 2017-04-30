@@ -21,8 +21,17 @@
 #include "driverlib/can.h"
 #include "utils/uartstdio.h"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void InitializeUARTStdio(void);
 
 void InitializeFPU(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
