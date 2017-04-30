@@ -31,7 +31,7 @@ CPPFLAGS=-mthumb           \
        -Wall               \
        -pedantic           \
        -DPART_${PART}      \
-       -std=c++11          \
+       -std=c++98          \
        -c
 
 

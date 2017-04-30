@@ -11,9 +11,12 @@
 #define NUMBAT_EMBEDDED_ROS_HPP
 
 namespace ros_echronos {
-
+    namespace can {
+        int can_error_flag;
+    };
 };
 
-extern "C"
+extern "C" ros_can_int_handler(void);
+
 
 #endif //NUMBAT_EMBEDDED_ROS_HPP
