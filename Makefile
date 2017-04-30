@@ -1,4 +1,5 @@
 LIB_BUILD = libs/build
+LIB_DIR = libs
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
@@ -18,7 +19,12 @@ include .numbat_makedefs
 # BOILERPLATE CODE
 # ****************
 
-$(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.cpp
+$(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
+
+# ****************
+# ROS LIB
+# ****************
+$(LIB_BUILD)/ros_echronos.o: $(LIB_DIR)/ros_echronos/ros.cpp
 
 # *************
 # BLINKY MODULE
@@ -31,7 +37,8 @@ $(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.o \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(LIB_BUILD)/ros_echronos.o
 
 # *****************
 # TIMER TEST MODULE
