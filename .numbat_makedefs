@@ -17,6 +17,13 @@ $(BUILD_DIR)/%.o: $(wildcard $(MODULES_DIR)/*/%.c)
 		-I$(<D) \
 		-D${COMPILER} -o ${@} ${<}
 
+$(BUILD_DIR)/%.opp: $(wildcard $(MODULES_DIR)/*/%.cpp)
+	$(BUILD_PRINT)
+	${CC} ${CPPFLAGS} \
+		-I$(ECHRONOS_BUILD)/$(subst modules/,,$(<D))-echronos/ \
+		-I$(<D) \
+		-D${COMPILER} -o ${@} ${<}
+
 $(BUILD_DIR)/%.elf:
 	$(BUILD_PRINT)
 	${LD} \

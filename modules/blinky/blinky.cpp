@@ -1,9 +1,11 @@
 #include "rtos-kochab.h"
 
-extern "C" {
 #include "boilerplate.h"
-}
 
+class thing {
+    public:
+        int derp() {return 0;}
+};
 
 #define SYSTICKS_PER_SECOND     100
 
