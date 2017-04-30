@@ -16,7 +16,7 @@ CFLAGS=-mthumb             \
        ${CPU}              \
        ${FPU}              \
        -mlittle-endian     \
-       -std=c++11          \
+       -std=c++98          \
        -fno-exceptions     \
        -Wall               \
        -pedantic           \

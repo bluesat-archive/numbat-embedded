@@ -1,23 +1,30 @@
 #include "boilerplate.h"
 
-void nmi() { for(;;); }
+extern "C" void nmi() { for(;;); }
 
-void hardfault() { for(;;); }
+extern "C" void hardfault() { for(;;); }
 
-void memmanage() { for(;;); }
+extern "C" void memmanage() { for(;;); }
 
-void busfault() { for(;;); }
+extern "C" void busfault() { for(;;); }
 
-void usagefault() { for(;;); }
+extern "C" void usagefault() { for(;;); }
 
-void __error__( char *pcFilename, uint32_t ui32Line ) {
+extern "C" void __error__( char *pcFilename, uint32_t ui32Line ) {
     for(;;);
 }
 
-void fatal(const uint8_t error_id) {
+extern "C" void fatal(const uint8_t error_id) {
     UARTprintf("FATAL ERROR: 0x%x\n", error_id);
     for (;;);
 }
+
+/*class Test_Class {
+    public:
+        Test_Class() {
+
+        }
+};*/
 
 void InitializeFPU(void) {
 
@@ -34,6 +41,7 @@ void InitializeFPU(void) {
 }
 
 void InitializeUARTStdio(void) {
+    //Test_Class();
     // Enable the GPIO Peripheral used by the UART.
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 

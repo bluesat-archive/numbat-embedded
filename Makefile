@@ -18,7 +18,7 @@ include .numbat_makedefs
 # BOILERPLATE CODE
 # ****************
 
-$(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
+$(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.cpp
 
 # *************
 # BLINKY MODULE
