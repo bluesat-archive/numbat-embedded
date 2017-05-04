@@ -369,7 +369,7 @@ include_directories(
         echronos/build/can_test-echronos
 )
 
-add_library(boilerplate modules/boilerplate/boilerplate.c)
+add_library(boilerplate modules/boilerplate/boilerplate.c libs/ros_echronos/Node_Handle.cpp libs/ros_echronos/include/Node_Handle.hpp)
 add_custom_target(can_test-echronos can_test/can_test.prx)
 add_executable(can_test.elf modules/can_test/can_test.c )
 target_link_libraries(can_test.elf ti_libs boilerplate echronos/build/can_test-echronos/*.o)
