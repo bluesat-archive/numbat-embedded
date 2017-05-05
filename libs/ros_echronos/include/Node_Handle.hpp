@@ -26,7 +26,7 @@ namespace ros_echronos {
             void init(char * node_name, char * ros_task);
 
     };
-};
+}
 
 
 #endif //NUMBAT_EMBEDDED_NODE_HANDLE_HPP

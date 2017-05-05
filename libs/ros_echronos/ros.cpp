@@ -8,22 +8,25 @@
  */
 
 #include "ros.hpp"
+#include "inc/hw_can.h"
+#include "driverlib/can.h"
+#include "utils/uartstdio.h"
 
-extern "C" ros_can_int_handler(void) {
+extern "C" void ros_can_int_handler(void) {
 
     uint32_t can_status = 0;
 
     // read the register
-    can_status = CANIntStatus(CAN0_BASE, CAN_INT_STS_CAUSE);
+    can_status = CANIntStatus(ros_echronos::can::can_base, CAN_INT_STS_CAUSE);
 
     // in this case we are reciving a status interupt
     if(can_status == CAN_INT_INTID_STATUS) {
         // read the error status and store it to be handled latter
-        ros_echronos::can::can_error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
+        ros_echronos::can::can_error_flag = CANStatusGet(ros_echronos::can::can_base, CAN_STS_CONTROL);
     } else {
         // we are reciving a message, TODO: handle this
         // for now we clear the interup so we can continue
-        CANIntClear(CAN0_BASE, 1);
+        CANIntClear(ros_echronos::can::can_base, 1);
 
         // clear the error flag (otherwise we will store recive or write statuses)
         ros_echronos::can::can_error_flag = 0;

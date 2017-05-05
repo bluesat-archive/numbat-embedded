@@ -28,6 +28,7 @@ $(BUILD_DIR)/%.elf:
 	$(BUILD_PRINT)
 	${LD} \
 		  ${^} 								    \
+		  $(ROS_BUILD_DIR)/*.opp \
 		  $(LIB_BUILD)/libusb.a                 \
 		  $(LIB_BUILD)/libutil.a                \
 		  $(LIB_BUILD)/libdriver.a				\
@@ -37,3 +38,4 @@ $(BUILD_DIR)/%.elf:
 		  -o ${@} \
           --print-memory-usage
 	$(MODULE_PRINT)
+

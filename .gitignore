@@ -11,3 +11,6 @@ out
 # clion ide files
 .idea
 cmake-build-debug
+
+# doxygen
+docs/doxygen

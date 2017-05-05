@@ -117,3 +117,18 @@ The following manuals are kept in this repository **in case of upstream changes*
 * **TI library user guide**: `docs/ti/*`. API documentation for the various TI libraries available to numbat modules.
 
 * Note: **TI example code**: This can be found on TI's website inside their software package (TivaWare for EK-TM4C123GXL). Useful for figuring out how to use some peripherals. It is not distributed here for copyright reasons but mostly because it is huge.
+
+
+## Doxygen
+
+The ros_echronos library shall be documented using doxygen.
+
+You can install doxygen on Ubuntu using the following command
+
+`sudo apt-get install doxygen`
+
+To generate the documentation run
+
+`make docs`
+
+

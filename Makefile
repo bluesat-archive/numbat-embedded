@@ -24,7 +24,6 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 # ****************
 # ROS LIB
 # ****************
-ros_echronos: $(LIB_DIR)/ros_echronos/ros.cpp
 
 # *************
 # BLINKY MODULE
@@ -105,3 +104,6 @@ modules_clean:
 clean: modules_clean echronos_lib_clean ti_libs_clean
 	$(CLEAN_PRINT)
 	rm -rf $(BUILD_DIR) $(LIB_BUILD)
+
+docs: all
+	doxygen doxygen.conf
