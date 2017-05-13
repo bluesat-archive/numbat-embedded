@@ -1,9 +1,9 @@
 /**
  * @date: 04/05/17
  * @author: (original author) Harry J.E Day <harry@dayfamilyweb.com>
- * Editors:
- * Purpose: Implements a class for managing publishing ros messages
- * This code is released under the AGPLv3 License.
+ * @authors: (Editors)
+ * @details: Implements a class for managing publishing ros messages
+ * @copydetails: This code is released under the AGPLv3 License.
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
@@ -12,6 +12,9 @@
 
 #include "ros.hpp"
 
+/*
+ * ROS Echronos Name space
+ */
 namespace ros_echronos {
     /**
      * Mirrors ros::Publisher
@@ -44,7 +47,7 @@ namespace ros_echronos {
              * @param node_handle the node handle to use
              * @precondition the Node Handle has been initalised and is in communication with the controller
              */
-            void init(ros_echronos::Node_Handle node_handle);
+            void init(ros_echronos::NodeHandle & node_handle);
 
             /**
              * Publish a message on the topic provided
@@ -54,7 +57,7 @@ namespace ros_echronos {
             void publish(T message, uint8_t priority = 0);
 
     };
-};
+}
 
 
 #endif //NUMBAT_EMBEDDED_PUBLISHER_HPP

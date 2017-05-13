@@ -19,6 +19,8 @@ $(ROS_BUILD_DIR)/%.opp: $(ROS_ECHRONOS_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHR
 
 
 $(ROS_BUILD_DIR)/ros.opp: $(ROS_ECHRONOS_DIR)/ros.cpp
-$(ROS_BUILD_DIR)/ros.opp: $(ROS_ECHRONOS_DIR)/ros.cpp
+$(ROS_BUILD_DIR)/NodeHandle.opp: $(ROS_ECHRONOS_DIR)/NodeHandle.cpp
+$(ROS_BUILD_DIR)/Subscriber.opp: $(ROS_ECHRONOS_DIR)/Subscriber.cpp
+$(ROS_BUILD_DIR)/Publisher.opp: $(ROS_ECHRONOS_DIR)/Publisher.cpp
 
-ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/Node_Handle.opp
+ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp

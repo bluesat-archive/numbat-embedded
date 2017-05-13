@@ -1,9 +1,9 @@
 /**
  * @date: 04/05/17
  * @author: (original author) Harry J.E Day <harry@dayfamilyweb.com>
- * Editors:
- * Purpose: Implements a class for managing subscribing to ros messages
- * This code is released under the AGPLv3 License.
+ * @authors: (Editors)
+ * @details: Implements a class for managing subscribing to ros messages
+ * @copydetails: This code is released under the AGPLv3 License.
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
@@ -44,7 +44,7 @@ namespace ros_echronos {
              * @param node_handle the node handle to use
              * @precondition the Node Handle has been initalised and is in communication with the controller
              */
-            void init(ros_echronos::Node_Handle node_handle);
+            void init(ros_echronos::NodeHandle & node_handle);
 
             /**
              * unsubscribes the subscriber

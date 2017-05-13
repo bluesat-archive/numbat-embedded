@@ -23,7 +23,7 @@ namespace ros_echronos {
     }
     template <class T> class Publisher;
     template <class T> class Subscriber;
-    class Node_Handle;
+    class NodeHandle;
 }
 
 extern "C" void ros_can_int_handler(void);

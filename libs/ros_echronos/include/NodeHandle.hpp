@@ -1,10 +1,10 @@
 /**
- * @date: 04/05/17
- * @author: (original author) Harry J.E Day <harry@dayfamilyweb.com>
- * Editors:
- * Purpose: This provides the implementation of the Node Handle class
- * This code is released under the AGPLv3 License.
- * @copyright: Copyright BLUEsat UNSW, 2017
+ * @date 04/05/17
+ * @author (original author) Harry J.E Day <harry@dayfamilyweb.com>
+ * @authors Editors
+ * @details Purpose This provides the implementation of the Node Handle class
+ * @copydetails This code is released under the AGPLv3 License.
+ * @copyright Copyright BLUEsat UNSW, 2017
  */
 
 #ifndef NUMBAT_EMBEDDED_NODE_HANDLE_HPP
@@ -15,7 +15,7 @@ namespace ros_echronos {
      * Manages the state of the ros system on this node
      * Only one instance should be created per protocol channel
      */
-    class Node_Handle {
+    class NodeHandle {
 
         public:
             /**
