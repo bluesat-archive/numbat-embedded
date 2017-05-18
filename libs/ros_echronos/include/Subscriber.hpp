@@ -52,7 +52,7 @@ namespace ros_echronos {
             void unsubscribe();
 
     };
-};
+}
 
 
 #endif //NUMBAT_EMBEDDED_PUBLISHER_HPP

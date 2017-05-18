@@ -14,16 +14,28 @@
 
 namespace ros_echronos {
     namespace can {
-        int can_error_flag;
+        extern int can_error_flag;
 
         /**
          * Used to store the base register of the can bus (CAN0)
          */
-        uint32_t can_base;
+        extern uint32_t can_base;
     }
     template <class T> class Publisher;
     template <class T> class Subscriber;
     class NodeHandle;
+
+    template <typename T> struct _Array {
+        T * values;
+        size_t size;
+        T operator[] (int index) {
+            return values[index];
+        }
+    };
+
+    template <typename T> using Array = struct _Array<T>;
+
+
 }
 
 extern "C" void ros_can_int_handler(void);

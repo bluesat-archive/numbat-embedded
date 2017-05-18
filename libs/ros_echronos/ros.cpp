@@ -42,3 +42,7 @@ extern "C" void ros_can_int_handler(void) {
     UARTprintf("A Error Code %x\n", can_status);
 }
 
+
+int ros_echronos::can::can_error_flag;
+
+uint32_t  ros_echronos::can::can_base;

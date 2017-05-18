@@ -10,3 +10,21 @@
 
 #include "include/Subscriber.hpp"
 
+using namespace ros_echronos;
+
+
+template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))  {
+
+}
+
+template <class T> Subscriber<T>::~Subscriber() {
+
+}
+
+template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
+
+}
+
+template <class T> void Subscriber<T>::unsubscribe() {
+
+}
