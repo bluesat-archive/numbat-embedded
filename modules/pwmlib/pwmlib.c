@@ -15,6 +15,7 @@
 
 /* TODO:
  *  - Check SysCtlPWMClockSet vs PWMClockSet
+ *  - Figure out how to calculate f_cpu
  */
 
 
@@ -30,7 +31,7 @@ static const uint32_t
     pwm_generator_pair_lut[PC/2] = {PWM_GEN_0, PWM_GEN_1, PWM_GEN_2,
                                     PWM_GEN_3};
 static const uint32_t 
-    pwm_config = PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC 
+    pwm_config = PWM_GEN_MODE_UP_DOWN | PWM_GEN_MODE_NO_SYNC 
                | PWM_GEN_MODE_DBG_RUN | PWM_GEN_MODE_GEN_NO_SYNC;
 static const uint32_t
     pwm_out_lut[PC] = {PWM_OUT_0, PWM_OUT_1, PWM_OUT_2, PWM_OUT_3,
@@ -187,10 +188,10 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
 
     uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0);
 
-    if (duty_period > period_counts)
-        duty_period = period_counts - 1;
-
     uint32_t pwm_out = pwm_out_lut[pwm];
+
+    if (duty_period > period_counts)
+        duty_period = period_counts;
 
     PWMPulseWidthSet(pwm_module, pwm_out, duty_period);
 

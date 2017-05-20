@@ -27,7 +27,7 @@ void task_pwm_test_fn(void) {
     pwm_set_duty(PWM_4, 100.0 / 7.0 * 4.0);
     pwm_set_duty(PWM_5, 100.0 / 7.0 * 5.0);
     pwm_set_duty(PWM_6, 100.0 / 7.0 * 6.0);
-    //pwm_set_duty(PWM_7, 100.0);
+    pwm_set_duty(PWM_7, 100.0);
 
     pwm_enable(PWM_0);
     pwm_enable(PWM_1);
