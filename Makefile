@@ -20,6 +20,11 @@ include .numbat_makedefs
 
 $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 
+# ***********
+# PWM LIBRARY
+# ***********
+$(BUILD_DIR)/pwmlib.o: $(MODULES_DIR)/pwmlib/pwmlib.c
+
 # *************
 # BLINKY MODULE
 # *************
@@ -72,9 +77,9 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
-# *************
+# ***************
 # PWM TEST MODULE
-# *************
+# ***************
 
 MODULE_NAME=pwm_test
 include .construct_numbat_module
@@ -83,7 +88,9 @@ $(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/pwm_test.o \
 	$(BUILD_DIR)/boilerplate.o \
+        $(BUILD_DIR)/pwmlib.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
 
 # **********************
 # WHAT TO ACTUALLY BUILD

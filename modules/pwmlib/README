@@ -1,32 +1,20 @@
-PWM module initialisation
-    enable GPIO module that pwm module uses
-    configure GPIO pin for PWM
-    enable PWM module
+PWM module:
+    Independent PWM peripheral running off a division of the system clock. Each module has 4 generators with 2 outputs each.
 
-PWM generator initialisation
-    configure module clock source
-    configure pwm generator
-        period
-        duty
-        left/right/centre aligned
-    enable pwm generator
+PWM generator:
+    Takes PWM clock and generates a DOWN or UP_DOWN signal that is used by its comparitors to generate a PWM signal. 
 
-PWM generator modification
+PWM module initialisation:
+    1. Enable PWM module
+    2. Enable GPIO port used by PWM module
+    3. Set GPIO pin type for pins used by PWM module
+    4. Configure GPIO pins for specific PWM output
+    5. Set PWM clock divisor
 
-questions for seb:
-    are the pwm pins dedicated?
-        if so should the gpio setup be done in boilerplate?
-        if not is there going to be a some system for locking pins for use?
-    are we using both pwm modules?
-    do we have a naming scheme for the pwm pins?
-    latest generic pcb diagrams?
-    what sort of config inputs would be preferable?
-        seconds/hertz vs clock cycles
-        duty as counts or percent/unit interval
-    are all boards going to be working at the same clock speed?
-    what range of pwm frequencies are we going to be working at?
-        will we need to use different pwm clock divisors?
-    are we using pin asserted fault conditions?
-    does the pwm alignment matter for anything we're doing?
-    are we ever going to need deadbanding?
-    
+PWM generator initialisation:
+    1. Configure PWM generator
+    2. Set generator period
+    3. Set output pulse widths
+    4. Enable generator
+    5. Enable outputs
+

@@ -12,12 +12,6 @@
             <usagefault>usagefault</usagefault>
             <busfault>busfault</busfault>
             <preemption>true</preemption>
-            <external_irqs>
-                <external_irq>
-                    <number>10</number>
-                    <handler>pwm0_0_isr</handler>
-                </external_irq>
-            </external_irqs>
         </module>
         <module name="armv7m.semihost-debug" />
         <module name="generic.debug" />
