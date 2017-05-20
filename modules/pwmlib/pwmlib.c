@@ -160,8 +160,8 @@ enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair,
                                period_ms period) {
     uint32_t pwm_generator = pwm_generator_pair_lut[pwm_pair];
 
-    uint32_t f_pwm_mhz = SysCtlClockGet() / pwm_prescale_value / 1000.0;
-    uint32_t period_counts = (uint32_t)(period * f_pwm_mhz);
+    uint32_t f_pwm = 50000000;
+    uint32_t period_counts = (uint32_t)(period / 1000.0 * f_pwm);
     
     PWMGenPeriodSet(pwm_module, pwm_generator, period_counts);
 
@@ -186,6 +186,9 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_generator);
 
     uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0);
+
+    if (duty_period > period_counts)
+        duty_period = period_counts - 1;
 
     uint32_t pwm_out = pwm_out_lut[pwm];
 
