@@ -18,12 +18,28 @@
  * ROS Echronos Name space
  */
 namespace ros_echronos {
+
+    class _Publisher : public ListNode {
+        public:
+            /**
+             * Retrieves the next can message from the publisher
+             *
+             * IMPORTANT: An individual ROS Message can contain many can messages
+             *
+             * @param has_next if there are more messages in the buffer
+             * @param empty if the returned message is empty
+             *
+             * @return the next can message
+             */
+            virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool & has_next, bool &empty) = 0;
+    };
+
     /**
      * Mirrors ros::Publisher
      * Responsible for handeling the publishing of messages
      * @tparam T the message type to publish
      */
-    template <class T> class Publisher : public ListNode {
+    template <class T> class Publisher : public _Publisher {
 
         public:
             /**
@@ -58,6 +74,8 @@ namespace ros_echronos {
              */
             void publish(T message, uint8_t priority = 0);
 
+            virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool &has_next, bool &empty);
+
 
 
         private:
@@ -70,9 +88,23 @@ namespace ros_echronos {
              */
             Message_Buffer<T> buffer;
             /**
-             *
+             * The node handle this publisher is attached to
              */
             NodeHandle * nh;
+            /**
+             * Stores the header for this topic
+             */
+             can::CAN_Header header;
+
+            /**
+             * the message currently being published
+             */
+            T current_message;
+
+            /**
+             * If there is a message in the process of being serialised
+             */
+            bool message_in_progress = false;
 
     };
 }

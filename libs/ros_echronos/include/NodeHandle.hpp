@@ -10,6 +10,7 @@
 #ifndef NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 #define NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 
+#include <cstdint>
 #include "ListNode.hpp"
 
 namespace ros_echronos {
@@ -30,7 +31,17 @@ namespace ros_echronos {
             /**
              * The first publisher in the publisher list
              */
-             ListNode * publishers;
+            ListNode * publishers;
+
+            /**
+             * Causes all messages to be published
+             */
+            void spin();
+
+            /**
+             * Returns the Node ID
+             */
+             uint8_t get_node_id();
 
     };
 }

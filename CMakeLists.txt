@@ -369,7 +369,7 @@ include_directories(
         echronos/build/can_test-echronos
 )
 
-add_library(boilerplate modules/boilerplate/boilerplate.c libs/ros_echronos/NodeHandle.cpp libs/ros_echronos/include/NodeHandle.hpp libs/ros_echronos/Publisher.cpp libs/ros_echronos/Subscriber.cpp libs/ros_echronos/Message_Buffer.cpp libs/ros_echronos/ListNode.cpp libs/ros_echronos/include/ListNode.hpp)
+add_library(boilerplate modules/boilerplate/boilerplate.c libs/ros_echronos/NodeHandle.cpp libs/ros_echronos/include/NodeHandle.hpp libs/ros_echronos/Publisher.cpp libs/ros_echronos/Subscriber.cpp libs/ros_echronos/Message_Buffer.cpp libs/ros_echronos/ListNode.cpp libs/ros_echronos/include/ListNode.hpp libs/ros_echronos/Message.cpp libs/ros_echronos/include/Message.hpp)
 add_custom_target(can_test-echronos can_test/can_test.prx)
 add_executable(can_test.elf modules/can_test/can_test.c )
 target_link_libraries(can_test.elf ti_libs boilerplate echronos/build/can_test-echronos/*.o)

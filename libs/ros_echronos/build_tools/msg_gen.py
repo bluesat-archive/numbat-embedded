@@ -157,7 +157,8 @@ def write_generic_includes(s):
     @param s: The stream to write to
     @type s: stream
     """
-    s.write('#include "ros_echronos/ros.hpp"\n')
+    s.write('#include "ros_echronos/include/ros.hpp"\n')
+    s.write('#include "ros_echronos/include/Message.hpp"\n')
     s.write('#include "ros/serialization.h"\n')
     s.write('#include "ros/builtin_message_traits.h"\n')
     s.write('#include "ros/message_operations.h"\n')
@@ -184,8 +185,7 @@ def write_includes(s, spec):
                 s.write('#include "%s/%s.h"\n'%(pkg, name))
                 
     s.write('\n') 
-    
-    
+
 def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     """
     Writes the entire message struct: declaration, constructors, members, constants and (deprecated) member functions
@@ -198,13 +198,13 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     """
     
     msg = spec.short_name
-    s.write('template <class ContainerAllocator>\n')
-    s.write('struct %s_ {\n'%(msg))
-    s.write('  typedef %s_<ContainerAllocator> Type;\n\n'%(msg))
+    s.write('class %s_ : Message {\n'%(msg))
+    s.write('  typedef %s_ Type;\n\n'%(msg))
     
     write_constructors(s, spec, cpp_name_prefix)
     write_members(s, spec)
     write_constant_declarations(s, spec)
+    write_virtual_functions(s, spec)
     
     #rospack = RosPack()
     #gendeps_dict = roslib.gentools.get_dependencies(spec, spec.package, compute_files=False, rospack=rospack)
@@ -217,7 +217,7 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     s.write('  typedef %s * Ptr;\n'%(cpp_msg_with_alloc))
     s.write('  typedef %s * const ConstPtr;\n'%(cpp_msg_with_alloc))
 
-    s.write('}; // struct %s\n'%(msg))
+    s.write('}; // class %s\n'%(msg))
     
     s.write('typedef %s_ %s;\n\n'%(cpp_msg_base, msg))
     s.write('typedef %s %sPtr;\n'%(cpp_msg_base, msg))
@@ -371,7 +371,37 @@ def write_members(s, spec):
     @type spec: roslib.msgs.MsgSpec
     """
     [write_member(s, field) for field in spec.parsed_fields()]
-        
+
+def write_size_code(s, spec):
+    """
+    Code to deal with the size of the message
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    """
+
+
+
+def write_virtual_functions(s, spec):
+    """
+    Writes the virtual functions of the message class
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    """
+
+    s.write('  uint8_t buffer[];\n')
+    s.write('  virtual inline void generate_block() {\n')
+    s.write('      size_t offset = 0;\n')
+    for field in spec.parsed_fields():
+        s.write('      memcpy(buffer+offset, &%s, sizeof(%s));\n' % (field.name, field.name))
+        s.write('      offset+=sizeof(%s);\n' % (field.name))
+    s.write('  } // generate_block\n')
+
+
 def escape_string(str):
     str = str.replace('\\', '\\\\')
     str = str.replace('"', '\\"')
@@ -392,7 +422,7 @@ def write_constant_declaration(s, constant):
         s.write('  enum { %s = %s };\n'%(constant.name, constant.val))
     else:
         s.write('  static const %s %s;\n'%(msg_type_to_cpp(constant.type), constant.name))
-        
+
 def write_constant_declarations(s, spec):
     """
     Write all the constants from a spec as static members

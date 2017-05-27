@@ -24,6 +24,7 @@ template <class T> void Message_Buffer<T>::put(T msg) {
     if(buffer_tail < buffer_start) {
         buffer_tail = buffer_end-1;
     }
+    //TODO: override first item if full
 }
 
 template <class T> bool Message_Buffer<T>::is_empty() {
