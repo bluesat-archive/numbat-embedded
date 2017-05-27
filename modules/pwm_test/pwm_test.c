@@ -20,14 +20,23 @@ void task_pwm_test_fn(void) {
     pwm_set_period(PWM_PAIR_2, 1.0);
     pwm_set_period(PWM_PAIR_3, 1.0);
 
-    pwm_set_duty(PWM_0, 0.0);
-    pwm_set_duty(PWM_1, 100.0 / 7.0);
-    pwm_set_duty(PWM_2, 100.0 / 7.0 * 2.0);
-    pwm_set_duty(PWM_3, 100.0 / 7.0 * 3.0);
-    pwm_set_duty(PWM_4, 100.0 / 7.0 * 4.0);
-    pwm_set_duty(PWM_5, 100.0 / 7.0 * 5.0);
-    pwm_set_duty(PWM_6, 100.0 / 7.0 * 6.0);
-    pwm_set_duty(PWM_7, 100.0);
+    pwm_set_duty(PWM_0, 33.3);
+    pwm_set_duty(PWM_1, 66.6);
+
+    pwm_set_duty(PWM_2, 100.0);
+    pwm_set_duty(PWM_2, 0.0);
+
+    pwm_set_duty(PWM_3, 0.0);
+    pwm_set_duty(PWM_3, 100.0);
+
+    pwm_set_duty(PWM_4, 25.0);
+    pwm_set_duty(PWM_4, 75.0);
+
+    pwm_set_duty(PWM_5, 75.0);
+    pwm_set_duty(PWM_5, 25.0);
+
+    pwm_set_duty(PWM_6, 99.9);
+    pwm_set_duty(PWM_7, 0.1);
 
     pwm_enable(PWM_0);
     pwm_enable(PWM_1);

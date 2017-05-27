@@ -85,8 +85,6 @@ static const uint32_t
                            GPIO_PH6_M0PWM6, GPIO_PH7_M0PWM7};
 #endif
     
-                                
-
 
 /* Input: abstract PWM pin
  * Output: status code
@@ -189,11 +187,15 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
     uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0);
 
     uint32_t pwm_out = pwm_out_lut[pwm];
+    uint32_t pwm_out_bit = pwm_out_bit_lut[pwm];
 
-    if (duty_period > period_counts)
-        duty_period = period_counts;
-
-    PWMPulseWidthSet(pwm_module, pwm_out, duty_period);
+    if (duty_period >= period_counts) {
+        PWMPulseWidthSet(pwm_module, pwm_out, 0);
+        PWMOutputInvert(pwm_module, pwm_out_bit, true);
+    } else {
+        PWMOutputInvert(pwm_module, pwm_out_bit, false);
+        PWMPulseWidthSet(pwm_module, pwm_out, duty_period);
+    }
 
     return PWM_SUCCESS;
 }
