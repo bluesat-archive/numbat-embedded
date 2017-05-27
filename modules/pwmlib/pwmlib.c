@@ -8,22 +8,17 @@
 #include "driverlib/gpio.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/pin_map.h"
+#include "driverlib/debug.h"
 
 
 #define PC 8 // number of pwm pins
 
 
-/* TODO:
- *  - Check SysCtlPWMClockSet vs PWMClockSet
- *  - Figure out how to calculate f_cpu
- */
-
-
-// Shared constants
+// Shared constants, and constant lookup tables
 static const uint32_t sysctl_module = SYSCTL_PERIPH_PWM0;
 static const uint32_t pwm_module = PWM0_BASE;
-static const uint32_t pwm_prescale = PWM_SYSCLK_DIV_64;
-static const uint32_t pwm_prescale_value = 64;
+static const uint32_t pwm_prescale = SYSCTL_PWMDIV_1;
+static const uint32_t pwm_prescale_value = 1;
 static const uint32_t 
     pwm_generator_lut[PC] = {PWM_GEN_0, PWM_GEN_0, PWM_GEN_1, PWM_GEN_1,
                              PWM_GEN_2, PWM_GEN_2, PWM_GEN_3, PWM_GEN_3};
@@ -84,6 +79,15 @@ static const uint32_t
                            GPIO_PH4_M0PWM4, GPIO_PH5_M0PWM5,
                            GPIO_PH6_M0PWM6, GPIO_PH7_M0PWM7};
 #endif
+
+
+bool pwm_valid(enum pwm_pin pwm) {
+    return (pwm >= PWM_0 && pwm <= PWM_7);
+}
+
+bool pwm_pair_valid(enum pwm_pin_pair pwm_pair) {
+    return (pwm_pair >= PWM_PAIR_0 && pwm_pair <= PWM_PAIR_3);
+}
     
 
 /* Input: abstract PWM pin
@@ -96,6 +100,8 @@ static const uint32_t
  *     - Configures PWM generator
  *     - Disables PWM pin output */
 enum pwm_status pwm_init(enum pwm_pin pwm) {
+    ASSERT(pwm_valid(pwm));
+
     // if pwm module note enabled
     if (SysCtlPeripheralReady(sysctl_module) == false) {
         // enable PWM module
@@ -129,7 +135,7 @@ enum pwm_status pwm_init(enum pwm_pin pwm) {
     GPIOPinConfigure(gpio_config);
 
     // Set pwm sysclk prescaler to /64
-    PWMClockSet(pwm_module, pwm_prescale);
+    SysCtlPWMClockSet(pwm_prescale);
 
     uint32_t pwm_generator = pwm_generator_lut[pwm];
     // Configure PWM generator
@@ -141,25 +147,15 @@ enum pwm_status pwm_init(enum pwm_pin pwm) {
     return PWM_SUCCESS;
 }
 
-/* Input: abstract PWM pin
- * Output: status code
- * Checks:
- *     - PWM module clock
- *     - PWM module state
- *     - GPIO port state
- *     - GPIO pin configuration
- *     - PWM generator configuration */
-enum pwm_status pwm_init_status(enum pwm_pin pwm) {
-    return PWM_SUCCESS;
-}
-
 /* Input: abstract PWM pin pair, PWM carrier period in milliseconds
  * Output: status code */
 enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, 
                                period_ms period) {
+    ASSERT(pwm_pair_valid(pwm_pair));
+
     uint32_t pwm_generator = pwm_generator_pair_lut[pwm_pair];
 
-    uint32_t f_pwm = 50000000;
+    uint32_t f_pwm = SysCtlClockGet() / pwm_prescale_value;
     uint32_t period_counts = (uint32_t)(period / 1000.0 * f_pwm);
     
     PWMGenPeriodSet(pwm_module, pwm_generator, period_counts);
@@ -170,10 +166,12 @@ enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair,
 /* Input: abstract PWM pin pair
  * Output: PWM carrier period in milliseconds */
 period_ms pwm_get_period(enum pwm_pin_pair pwm_pair) {
+    ASSERT(pwm_pair_valid(pwm_pair));
+
     uint32_t pwm_generator = pwm_generator_pair_lut[pwm_pair];
 
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_generator);
-    uint32_t f_pwm_mhz = SysCtlClockGet() / pwm_prescale_value / 1000.0;
+    uint32_t f_pwm_mhz = SysCtlClockGet() / 1000.0 / pwm_prescale_value;
 
     return (period_ms)(period_counts / f_pwm_mhz);
 }
@@ -181,6 +179,9 @@ period_ms pwm_get_period(enum pwm_pin_pair pwm_pair) {
 /* Input: abstract PWM pin, PWM duty in percent
  * Output: status code */
 enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
+    ASSERT(pwm_valid(pwm));
+    ASSERT(duty >= 0.0 && duty <= 100.0);
+
     uint32_t pwm_generator = pwm_generator_lut[pwm];
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_generator);
 
@@ -189,6 +190,7 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
     uint32_t pwm_out = pwm_out_lut[pwm];
     uint32_t pwm_out_bit = pwm_out_bit_lut[pwm];
 
+    // 100% duty requires that the output be set to to 0% and inverted
     if (duty_period >= period_counts) {
         PWMPulseWidthSet(pwm_module, pwm_out, 0);
         PWMOutputInvert(pwm_module, pwm_out_bit, true);
@@ -203,6 +205,8 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
 /* Input: abstract PWM pin
  * Output: PWM duty in percent */
 duty_pct pwm_get_duty(enum pwm_pin pwm) {
+    ASSERT(pwm_valid(pwm));
+
     uint32_t pwm_generator = pwm_generator_lut[pwm];
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_generator);
 
@@ -210,13 +214,15 @@ duty_pct pwm_get_duty(enum pwm_pin pwm) {
 
     uint32_t duty_period = PWMPulseWidthGet(pwm_module, pwm_out);
 
-    return ((duty_pct)duty_period) / ((duty_pct)period_counts);
+    return ((duty_pct)duty_period) / ((duty_pct)period_counts) * 100.0;
 }
 
 /* Input: abstract PWM pin
  * Output: status code
  * Side Effect: enables PWM pin */
 enum pwm_status pwm_enable(enum pwm_pin pwm) {
+    ASSERT(pwm_valid(pwm));
+
     uint32_t pwm_out_bit = pwm_out_bit_lut[pwm];
     PWMOutputState(pwm_module, pwm_out_bit, true);
 
@@ -227,6 +233,8 @@ enum pwm_status pwm_enable(enum pwm_pin pwm) {
  * Output: status code
  * Side Effect: disables PWM pin */
 enum pwm_status pwm_disable(enum pwm_pin pwm) {
+    ASSERT(pwm_valid(pwm));
+
     uint32_t pwm_out_bit = pwm_out_bit_lut[pwm];
     PWMOutputState(pwm_module, pwm_out_bit, false);
 

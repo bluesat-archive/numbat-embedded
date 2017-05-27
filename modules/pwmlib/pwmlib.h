@@ -42,10 +42,6 @@ enum pwm_status {
  * PWM_SUCCESS if status pending. */
 extern enum pwm_status pwm_init(enum pwm_pin pwm);
 
-/* Returns PWM_SUCCESS if the given pwm port is initialised, else 
- * PWM_FAILURE. */
-extern enum pwm_status pwm_init_status(enum pwm_pin pwm);
-
 /* Sets the base period for pwm pin pair in milliseconds. Returns 
  * status PWM_SUCCESS, or PWM_FAILURE. */
 extern enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, 
