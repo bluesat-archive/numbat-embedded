@@ -11,6 +11,8 @@
 #define NUMBAT_EMBEDDED_PUBLISHER_HPP
 
 #include "ros.hpp"
+#include "Message_Buffer.hpp"
+#include "ListNode.hpp"
 
 /*
  * ROS Echronos Name space
@@ -21,7 +23,7 @@ namespace ros_echronos {
      * Responsible for handeling the publishing of messages
      * @tparam T the message type to publish
      */
-    template <class T> class Publisher {
+    template <class T> class Publisher : public ListNode {
 
         public:
             /**
@@ -34,7 +36,7 @@ namespace ros_echronos {
              * @param buffer_size the size of write_buffer
              * @param latch if messages should be resent by the controller when knew nodes connect
              */
-            Publisher(char * topic_name, T * const write_buffer, int buffer_size, bool latch);
+            Publisher(char * topic_name, T * const write_buffer, uint8_t buffer_size, bool latch);
 
             /**
              * Destroys the publisher, disconnects from the controller if it has been connected
@@ -55,6 +57,22 @@ namespace ros_echronos {
              * @param priority the priority of the message
              */
             void publish(T message, uint8_t priority = 0);
+
+
+
+        private:
+            /**
+             * Null terminated topic name
+             */
+            char * topic_name;
+            /**
+             * Buffer of messages
+             */
+            Message_Buffer<T> buffer;
+            /**
+             *
+             */
+            NodeHandle * nh;
 
     };
 }

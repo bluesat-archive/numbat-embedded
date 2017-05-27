@@ -11,6 +11,7 @@
 #define NUMBAT_EMBEDDED_ROS_HPP
 
 #include "rtos-kochab.h"
+#define ROS_STR_LEN 15
 
 namespace ros_echronos {
     namespace can {
@@ -35,6 +36,7 @@ namespace ros_echronos {
 
     template <typename T> using Array = struct _Array<T>;
 
+    typedef char String[ROS_STR_LEN];
 
 }
 

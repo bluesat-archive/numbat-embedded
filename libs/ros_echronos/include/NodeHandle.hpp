@@ -10,6 +10,8 @@
 #ifndef NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 #define NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 
+#include "ListNode.hpp"
+
 namespace ros_echronos {
     /**
      * Manages the state of the ros system on this node
@@ -24,6 +26,11 @@ namespace ros_echronos {
              * @param ros_task
              */
             void init(char * node_name, char * ros_task);
+
+            /**
+             * The first publisher in the publisher list
+             */
+             ListNode * publishers;
 
     };
 }

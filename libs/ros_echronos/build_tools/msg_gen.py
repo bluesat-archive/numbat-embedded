@@ -70,7 +70,7 @@ MSG_TYPE_TO_CPP = {'byte': 'int8_t', 'char': 'uint8_t',
                    'uint64': 'uint64_t', 'int64': 'int64_t',
                    'float32': 'float',
                    'float64': 'double',
-                   'string': 'char[ROS_STR_LENGTH]',
+                   'string': 'ros_echronos::String',
                    'time': 'ros::Time',
                    'duration': 'ros::Duration'}
 
@@ -90,13 +90,13 @@ def msg_type_to_cpp(type):
         cpp_type = MSG_TYPE_TO_CPP[base_type]
     elif (len(base_type.split('/')) == 1):
         if (roslib.msgs.is_header_type(base_type)):
-            cpp_type = ' ::std_msgs::Header_<ContainerAllocator> '
+            cpp_type = ' ::std_msgs::Header_'
         else:
-            cpp_type = '%s_<ContainerAllocator> '%(base_type)
+            cpp_type = '%s_'%(base_type)
     else:
         pkg = base_type.split('/')[0]
         msg = base_type.split('/')[1]
-        cpp_type = ' ::%s::%s_<ContainerAllocator> '%(pkg, msg)
+        cpp_type = ' ::%s::%s_'%(pkg, msg)
         
     if (is_array):
         if (array_len is None):
@@ -122,7 +122,7 @@ def cpp_message_declarations(name_prefix, msg):
     cpp_name = ' ::%s%s'%(name_prefix, msg)
     if (pkg):
         cpp_name = ' ::%s::%s'%(pkg, basetype)
-    return ('%s_'%(cpp_name), '%s_<ContainerAllocator> '%(cpp_name), '%s'%(cpp_name))
+    return ('%s_'%(cpp_name), '%s_ '%(cpp_name), '%s'%(cpp_name))
 
 def write_begin(s, spec, file):
     """
@@ -214,14 +214,14 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     # write_deprecated_member_functions(s, spec, dict(list({'MD5Sum': md5sum, 'DataType': '%s/%s'%(spec.package, spec.short_name), 'MessageDefinition': full_text}.items()) + list(extra_deprecated_traits.items())))
     
     (cpp_msg_unqualified, cpp_msg_with_alloc, cpp_msg_base) = cpp_message_declarations(cpp_name_prefix, msg)
-    s.write('  typedef boost::shared_ptr<%s> Ptr;\n'%(cpp_msg_with_alloc))
-    s.write('  typedef boost::shared_ptr<%s const> ConstPtr;\n'%(cpp_msg_with_alloc))
+    s.write('  typedef %s * Ptr;\n'%(cpp_msg_with_alloc))
+    s.write('  typedef %s * const ConstPtr;\n'%(cpp_msg_with_alloc))
 
     s.write('}; // struct %s\n'%(msg))
     
-    s.write('typedef %s_<std::allocator<void> > %s;\n\n'%(cpp_msg_base, msg))
-    s.write('typedef boost::shared_ptr<%s> %sPtr;\n'%(cpp_msg_base, msg))
-    s.write('typedef boost::shared_ptr<%s const> %sConstPtr;\n\n'%(cpp_msg_base, msg))
+    s.write('typedef %s_ %s;\n\n'%(cpp_msg_base, msg))
+    s.write('typedef %s %sPtr;\n'%(cpp_msg_base, msg))
+    s.write('typedef %s const %sConstPtr;\n\n'%(cpp_msg_base, msg))
 
 def default_value(type):
     """
@@ -685,11 +685,6 @@ def write_serialization(s, spec, cpp_name_prefix):
         
     s.write('} // namespace serialization\n')
     s.write('} // namespace ros\n\n')
-    
-def write_ostream_operator(s, spec, cpp_name_prefix):
-    (cpp_msg_unqualified, cpp_msg_with_alloc, _) = cpp_message_declarations(cpp_name_prefix, spec.short_name)
-    s.write('template<typename ContainerAllocator>\nstd::ostream& operator<<(std::ostream& s, const %s& v)\n{\n'%(cpp_msg_with_alloc))
-    s.write('  ros::message_operations::Printer<%s>::stream(s, "", v);\n  return s;}\n\n'%(cpp_msg_with_alloc))
 
 def generate(msg_path):
     """
@@ -714,7 +709,6 @@ def generate(msg_path):
     s.write('namespace %s\n{\n'%(package))
     write_struct(s, spec, cpp_prefix)
     write_constant_definitions(s, spec)
-    write_ostream_operator(s, spec, cpp_prefix)
     s.write('} // namespace %s\n\n'%(package))
     
     rospack = RosPack()
