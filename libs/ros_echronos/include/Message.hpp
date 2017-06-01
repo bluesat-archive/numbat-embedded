@@ -28,7 +28,7 @@ namespace ros_echronos {
              * Get the number of can messages this message is made up of
              * @return the size of the message
              */
-            virtual inline uint16_t message_size() = 0;
+            inline uint16_t message_size();
 
             /**
              * Have all the parts of this message been transmitted
@@ -53,7 +53,11 @@ namespace ros_echronos {
             /**
              * All of the data blocks
              */
-            Array<uint8_t> block;
+            uint8_t * block;
+            /**
+             * The size of the block
+             */
+            uint8_t size = 0;
             /**
              * If we are done
              */

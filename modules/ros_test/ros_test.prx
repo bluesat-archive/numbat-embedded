@@ -20,6 +20,12 @@
             <busfault>busfault</busfault>
             <preemption>true</preemption>
             <systick>exception_preempt_trampoline_systick</systick>
+            <external_irqs>
+                <external_irq>
+                    <number>39</number>
+                    <handler>can0_int_handler</handler>
+                </external_irq>
+            </external_irqs>
         </module>
         <module name="armv7m.semihost-debug" />
         <module name="generic.debug" />
@@ -35,8 +41,8 @@
             <pendsv_priority>224</pendsv_priority>
             <tasks>
                 <task>
-                    <name>task_blink</name>
-                    <function>task_blink_fn</function>
+                    <name>task_ros_test</name>
+                    <function>task_ros_test_fn</function>
                     <priority>30</priority>
                     <stack_size>512</stack_size>
                 </task>
@@ -44,17 +50,17 @@
 
             <signal_labels>
                 <signal_label>
-                    <name>blink_delay</name>
+                    <name>can_delay</name>
                 </signal_label>
             </signal_labels>
 
             <timers>
                 <timer>
-                    <name>blink_delay_timer</name>
+                    <name>can_delay_timer</name>
                     <enabled>true</enabled>
-                    <reload>10</reload>
-                    <task>task_blink</task>
-                    <sig_set>blink_delay</sig_set>
+                    <reload>100</reload>
+                    <task>task_ros_test</task>
+                    <sig_set>can_delay</sig_set>
                 </timer>
             </timers>
             <mutexes>
@@ -62,6 +68,7 @@
                     <name>alloc</name>
                 </mutex>
             </mutexes>
+
             <mutex>
                 <stats>false</stats>
             </mutex>

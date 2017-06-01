@@ -15,6 +15,11 @@
 
 #include "rtos-kochab.h"
 
+#define ALLOC_MUTEX RTOS_MUTEX_ID_ALLOC
+
+void *memcpy(void *dest, const void *src, size_t n);
+
+
 namespace alloc {
 
     /**

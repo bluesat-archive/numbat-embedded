@@ -157,14 +157,14 @@ def write_generic_includes(s):
     @param s: The stream to write to
     @type s: stream
     """
-    s.write('#include "ros_echronos/include/ros.hpp"\n')
-    s.write('#include "ros_echronos/include/Message.hpp"\n')
-    s.write('#include "ros/serialization.h"\n')
-    s.write('#include "ros/builtin_message_traits.h"\n')
-    s.write('#include "ros/message_operations.h"\n')
-    s.write('#include "ros/time.h"\n\n')
-    s.write('#include "ros/macros.h"\n\n')
-    s.write('#include "ros/assert.h"\n\n')
+    s.write('#include "ros.hpp"\n')
+    s.write('#include "Message.hpp"\n')
+    #s.write('#include "ros/serialization.h"\n')
+    #s.write('#include "ros/builtin_message_traits.h"\n')
+    #s.write('#include "ros/message_operations.h"\n')
+    #s.write('#include "ros/time.h"\n\n')
+    #s.write('#include "ros/macros.h"\n\n')
+    #s.write('#include "ros/assert.h"\n\n')
     
 def write_includes(s, spec):
     """
@@ -198,10 +198,12 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     """
     
     msg = spec.short_name
-    s.write('class %s_ : Message {\n'%(msg))
+    s.write('class %s_ : public ros_echronos::Message {\n'%(msg))
     s.write('  typedef %s_ Type;\n\n'%(msg))
-    
+    s.write('  public:\n'%(msg))
+
     write_constructors(s, spec, cpp_name_prefix)
+    write_deconstructor(s, spec, cpp_name_prefix)
     write_members(s, spec)
     write_constant_declarations(s, spec)
     write_virtual_functions(s, spec)
@@ -338,13 +340,41 @@ def write_constructors(s, spec, cpp_name_prefix):
     s.write('  {\n')
     write_fixed_length_assigns(s, spec, False, cpp_name_prefix)
     s.write('  }\n\n')
+
+    # Copy Constructor
+    s.write('  %s_(const %s%s_& copy) : \n' % ( msg, cpp_name_prefix, msg))
+    # write copys for all none array variables
+    initalisers =[]
+    for field in spec.parsed_fields():
+        if field.type != "string":
+            initalisers.append('  %s(copy.%s)' % (field.name, field.name))
+    s.write(",".join(initalisers))
+    s.write('\n  {\n')
+    for field in  spec.parsed_fields():
+        if field.type == "string":
+            s.write('      memcpy(%s, copy.%s, ROS_STR_LEN);\n' % (field.name, field.name))
+
+    s.write('  } // copy constructor\n\n')
     
-    # Constructor that takes an allocator constructor
-    s.write('  %s_(const ContainerAllocator& _alloc)\n'%(msg))
-    write_initializer_list(s, spec, True)
-    s.write('  {\n')
-    write_fixed_length_assigns(s, spec, True, cpp_name_prefix)
-    s.write('  }\n\n')
+
+def write_deconstructor(s, spec, cpp_name_prefix):
+    """
+    Writes any necessary deconstructors for the message
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    @param cpp_name_prefix: The C++ prefix to use when referring to the message, e.g. "std_msgs::"
+    @type cpp_name_prefix: str
+    """
+
+    msg = spec.short_name
+
+    # Default deconstructor
+    s.write('  ~%s_() {\n'%(msg))
+    s.write('      if (block) { alloc::free(block); }\n')
+    s.write("  } //deconstructor\n\n")
 
 def write_member(s, field):
     """
@@ -372,17 +402,6 @@ def write_members(s, spec):
     """
     [write_member(s, field) for field in spec.parsed_fields()]
 
-def write_size_code(s, spec):
-    """
-    Code to deal with the size of the message
-    
-    @param s: The stream to write to
-    @type s: stream
-    @param spec: The message spec
-    @type spec: roslib.msgs.MsgSpec
-    """
-
-
 
 def write_virtual_functions(s, spec):
     """
@@ -393,12 +412,24 @@ def write_virtual_functions(s, spec):
     @param spec: The message spec
     """
 
-    s.write('  uint8_t buffer[];\n')
     s.write('  virtual inline void generate_block() {\n')
-    s.write('      size_t offset = 0;\n')
+    output = ""
+    sizes=[]
     for field in spec.parsed_fields():
-        s.write('      memcpy(buffer+offset, &%s, sizeof(%s));\n' % (field.name, field.name))
-        s.write('      offset+=sizeof(%s);\n' % (field.name))
+
+        (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+        if is_array:
+            sizes.append("%s.bytes" % field.name)
+            output+='      memcpy(block+offset, %s.values, %s.bytes);\n' % (field.name, field.name)
+            output+='      offset+=%s.bytes;\n' % (field.name)
+        else:
+            sizes.append("sizeof(%s)" % field.name)
+            output+='      memcpy(block+offset, &%s, sizeof(%s));\n' % (field.name, field.name)
+            output+='      offset+=sizeof(%s);\n' % (field.name)
+    s.write('      size_t offset = 0;\n')
+    s.write('      size = %s;\n' %("+".join(sizes)))
+    s.write('      block = (uint8_t *) alloc::malloc(size);\n')
+    s.write(output);
     s.write('  } // generate_block\n')
 
 

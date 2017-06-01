@@ -11,7 +11,9 @@
 #define NUMBAT_EMBEDDED_ROS_HPP
 
 #include "rtos-kochab.h"
+#include "alloc.hpp"
 #define ROS_STR_LEN 15
+
 
 namespace ros_echronos {
     namespace can {
@@ -59,15 +61,35 @@ namespace ros_echronos {
     template <class T> class Subscriber;
     class NodeHandle;
 
-    template <typename T> struct _Array {
-        T * values;
-        size_t size;
-        T operator[] (int index) {
-            return values[index];
-        }
+    template <typename T> class Array {
+        public:
+            T operator[] (int index) {
+                return values[index];
+            }
+
+            Array(size_t size) : size(size), bytes(size*sizeof(T)), values(alloc::malloc(size)) { }
+
+            //copy constructor
+            Array(const Array & arr) : Array(arr.size) {
+                memcpy(values, arr.values, size);
+            }
+
+            ~Array() {
+                free(values);
+            }
+
+            /**
+             * Number of elements in the array
+             */
+            const size_t size;
+            /**
+             * Number of bytes
+             */
+            const size_t bytes;
+            T * const values;
+
     };
 
-    template <typename T> using Array = struct _Array<T>;
 
     typedef char String[ROS_STR_LEN];
 

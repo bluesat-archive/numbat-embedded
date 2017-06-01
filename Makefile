@@ -38,6 +38,19 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
+# *************
+# ROS_TEST MODULE
+# *************
+
+MODULE_NAME=ros_test
+include .construct_numbat_module
+
+$(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/ros_test.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
 # *****************
 # TIMER TEST MODULE
 # *****************
@@ -85,7 +98,8 @@ TARGETS=\
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
-	$(BUILD_DIR)/echronos_test.elf
+	$(BUILD_DIR)/echronos_test.elf \
+	$(BUILD_DIR)/ros_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
 

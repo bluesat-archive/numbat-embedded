@@ -58,6 +58,11 @@
                 </timer>
             </timers>
 
+            <mutexes>
+                <mutex>
+                    <name>alloc</name>
+                </mutex>
+            </mutexes>
             <mutex>
                 <stats>false</stats>
             </mutex>

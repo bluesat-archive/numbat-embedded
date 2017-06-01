@@ -24,5 +24,6 @@ $(ROS_BUILD_DIR)/Subscriber.opp: $(ROS_ECHRONOS_DIR)/Subscriber.cpp
 $(ROS_BUILD_DIR)/Publisher.opp: $(ROS_ECHRONOS_DIR)/Publisher.cpp
 $(ROS_BUILD_DIR)/Message_Buffer.opp: $(ROS_ECHRONOS_DIR)/Message_Buffer.cpp
 $(ROS_BUILD_DIR)/Message.opp: $(ROS_ECHRONOS_DIR)/Message.cpp
+$(ROS_BUILD_DIR)/alloc.opp: $(ROS_ECHRONOS_DIR)/alloc.cpp
 
-ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp
+ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/alloc.opp

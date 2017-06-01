@@ -8,7 +8,7 @@ namespace owr_messages
 {
 class pwm_ : public ros_echronos::Message {
   typedef pwm_ Type;
-
+    public:
   pwm_()
   : joint()
   , pwm(0)
@@ -75,7 +75,7 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
 
 
 } // namespace owr_messages
-
+/*
 namespace ros
 {
 namespace message_traits
@@ -173,6 +173,9 @@ struct Printer< ::owr_messages::pwm_ >
 
 } // namespace message_operations
 } // namespace ros
+*/
 
+#include "/home/hjed/Bluesat/numbat-embedded/libs/ros_echronos/Publisher.cpp"
+template class Publisher<owr_messages::pwm_>;
 #endif // OWR_MESSAGES_MESSAGE_PWM_H
 
