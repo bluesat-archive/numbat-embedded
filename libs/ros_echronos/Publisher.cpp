@@ -59,8 +59,8 @@ template <class T> void Publisher<T>::publish(T message, uint8_t priority) {
     //TODO: priority
 }
 
-template <class T>
-ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next, bool &empty) {
+template <class T> __attribute__((used))
+ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next, bool &empty)  {
     using namespace ros_echronos::can;
     CAN_ROS_Message can_msg;
 

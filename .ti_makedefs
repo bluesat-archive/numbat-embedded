@@ -28,6 +28,9 @@ CPPFLAGS=-mthumb           \
        ${FPU}              \
        -mlittle-endian     \
        -fno-exceptions     \
+       -fno-unwind-tables  \
+       -fno-rtti           \
+       -frepo              \
        -Wall               \
        -pedantic           \
        -DPART_${PART}      \
@@ -43,6 +46,9 @@ LIBGCC:=${shell ${CC} ${CFLAGS} -print-libgcc-file-name}
 
 # Get the location of libc.a from the GCC front-end.
 LIBC:=${shell ${CC} ${CFLAGS} -print-file-name=libc.a}
+
+# Get the location of the C++ stdlib from the GCC front-end
+LIBCPP:=${shell ${CC} ${CFLAGS} -print-file-name=libstdc++_nano.a}
 
 # Get the location of libm.a from the GCC front-end.
 LIBM:=${shell ${CC} ${CFLAGS} -print-file-name=libm.a}

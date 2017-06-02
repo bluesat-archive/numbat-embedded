@@ -6,6 +6,8 @@
 
 using namespace ros_echronos;
 
+Message::Message() {}
+
 uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     if(!block_generated || done) {
         generate_block();
@@ -34,7 +36,7 @@ bool Message::is_done() {
     return done;
 }
 
-inline uint16_t Message::message_size() {
+uint16_t Message::message_size() {
     //TODO: this is pretty wrong
     return size / can::CAN_MESSAGE_MAX_LEN;
 }

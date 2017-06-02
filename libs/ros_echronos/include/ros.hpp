@@ -67,16 +67,12 @@ namespace ros_echronos {
                 return values[index];
             }
 
-            Array(size_t size) : size(size), bytes(size*sizeof(T)), values(alloc::malloc(size)) { }
+            Array(size_t size);
 
             //copy constructor
-            Array(const Array & arr) : Array(arr.size) {
-                memcpy(values, arr.values, size);
-            }
+            Array(const Array & arr);
 
-            ~Array() {
-                free(values);
-            }
+            ~Array();
 
             /**
              * Number of elements in the array
@@ -93,6 +89,21 @@ namespace ros_echronos {
 
     typedef char String[ROS_STR_LEN];
 
+}
+
+
+/**
+ * Because GCC for ARM is broken we need to add these here rather than in the class decleration
+ */
+template <typename  T>
+ros_echronos::Array<T>::Array(size_t size) : size(size), bytes(size*sizeof(T)), values(alloc::malloc(size)) { }
+template <typename T>
+ros_echronos::Array<T>::Array(const Array & arr) : Array(arr.size) {
+    memcpy(values, arr.values, size);
+}
+template <typename T>
+ros_echronos::Array<T>::~Array() {
+    free(values);
 }
 
 extern "C" void ros_can_int_handler(void);

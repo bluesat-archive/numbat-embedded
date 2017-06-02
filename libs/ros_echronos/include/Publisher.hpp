@@ -52,7 +52,7 @@ namespace ros_echronos {
              * @param buffer_size the size of write_buffer
              * @param latch if messages should be resent by the controller when knew nodes connect
              */
-            Publisher(char * topic_name, T * const write_buffer, uint8_t buffer_size, bool latch);
+            Publisher(char * topic_name, T * const write_buffer, uint8_t buffer_size, bool latch) __attribute__((used));
 
             /**
              * Destroys the publisher, disconnects from the controller if it has been connected
@@ -74,7 +74,7 @@ namespace ros_echronos {
              */
             void publish(T message, uint8_t priority = 0);
 
-            virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool &has_next, bool &empty);
+            virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool &has_next, bool &empty)  __attribute__((used));
 
 
 

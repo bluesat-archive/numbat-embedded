@@ -19,6 +19,22 @@ void fatal(const uint8_t error_id) {
     for (;;);
 }
 
+
+/**
+ * CPP Handlers
+ * TODO: move these to their own file
+ */
+void __cxa_pure_virtual() { fatal(1); }
+void exit() { fatal(1); }
+//this is called when C++ wants to run deconstructors on exit
+int __aeabi_atexit (void *arg, void (*fun) (void *), void *d) {
+    UARTprintf("Attempt to add exist function!\n");
+    //TODO: we should probably call these on halt, but we currently don't have functionality to halt so hey...
+    return 0;
+}
+
+void *__dso_handle;
+
 void InitializeFPU(void) {
 
     // Magic taken from vector tables from TI examples

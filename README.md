@@ -132,3 +132,43 @@ To generate the documentation run
 `make docs`
 
 
+# C++ Limitations
+
+Our usage of the arm-none-eabi toolchain has the following limitations:
+
+### Functions in class decelerations
+Functions and constructors cannot have their bodies declared inside a class definition as you will experience linker problems
+
+Does Not Work:
+
+
+    class A {
+        A() {} // this will not link
+    }
+    
+Works:
+
+    class A {
+        A();
+    }
+    A() {}
+    
+This is a bug in the version of gcc we are using
+
+### Not Defining a Constructor
+
+If you don't define a constructor for a class (i.e use the default constructor) and then inherit from it the linker will complain.  The workaround is to define an empty constructor.
+
+### Other Problems with discarded sections in the linker
+
+If you get an error message like this:
+
+    `_ZN12ros_echronos9PublisherIN12owr_messages4pwm_EEC1EPcPS2_hb' referenced in section `.text' of build/ros_test.opp: defined in discarded section `.text._ZN12ros_echronos9PublisherIN12owr_messages4pwm_EEC2EPcPS2_hb[_ZN12ros_echronos9PublisherIN12owr_messages4pwm_EEC5EPcPS2_hb]' of build/ros_test.opp
+
+Go to [http://demangler.com/] and paste in the line to work out what function is the problem.
+
+Then add ` __attribute__((used))`  to the end of the function prototype.
+
+### Other Problems
+
+http://wiki.osdev.org/C%2B%2B is a good reference if you are getting weird linker errors on this code 

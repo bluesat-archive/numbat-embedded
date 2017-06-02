@@ -8,27 +8,12 @@ namespace owr_messages
 {
 class pwm_ : public ros_echronos::Message {
   typedef pwm_ Type;
-    public:
-  pwm_()
-  : joint()
-  , pwm(0)
-  , targetVel(0.0)
-  , currentVel(0.0)
-  , currentPos(0.0)
-  , targetPos(0.0)
-  {
-  }
 
-  pwm_(const owr_messages::pwm_& copy) : 
-  pwm(copy.pwm),  targetVel(copy.targetVel),  currentVel(copy.currentVel),  currentPos(copy.currentPos),  targetPos(copy.targetPos)
-  {
-      memcpy(joint, copy.joint, ROS_STR_LEN);
-  } // copy constructor
-
-  ~pwm_() {
-      if (block) { alloc::free(block); }
-  } //deconstructor
-
+  public:
+  pwm_();
+  pwm_(const owr_messages::pwm_& copy); 
+  ~pwm_();
+  virtual void generate_block();;
   typedef ros_echronos::String _joint_type;
   ros_echronos::String joint;
 
@@ -48,7 +33,35 @@ class pwm_ : public ros_echronos::Message {
   double targetPos;
 
 
-  virtual inline void generate_block() {
+  typedef  ::owr_messages::pwm_  * Ptr;
+  typedef  ::owr_messages::pwm_  * const ConstPtr;
+}; // class pwm
+typedef  ::owr_messages::pwm_ pwm;
+
+typedef  ::owr_messages::pwm pwmPtr;
+typedef  ::owr_messages::pwm const pwmConstPtr;
+
+ owr_messages::pwm_::pwm_()
+  : joint()
+  , pwm(0)
+  , targetVel(0.0)
+  , currentVel(0.0)
+  , currentPos(0.0)
+  , targetPos(0.0)
+  {
+  }
+
+  owr_messages::pwm_::pwm_(const owr_messages::pwm_& copy) : 
+  pwm(copy.pwm),  targetVel(copy.targetVel),  currentVel(copy.currentVel),  currentPos(copy.currentPos),  targetPos(copy.targetPos)
+  {
+      memcpy(joint, copy.joint, ROS_STR_LEN);
+  } // copy constructor
+
+  owr_messages::pwm_::~pwm_() {
+      if (block) { alloc::free(block); }
+  } //deconstructor
+
+  void owr_messages::pwm_::generate_block() {
       size_t offset = 0;
       size = sizeof(joint)+sizeof(pwm)+sizeof(targetVel)+sizeof(currentVel)+sizeof(currentPos)+sizeof(targetPos);
       block = (uint8_t *) alloc::malloc(size);
@@ -65,14 +78,6 @@ class pwm_ : public ros_echronos::Message {
       memcpy(block+offset, &targetPos, sizeof(targetPos));
       offset+=sizeof(targetPos);
   } // generate_block
-  typedef  ::owr_messages::pwm_  * Ptr;
-  typedef  ::owr_messages::pwm_  * const ConstPtr;
-}; // class pwm
-typedef  ::owr_messages::pwm_ pwm;
-
-typedef  ::owr_messages::pwm pwmPtr;
-typedef  ::owr_messages::pwm const pwmConstPtr;
-
 
 } // namespace owr_messages
 /*
@@ -176,6 +181,6 @@ struct Printer< ::owr_messages::pwm_ >
 */
 
 #include "/home/hjed/Bluesat/numbat-embedded/libs/ros_echronos/Publisher.cpp"
-template class Publisher<owr_messages::pwm_>;
+template class ros_echronos::Publisher<owr_messages::pwm_>;
 #endif // OWR_MESSAGES_MESSAGE_PWM_H
 

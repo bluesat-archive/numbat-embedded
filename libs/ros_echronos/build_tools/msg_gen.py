@@ -200,14 +200,14 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     msg = spec.short_name
     s.write('class %s_ : public ros_echronos::Message {\n'%(msg))
     s.write('  typedef %s_ Type;\n\n'%(msg))
-    s.write('  public:\n'%(msg))
+    s.write('  public:\n')
 
-    write_constructors(s, spec, cpp_name_prefix)
-    write_deconstructor(s, spec, cpp_name_prefix)
+    declare_constructors(s, spec, cpp_name_prefix)
+    declare_deconstructor(s, spec, cpp_name_prefix)
+    declare_virtual_functions(s, spec, cpp_name_prefix)
     write_members(s, spec)
     write_constant_declarations(s, spec)
-    write_virtual_functions(s, spec)
-    
+
     #rospack = RosPack()
     #gendeps_dict = roslib.gentools.get_dependencies(spec, spec.package, compute_files=False, rospack=rospack)
     #md5sum = roslib.gentools.compute_md5(gendeps_dict, rospack=rospack)
@@ -224,6 +224,11 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     s.write('typedef %s_ %s;\n\n'%(cpp_msg_base, msg))
     s.write('typedef %s %sPtr;\n'%(cpp_msg_base, msg))
     s.write('typedef %s const %sConstPtr;\n\n'%(cpp_msg_base, msg))
+
+    # due to compiler problems these need to be decleared externally
+    write_constructors(s, spec, cpp_name_prefix)
+    write_deconstructor(s, spec, cpp_name_prefix)
+    write_virtual_functions(s, spec, cpp_name_prefix)
 
 def default_value(type):
     """
@@ -335,14 +340,14 @@ def write_constructors(s, spec, cpp_name_prefix):
     msg = spec.short_name
     
     # Default constructor
-    s.write('  %s_()\n'%(msg))
+    s.write(' %s%s_::%s_()\n'%(cpp_name_prefix,msg, msg))
     write_initializer_list(s, spec, False)
     s.write('  {\n')
     write_fixed_length_assigns(s, spec, False, cpp_name_prefix)
     s.write('  }\n\n')
 
     # Copy Constructor
-    s.write('  %s_(const %s%s_& copy) : \n' % ( msg, cpp_name_prefix, msg))
+    s.write('  %s%s_::%s_(const %s%s_& copy) : \n' % (cpp_name_prefix,msg, msg, cpp_name_prefix, msg))
     # write copys for all none array variables
     initalisers =[]
     for field in spec.parsed_fields():
@@ -372,9 +377,64 @@ def write_deconstructor(s, spec, cpp_name_prefix):
     msg = spec.short_name
 
     # Default deconstructor
-    s.write('  ~%s_() {\n'%(msg))
+    s.write('  %s%s_::~%s_() {\n'%(cpp_name_prefix, msg, msg))
     s.write('      if (block) { alloc::free(block); }\n')
     s.write("  } //deconstructor\n\n")
+
+def declare_constructors(s, spec, cpp_name_prefix):
+    """
+    Declares any necessary constructors for the message
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    @param cpp_name_prefix: The C++ prefix to use when referring to the message, e.g. "std_msgs::"
+    @type cpp_name_prefix: str
+    """
+
+    msg = spec.short_name
+
+    # Default constructor
+    s.write('  %s_();\n'%(msg))
+
+    # Copy Constructor
+    s.write('  %s_(const %s%s_& copy); \n' % ( msg, cpp_name_prefix, msg))
+
+
+def declare_deconstructor(s, spec, cpp_name_prefix):
+    """
+    Declares any necessary deconstructors for the message
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    @param cpp_name_prefix: The C++ prefix to use when referring to the message, e.g. "std_msgs::"
+    @type cpp_name_prefix: str
+    """
+
+    msg = spec.short_name
+
+    # Default deconstructor
+    s.write('  ~%s_();\n'%(msg))
+
+def declare_virtual_functions(s, spec, cpp_name_prefix):
+    """
+    Declares any necessary virtual functions for the message
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    @param cpp_name_prefix: The C++ prefix to use when referring to the message, e.g. "std_msgs::"
+    @type cpp_name_prefix: str
+    """
+
+    msg = spec.short_name
+
+    # Default deconstructor
+    s.write('  virtual void generate_block();\n')
 
 def write_member(s, field):
     """
@@ -403,16 +463,20 @@ def write_members(s, spec):
     [write_member(s, field) for field in spec.parsed_fields()]
 
 
-def write_virtual_functions(s, spec):
+def write_virtual_functions(s, spec, cpp_name_prefix):
     """
     Writes the virtual functions of the message class
     
     @param s: The stream to write to
     @type s: stream
     @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    @param cpp_name_prefix: the prefix in cpp
+    @type cpp_name_prefix: str
     """
 
-    s.write('  virtual inline void generate_block() {\n')
+    msg = spec.short_name
+    s.write('  void %s%s_::generate_block() {\n' % (cpp_name_prefix, msg))
     output = ""
     sizes=[]
     for field in spec.parsed_fields():

@@ -6,7 +6,6 @@
 #define NUMBAT_EMBEDDED_MESSAGE_HPP
 
 #include "ros.hpp"
-
 namespace ros_echronos {
     class Message {
         public:
@@ -28,7 +27,7 @@ namespace ros_echronos {
              * Get the number of can messages this message is made up of
              * @return the size of the message
              */
-            inline uint16_t message_size();
+            uint16_t message_size();
 
             /**
              * Have all the parts of this message been transmitted
@@ -42,6 +41,8 @@ namespace ros_echronos {
             virtual inline void generate_block() = 0;
 
         protected:
+            // needed because inheritance breaks the linker if there is not constructor
+            Message();
             /**
              * If the message has been generated
              */
