@@ -27,6 +27,20 @@ $(BUILD_DIR)/%.opp: $(wildcard $(MODULES_DIR)/*/%.cpp)
 $(BUILD_DIR)/%.elf:
 	$(BUILD_PRINT)
 	${LD} \
+		  -Wl,--emit-relocs \
+		  -Wl,-print-gc-sections \
+		  -nostdlib \
+		 ${CPU}				  \
+		 ${FPU}				  \
+		 -O0 \
+		 -mlittle-endian     \
+		 -fno-exceptions     \
+		 -fno-unwind-tables  \
+		 -fno-rtti		     \
+		 -frepo				  \
+		 -Wall				   \
+		 -pedantic		     \
+		 -DPART_${PART}		\
 		  ${^} 								    \
 		  $(ROS_BUILD_DIR)/*.opp \
 		  $(LIB_BUILD)/libusb.a                 \
@@ -36,6 +50,6 @@ $(BUILD_DIR)/%.elf:
 		  '${LIBM}' '${LIBC}' '${LIBGCC}'      \
 		  -T $(ECHRONOS_BUILD)/$(*F)-echronos/new.ld       \
 		  -o ${@} \
-          --print-memory-usage
+          -Wl,--print-memory-usage
 	$(MODULE_PRINT)
 

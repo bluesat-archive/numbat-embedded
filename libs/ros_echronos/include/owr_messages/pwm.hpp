@@ -13,7 +13,7 @@ class pwm_ : public ros_echronos::Message {
   pwm_();
   pwm_(const owr_messages::pwm_& copy); 
   ~pwm_();
-  virtual void generate_block();;
+  virtual void generate_block();
   typedef ros_echronos::String _joint_type;
   ros_echronos::String joint;
 

@@ -26,6 +26,7 @@ CFLAGS=-mthumb             \
 CPPFLAGS=-mthumb           \
        ${CPU}              \
        ${FPU}              \
+       -O0 \
        -mlittle-endian     \
        -fno-exceptions     \
        -fno-unwind-tables  \
@@ -35,6 +36,7 @@ CPPFLAGS=-mthumb           \
        -pedantic           \
        -DPART_${PART}      \
        -std=c++11          \
+       -flto \
        -c
 
 

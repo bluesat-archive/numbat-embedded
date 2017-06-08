@@ -9,6 +9,8 @@
 
 #include "include/NodeHandle.hpp"
 #include "include/Publisher.hpp"
+// needed because template
+#include "Message_Buffer.cpp"
 
 using namespace ros_echronos;
 
