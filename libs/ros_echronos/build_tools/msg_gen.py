@@ -463,6 +463,77 @@ def write_members(s, spec):
     [write_member(s, field) for field in spec.parsed_fields()]
 
 
+def write_deserialiser(s, spec, cpp_name_prefix):
+    """
+    Writes the deserialisation function for the message class.
+    
+    Approach
+    
+    # declare new message class
+    # Store a list of structs storing pointer to a message variable and the size of the variable. Include in the list
+      items for array/string size values that point to the size variable in the next struct. Have a flag for variable length
+      variables.
+    # Loop through each can message packet, storing an index of where we are in the array of varriables. 
+    # Write to the variables byte by byte, using the counter in the struct. 
+    
+    @param s: The stream to write to
+    @type s: stream
+    @param spec: The message spec
+    @type spec: roslib.msgs.MsgSpec
+    @param cpp_name_prefix: the prefix in cpp
+    @type cpp_name_prefix: str
+    """
+
+    num_messages = 0 # TODO: calculate how many can messages this ros message should take up
+
+    msg = spec.short_name
+    s.write('  static %s%s %s%s_::msg_from_CAN(can::CAN_ROS_MSG * msg, size_t msgs) {\n' % (cpp_name_prefix, msg, cpp_name_prefix, msg))
+
+
+    s.write('     %s%s msg;' % (cpp_name_prefix, msg))
+
+    num_var_fields = 0 # TODO: count these
+
+    s.write('     _Field_Store fields[%d];' % len(spec.parsed_fields()) + num_var_fields)
+    index = 0
+    for field in spec.parsed_fields():
+
+        (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+
+        if is_array:
+
+            s.write('      fields[%d].start_of_field = &(msg.%s.size);' % (index, field.name)) # stores the size field as a pointer
+            s.write('      fields[%d].size = sizeof(msg.%s.size);' % (index, field.name))
+            s.write('      fields[%d].is_var_length = false;' % (index)) # store that it is an array
+            index+=1
+            s.write('      fields[%d].start_of_field = &(msg.%s.value);' % (index, field.name)) # store the address of the field
+            s.write('      fields[%d].size = 0;' % (index)) # store the size (0 for an array)
+            s.write('      fields[%d].is_var_length = true;' % (index)) # store that it is an array
+        else:
+            s.write('      fields[%d].start_of_field = &(msg.%s);' % (index, field.name)) # stores the address of the field
+            s.write('      fields[%d].size = sizeof(msg.%s);' % (index, field.name))
+            s.write('      fields[%d].is_var_length = false;' % (index)) # store that it is an array
+        index+=1
+
+
+    s.write('     size_t msg_index = 0;')
+    s.write('     size_t msg_offset = 0;')
+    s.write('     for(int i = 0; i < %d; ++i) { ' % num_var_fields)
+    # copy the length from the size field into the read arrays length
+    s.write('         if(fields[i].is_var_length) { '
+            '             fields[i].size = *((uint16_t)fields[i-1].start_of_field);'
+            '         }') # TODO: the variable length array's size field should NOT be in bytes
+    s.write('         for(int field_index = 0; field_index < fields[i].size; ++field_index, ++message_index) {'
+            '             if(message_index >= CAN_MESSAGE_MAX_LEN) { ++msg_index; msg_offset=0; }'
+            '             fields[i].start_of_field[field_index] =  msg[msg_index].body[msg_offset];'
+            '         }')
+
+    s.write('     } // for loop')
+    s.write('     return msg;')
+
+    s.write('  } // msg_from_CAN')
+
+
 def write_virtual_functions(s, spec, cpp_name_prefix):
     """
     Writes the virtual functions of the message class
@@ -484,8 +555,9 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
         if is_array:
             sizes.append("%s.bytes" % field.name)
-            output+='      memcpy(block+offset, %s.values, %s.bytes);\n' % (field.name, field.name)
-            output+='      offset+=%s.bytes;\n' % (field.name)
+            output+='      memcpy(block+offset, sizeof(short), %s.size);\n' % (field.name)
+            output+='      memcpy(block+offset+sizeof(short), %s.values, %s.bytes);\n' % (field.name, field.name)
+            output+='      offset+=%s.bytes+sizeof(short);\n' % (field.name)
         else:
             sizes.append("sizeof(%s)" % field.name)
             output+='      memcpy(block+offset, &%s, sizeof(%s));\n' % (field.name, field.name)

@@ -7,6 +7,25 @@
 
 #include "ros.hpp"
 namespace ros_echronos {
+
+    /**
+     * Used to derserialise messages. Stores references so we can write dynamic sized variables
+     */
+    typedef struct _field_store {
+        /**
+         * Stores a pointer to the start of the field. Is uint8_t so we can write bytes to it.
+         */
+        uint8_t * start_of_field;
+        /**
+         * The size of the field we are working on
+         */
+        size_t size;
+        /**
+         * If this field is variable length (so we need to store the size before we start)
+         */
+        bool is_var_length;
+    } _Field_Store;
+
     class Message {
         public:
 
