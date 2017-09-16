@@ -14,5 +14,10 @@ Initialisation:
 
 Questions:
     Sample sequence trigger?
-    Interrupt configuration?
+        Run off spare PWM module?
+    Interrupt configuration/interrupts at all?
+    Hardware/software averaging based on sampling frequency?
+    Sampling frequency?
+
+Should all be doable with the tiva libraries.
 
