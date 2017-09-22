@@ -9,6 +9,7 @@
 
 #include "include/NodeHandle.hpp"
 #include "include/Publisher.hpp"
+#include "include/can_impl.hpp"
 
 using namespace ros_echronos;
 
@@ -24,8 +25,11 @@ void NodeHandle::spin() {
         do {
             bool empty = false;
             CAN_ROS_Message msg = current->get_next_message(has_next, empty);
+            can::send_can(msg);
         } while (has_next);
     } while(current = (_Publisher *) current->next);
+
+    // TODO: receive
 }
 
 uint8_t NodeHandle::get_node_id() {

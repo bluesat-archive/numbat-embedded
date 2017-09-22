@@ -2,6 +2,7 @@ PART=TM4C123GH6PM
 CFLAGSgcc=-DTARGET_IS_TM4C123_RB1
 include .ti_makedefs
 ROS_ECHRONOS_DIR=libs/ros_echronos
+ROS_ARCH_DIR=$(ROS_ECHRONOS_DIR)/arch/tm4cx
 IPATH+=$(ROS_ECHRONOS_DIR)/include
 
 MODULE_BUILD_DIR=$(ECHRONOS_BUILD)/$(MODULE_NAME)-echronos
@@ -17,6 +18,13 @@ $(ROS_BUILD_DIR)/%.opp: $(ROS_ECHRONOS_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHR
 		-I$(<D) \
 		-D${COMPILER} -o ${@} ${<}
 
+$(ROS_BUILD_DIR)/%.opp: $(ROS_ARCH_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHRONOS)
+	$(BUILD_PRINT)
+	${CC} ${CPPFLAGS} \
+		-I$(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g') \
+		-I$(<D) \
+		-D${COMPILER} -o ${@} ${<}
+
 
 $(ROS_BUILD_DIR)/ros.opp: $(ROS_ECHRONOS_DIR)/ros.cpp
 $(ROS_BUILD_DIR)/NodeHandle.opp: $(ROS_ECHRONOS_DIR)/NodeHandle.cpp
@@ -25,5 +33,6 @@ $(ROS_BUILD_DIR)/Publisher.opp: $(ROS_ECHRONOS_DIR)/Publisher.cpp
 $(ROS_BUILD_DIR)/Message_Buffer.opp: $(ROS_ECHRONOS_DIR)/Message_Buffer.cpp
 $(ROS_BUILD_DIR)/Message.opp: $(ROS_ECHRONOS_DIR)/Message.cpp
 $(ROS_BUILD_DIR)/alloc.opp: $(ROS_ECHRONOS_DIR)/alloc.cpp
+$(ROS_BUILD_DIR)/can_impl.opp: $(ROS_ARCH_DIR)/can_impl.cpp
 
-ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/alloc.opp
+ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/alloc.opp $(ROS_BUILD_DIR)/can_impl.opp
