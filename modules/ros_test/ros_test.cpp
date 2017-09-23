@@ -62,21 +62,21 @@ extern "C" void can0_int_handler(void) {
 extern "C" void task_ros_test_fn(void) {
 
     UARTprintf("Entered CAN task. Initializing...\n");
+    ros_echronos::NodeHandle nh;
+    UARTprintf("Done init\n");
+    nh.init("ros_test_fn","ros_test_fn");
 
-    uint8_t buff[CAN_MSG_LEN] = {0};
-    while(1) {
-        if(error_flag != 0) {
-            //TODO: error handling
-            UARTprintf("Error occured 0x%X\n", error_flag);
-        }
-        UARTprintf("Preparing to write\n");
-        buff[0] = 'a';
-        buff[1] = 'b';
-        buff[2] = 'c';
-        UARTprintf("Write!\n");
-        sent_message = true;
-        write_can(1, buff , CAN_MSG_LEN);
+    UARTprintf("pub init\n");
+    pub.init(nh);
+    owr_messages::pwm msg;
+    while(true) {
+        UARTprintf("pub pub\n");
+        pub.publish(msg);
+        UARTprintf("pub done\n");
+
+        nh.spin();
     }
+
 }
 
 int main(void) {

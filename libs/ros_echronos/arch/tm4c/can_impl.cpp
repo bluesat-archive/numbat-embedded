@@ -6,10 +6,10 @@
  * @copydetails: This code is released under the AGPLv3 License.
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
-#include <driverlib/can.h>
-#include <inc/hw_memmap.h>
-#include "include/can_impl.hpp"
-#include "../../include/ros.hpp"
+#include "can_impl.hpp"
+#include "boilerplate.h"
+#include "rtos-kochab.h"
+#include "ros.hpp"
 
 
 void ros_echronos::can::send_can(ros_echronos::can::CAN_ROS_Message & msg) {
