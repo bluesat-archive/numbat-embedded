@@ -10,6 +10,15 @@ include .ti_makedefs
 IPATH=$(TI_LIBS)
 IPATH+=$(MODULES_DIR)/boilerplate
 
+# See  http://wiki.osdev.org/Calling_Global_Constructors this is needed to make C++ work
+CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
+CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtend.o)
+# we shouldn't do these two...
+CRTI_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crti.o)
+CRTN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtn.o)
+#CRTI_OBJ=crti.o
+#CRTN_OBJ=crtn.o
+
 $(BUILD_DIR)/%.o: $(wildcard $(MODULES_DIR)/*/%.c)
 	$(BUILD_PRINT)
 	${CC} ${CFLAGS} \

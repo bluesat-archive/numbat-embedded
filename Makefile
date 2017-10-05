@@ -47,9 +47,13 @@ include .construct_numbat_module
 
 $(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(CRTI_OBJ) \
+	$(CRTBEGIN_OBJ) \
 	$(BUILD_DIR)/ros_test.opp \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(CRTEND_OBJ) \
+	$(CRTN_OBJ)
 
 # *****************
 # TIMER TEST MODULE
