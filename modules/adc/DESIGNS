@@ -21,3 +21,6 @@ Questions:
 
 Should all be doable with the tiva libraries.
 
+Notes
+    - ADC should use PIOSC for clock at 1 divider for clock
+    -
