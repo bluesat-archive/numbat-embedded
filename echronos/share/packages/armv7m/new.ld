@@ -67,6 +67,10 @@ SECTIONS
 
     .data :
     {
+        _init_array_start = .;
+        *(.init_array)
+        _fini_array_start = .;
+        *(.fini_array)
         *(.data)
         . = ALIGN(4);
     } > ram_region AT > flash_region

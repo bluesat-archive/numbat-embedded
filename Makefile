@@ -20,6 +20,9 @@ include .numbat_makedefs
 # ****************
 
 $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
+#these need to be C++ even though they are
+$(BUILD_DIR)/crtn.opp: $(MODULES_DIR)/boilerplate/crtn.cpp
+$(BUILD_DIR)/crti.opp: $(MODULES_DIR)/boilerplate/crti.cpp
 
 # ****************
 # ROS LIB
@@ -36,7 +39,7 @@ $(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs ros
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.opp \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 
 # *************
 # ROS_TEST MODULE
@@ -47,13 +50,9 @@ include .construct_numbat_module
 
 $(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(CRTI_OBJ) \
-	$(CRTBEGIN_OBJ) \
 	$(BUILD_DIR)/ros_test.opp \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
-	$(CRTEND_OBJ) \
-	$(CRTN_OBJ)
 
 # *****************
 # TIMER TEST MODULE

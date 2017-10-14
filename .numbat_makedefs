@@ -47,9 +47,12 @@ $(BUILD_DIR)/%.elf:
 		 -fno-unwind-tables  \
 		 -fno-rtti		     \
 		 -frepo				  \
+		 -mthumb \
 		 -Wall				   \
 		 -pedantic		     \
+		 -g \
 		 -DPART_${PART}		\
+		  $(MODULES_DIR)/boilerplate/crtn.cpp \
 		  ${^} 								    \
 		  $(ROS_BUILD_DIR)/*.opp \
 		  $(LIB_BUILD)/libusb.a                 \
@@ -57,6 +60,7 @@ $(BUILD_DIR)/%.elf:
 		  $(LIB_BUILD)/libdriver.a				\
 		  $(LIB_BUILD)/libsensor.a				\
 		  '${LIBM}' '${LIBC}' '${LIBGCC}'      \
+		  $(MODULES_DIR)/boilerplate/crti.cpp \
 		  -T $(ECHRONOS_BUILD)/$(*F)-echronos/new.ld       \
 		  -o ${@} \
           -Wl,--print-memory-usage
