@@ -121,6 +121,23 @@ SECTIONS
     .debug_ranges   0 : { *(.debug_ranges) }
 
     .debug_macro    0 : { *(.debug_macro) }
+    /* Include the list of initialization functions sorted. */
+   .init_array :
+    {
+        *(.init_array)
+        KEEP (*(SORT(EXCLUDE_FILE(crti.opp crtn.opp) .init_array.*)))
+        KEEP (*(EXCLUDE_FILE(crti.opp crtn.opp) .init_array))
+        *(.init_array)
+    }
+
+    /* Include the list of termination functions sorted. */
+    .fini_array :
+    {
+        *(.fini_array)
+        KEEP (*(SORT(EXCLUDE_FILE(crti.opp crtn.opp) .fini_array.*)))
+        KEEP (*(EXCLUDE_FILE(crti.opp crtn.opp) .fini_array))
+        *(.fini_array)
+    }
 
     /DISCARD/ : { *(*) }
 }
