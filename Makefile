@@ -92,6 +92,20 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 
+# ***************
+# 102017 SERVO TEST MODULE
+# ***************
+
+MODULE_NAME=servo
+include .construct_numbat_module
+
+$(BUILD_DIR)/servo.o: $(MODULE_DIR)/servo.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/servo.o \
+	$(BUILD_DIR)/boilerplate.o \
+        $(BUILD_DIR)/pwmlib.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
 # **********************
 # WHAT TO ACTUALLY BUILD
 # **********************
@@ -101,7 +115,8 @@ TARGETS=\
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
-	$(BUILD_DIR)/echronos_test.elf
+	$(BUILD_DIR)/echronos_test.elf \
+	$(BUILD_DIR)/servo.elf
 
 # NUMBAT MODULE SOURCES END HERE
 

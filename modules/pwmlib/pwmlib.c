@@ -17,8 +17,8 @@
 // Shared constants, and constant lookup tables
 static const uint32_t sysctl_module = SYSCTL_PERIPH_PWM0;
 static const uint32_t pwm_module = PWM0_BASE;
-static const uint32_t pwm_prescale = SYSCTL_PWMDIV_1;
-static const uint32_t pwm_prescale_value = 1;
+static const uint32_t pwm_prescale = SYSCTL_PWMDIV_8;
+static const uint32_t pwm_prescale_value = 8;
 static const uint32_t 
     pwm_generator_lut[PC] = {PWM_GEN_0, PWM_GEN_0, PWM_GEN_1, PWM_GEN_1,
                              PWM_GEN_2, PWM_GEN_2, PWM_GEN_3, PWM_GEN_3};
@@ -185,7 +185,7 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
     uint32_t pwm_generator = pwm_generator_lut[pwm];
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_generator);
 
-    uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0);
+    uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0); UARTprintf("%d\n", duty_period); 
 
     uint32_t pwm_out = pwm_out_lut[pwm];
     uint32_t pwm_out_bit = pwm_out_bit_lut[pwm];
