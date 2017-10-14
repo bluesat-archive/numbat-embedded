@@ -56,6 +56,29 @@ SECTIONS
         . = ALIGN(4);
     } AT > flash_region
 
+    .preinit_array     :
+    {
+        PROVIDE_HIDDEN (_preinit_array_start = .);
+        KEEP (*(.preinit_array*))
+        PROVIDE_HIDDEN (_preinit_array_end = .);
+    } AT > flash_region
+
+    .init_array :
+    {
+        PROVIDE_HIDDEN (_init_array_start = .);
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array*))
+        PROVIDE_HIDDEN (_init_array_end = .);
+    } AT > flash_region
+
+    .fini_array :
+    {
+        PROVIDE_HIDDEN (_fini_array_start = .);
+        KEEP (*(.fini_array*))
+        KEEP (*(SORT(.fini_array.*)))
+        PROVIDE_HIDDEN (_fini_array_end = .);
+    } AT > flash_region
+
     .data.bitband :
     {
         *(.data.bitband)
@@ -67,10 +90,6 @@ SECTIONS
 
     .data :
     {
-        _init_array_start = .;
-        *(.init_array)
-        _fini_array_start = .;
-        *(.fini_array)
         *(.data)
         . = ALIGN(4);
     } > ram_region AT > flash_region
@@ -121,23 +140,6 @@ SECTIONS
     .debug_ranges   0 : { *(.debug_ranges) }
 
     .debug_macro    0 : { *(.debug_macro) }
-    /* Include the list of initialization functions sorted. */
-   .init_array :
-    {
-        *(.init_array)
-        KEEP (*(SORT(EXCLUDE_FILE(crti.opp crtn.opp) .init_array.*)))
-        KEEP (*(EXCLUDE_FILE(crti.opp crtn.opp) .init_array))
-        *(.init_array)
-    }
-
-    /* Include the list of termination functions sorted. */
-    .fini_array :
-    {
-        *(.fini_array)
-        KEEP (*(SORT(EXCLUDE_FILE(crti.opp crtn.opp) .fini_array.*)))
-        KEEP (*(EXCLUDE_FILE(crti.opp crtn.opp) .fini_array))
-        *(.fini_array)
-    }
 
     /DISCARD/ : { *(*) }
 }
