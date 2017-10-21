@@ -12,22 +12,22 @@ typedef double duty_pct;
  * 4-7 are shared with QEI, SSI, and timer capture and are on PH4-PH7.
  * 8-15 are not connected/on a dedicated line for another peripheral. */
 enum pwm_pin {
-     PWM_0,
-     PWM_1,
-     PWM_2,
-     PWM_3,
-     PWM_4,
-     PWM_5,
-     PWM_6,
-     PWM_7
+     PWM0,
+     PWM1,
+     PWM2,
+     PWM3,
+     PWM4,
+     PWM5,
+     PWM6,
+     PWM7
 };
 
 // pwm pin pairs for generator dependent operations
 enum pwm_pin_pair {
-    PWM_PAIR_0,
-    PWM_PAIR_1,
-    PWM_PAIR_2,
-    PWM_PAIR_3
+    PWM_PAIR0, // PWM0, PWM1
+    PWM_PAIR1, // PWM2, PWM3
+    PWM_PAIR2, // PWM4, PWM5
+    PWM_PAIR3  // PWM6, PWM7
 };
 
 // pwm function status return values
@@ -36,6 +36,18 @@ enum pwm_status {
     PWM_FAILURE
 };
 
+// pwm prescaler enumeration
+enum pwm_prescale_values {
+    DIV1,
+    DIV2,
+    DIV4,
+    DIV8,
+    DIV16,
+    DIV32,
+    DIV64
+};
+
+extern enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre);
 
 /* Takes a pwm port and attempts to enable it with output disabled.
  * Returns PWM_FAILURE if there was an immediate problem, otherwise 

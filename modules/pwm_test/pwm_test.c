@@ -6,50 +6,60 @@ void task_pwm_test_fn(void) {
 
     UARTprintf("Entered PWM Test task. Initializing...\n");
 
-    pwm_init(PWM_0);
-    pwm_init(PWM_1);
-    pwm_init(PWM_2);
-    pwm_init(PWM_3);
-    pwm_init(PWM_4);
-    pwm_init(PWM_5);
-    pwm_init(PWM_6);
-    pwm_init(PWM_7);
+    pwm_set_prescaler(DIV8);
 
-    pwm_set_period(PWM_PAIR_0, 1.0);
-    pwm_set_period(PWM_PAIR_1, 1.0);
-    pwm_set_period(PWM_PAIR_2, 1.0);
-    pwm_set_period(PWM_PAIR_3, 1.0);
+    pwm_init(PWM0);
+    pwm_init(PWM1);
+    pwm_init(PWM2);
+    pwm_init(PWM3);
+    pwm_init(PWM4);
+    pwm_init(PWM5);
+    pwm_init(PWM6);
+    pwm_init(PWM7);
 
-    pwm_get_period(PWM_PAIR_0);
+    pwm_set_period(PWM_PAIR0, 10.0);
+    pwm_set_period(PWM_PAIR1, 10.0);
+    pwm_set_period(PWM_PAIR2, 10.0);
+    pwm_set_period(PWM_PAIR3, 10.0);
 
-    pwm_set_duty(PWM_0, 33.3);
-    pwm_set_duty(PWM_1, 66.6);
+    pwm_get_period(PWM_PAIR0);
 
-    pwm_set_duty(PWM_2, 100.0);
-    pwm_set_duty(PWM_2, 0.0);
+    pwm_set_duty(PWM0, 33.3);
+    pwm_set_duty(PWM1, 66.6);
 
-    pwm_set_duty(PWM_3, 0.0);
-    pwm_set_duty(PWM_3, 100.0);
+    pwm_set_duty(PWM2, 100.0);
+    pwm_set_duty(PWM2, 0.0);
 
-    pwm_set_duty(PWM_4, 25.0);
-    pwm_set_duty(PWM_4, 75.0);
+    pwm_set_duty(PWM3, 0.0);
+    pwm_set_duty(PWM3, 100.0);
 
-    pwm_set_duty(PWM_5, 75.0);
-    pwm_set_duty(PWM_5, 25.0);
+    pwm_set_duty(PWM4, 25.0);
+    pwm_set_duty(PWM4, 75.0);
 
-    pwm_set_duty(PWM_6, 99.9);
-    pwm_set_duty(PWM_7, 0.1);
+    pwm_set_duty(PWM5, 75.0);
+    pwm_set_duty(PWM5, 25.0);
 
-    pwm_get_duty(PWM_7);
+    pwm_set_duty(PWM6, 99.9);
+    pwm_set_duty(PWM7, 0.1);
 
-    pwm_enable(PWM_0);
-    pwm_enable(PWM_1);
-    pwm_enable(PWM_2);
-    pwm_enable(PWM_3);
-    pwm_enable(PWM_4);
-    pwm_enable(PWM_5);
-    pwm_enable(PWM_6);
-    pwm_enable(PWM_7);
+    for (int i = PWM0; i <= PWM7; i++) {
+        double duty = pwm_get_duty(i);
+        char *dutyc = (char *)(&duty);
+        UARTprintf("duty%d: ", i);
+        for (int j = sizeof(double) - 1; j >= 0; j--) {
+            UARTprintf("%x", dutyc[j]);
+        }
+        UARTprintf("\n");
+    }
+
+    pwm_enable(PWM0);
+    pwm_enable(PWM1);
+    pwm_enable(PWM2);
+    pwm_enable(PWM3);
+    pwm_enable(PWM4);
+    pwm_enable(PWM5);
+    pwm_enable(PWM6);
+    pwm_enable(PWM7);
 
     UARTprintf("PWM initialisation complete...\n");
     

@@ -24,6 +24,7 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 # PWM LIBRARY
 # ***********
 $(BUILD_DIR)/pwmlib.o: $(MODULES_DIR)/pwmlib/pwmlib.c
+$(BUILD_DIR)/pwm_hw.o: $(MODULES_DIR)/pwmlib/pwm_hw.c
 
 # *************
 # BLINKY MODULE
@@ -89,6 +90,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/pwm_test.o \
 	$(BUILD_DIR)/boilerplate.o \
         $(BUILD_DIR)/pwmlib.o \
+        $(BUILD_DIR)/pwm_hw.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 
