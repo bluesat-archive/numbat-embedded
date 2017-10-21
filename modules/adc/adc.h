@@ -6,6 +6,17 @@
 
 
 // adc enums
+enum adc_pin {
+    AIN0,
+    AIN1,
+    AIN2,
+    AIN3,
+    AIN4,
+    AIN5,
+    AIN6,
+    AIN7,
+    AIN20
+};
 
 // adc function status return values
 enum adc_status {
