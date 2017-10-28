@@ -12,10 +12,15 @@
             <usagefault>usagefault</usagefault>
             <busfault>busfault</busfault>
             <preemption>true</preemption>
+            <external_irqs>
+                <external_irq>
+                    <number>14</number>
+                    <handler>adc_irq</handler>
+                </external_irq>
+            </external_irqs>
         </module>
         <module name="armv7m.semihost-debug" />
         <module name="generic.debug" />
-
         <module name="armv7m.rtos-kochab">
             <api_asserts>true</api_asserts>
             <internal_asserts>true</internal_asserts>
@@ -33,7 +38,6 @@
                     <stack_size>1024</stack_size>
                 </task>
             </tasks>
-
             <mutex>
                 <stats>false</stats>
             </mutex>

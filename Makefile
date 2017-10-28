@@ -72,6 +72,19 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
+# ********************
+# ADC TEST MODULE
+# ********************
+
+MODULE_NAME=adc_test
+include .construct_numbat_module
+
+$(BUILD_DIR)/adc_test.o: $(MODULE_DIR)/adc_test.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/adc_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
 # **********************
 # WHAT TO ACTUALLY BUILD
 # **********************
@@ -80,7 +93,8 @@ TARGETS=\
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
-	$(BUILD_DIR)/echronos_test.elf
+	$(BUILD_DIR)/echronos_test.elf \
+        $(BUILD_DIR)/adc_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
 
