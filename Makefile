@@ -25,6 +25,13 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 # ***********
 $(BUILD_DIR)/pwmlib.o: $(MODULES_DIR)/pwmlib/pwmlib.c
 
+# ***********
+# PWM LIBRARY
+# ***********
+
+$(BUILD_DIR)/servo.o: $(MODULES_DIR)/servo/servo.c
+
+
 # *************
 # BLINKY MODULE
 # *************
@@ -96,14 +103,15 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 # 102017 SERVO TEST MODULE
 # ***************
 
-MODULE_NAME=servo
+MODULE_NAME=servo_test
 include .construct_numbat_module
 
-$(BUILD_DIR)/servo.o: $(MODULE_DIR)/servo.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/servo_test.o: $(MODULE_DIR)/servo_test.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/servo.o \
+	$(BUILD_DIR)/servo_test.o \
 	$(BUILD_DIR)/boilerplate.o \
         $(BUILD_DIR)/pwmlib.o \
+        $(BUILD_DIR)/servo.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 # **********************
@@ -116,7 +124,7 @@ TARGETS=\
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
 	$(BUILD_DIR)/echronos_test.elf \
-	$(BUILD_DIR)/servo.elf
+	$(BUILD_DIR)/servo_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
 
