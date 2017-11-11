@@ -1,7 +1,7 @@
 COMPILER=gcc
 
 # Set the compiler CPU/FPU options.
-CPU=-mcpu=cortex-m4
+CPU=-mcpu=cortex-m4 -mstructure-size-boundary=8
 FPU=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 # The flags passed to the assembler.
@@ -35,6 +35,7 @@ CPPFLAGS=-mthumb           \
        -Wall               \
        -pedantic           \
        -DPART_${PART}      \
+       -ffreestanding \
        -std=c++11          \
        -flto \
        -c

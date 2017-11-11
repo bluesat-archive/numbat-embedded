@@ -17,18 +17,19 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     const uint16_t  diff = (size - offset);
     bytes = diff % can::CAN_MESSAGE_MAX_LEN;
 
-    if(bytes == 0 && diff > 0) {
+    if(bytes == 0 && diff > 0) { // this is wrong!
         bytes = can::CAN_MESSAGE_MAX_LEN;
     }
 
     has_next = diff > can::CAN_MESSAGE_MAX_LEN;
+    uint8_t * const ret = block+offset;
     if(has_next) {
         offset += can::CAN_MESSAGE_MAX_LEN;
     } else {
         done = true;
     }
 
-    return block+offset;
+    return ret;
 
 }
 
@@ -39,4 +40,12 @@ bool Message::is_done() {
 uint16_t Message::message_size() {
     //TODO: this is pretty wrong
     return size / can::CAN_MESSAGE_MAX_LEN;
+}
+
+Message & Message::operator = (const Message & message) {
+    block_generated = message.block_generated;
+    offset = message.offset;
+    size = message.size;
+    done = message.done;
+    block = message.block;
 }

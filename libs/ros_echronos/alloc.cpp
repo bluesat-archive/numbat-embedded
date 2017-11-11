@@ -23,13 +23,15 @@ uint8_t buffer[ALLOC_BUFFER_SIZE];
 static uint8_t * free_ptr;
 static uint8_t alloc_structure[MEMORY_MANAGMENT_D_STRUCTURE_SIZE];
 static uint8_t offset;
+static RtosMutexId mutex;
 
 static inline void * buff_2_alloc(void *);
 static inline void * alloc_2_buff(void *);
 
 #define is_free(ptr) ((*ptr) ^ FREE_MASK)
 
-void alloc::init_mm() {
+void alloc::init_mm(const RtosMutexId alloc_mutex) {
+    mutex = alloc_mutex;
     // zero the control structure, indicating a fully free area
     for(int i = 0; i < MEMORY_MANAGMENT_D_STRUCTURE_SIZE; ++i) {
         alloc_structure[i] = 0;
@@ -47,7 +49,7 @@ void * alloc::malloc(size_t size) {
     uint8_t * start = NULL;
     void * const end = alloc_structure + MEMORY_MANAGMENT_D_STRUCTURE_SIZE;
 
-    rtos_mutex_lock(ALLOC_MUTEX);
+    rtos_mutex_lock(mutex);
     do {
         while (!is_free(free_ptr)) {
             // jump ahead the distance indicated
@@ -57,7 +59,7 @@ void * alloc::malloc(size_t size) {
             }
         }
         if(free_ptr+size <= end) {
-            uint8_t *start = free_ptr;
+            start = free_ptr;
             //check the region is large enough
             for (i = 0; i < size && is_free(start + i); ++i) {}
         } else {
@@ -68,11 +70,11 @@ void * alloc::malloc(size_t size) {
     } while(i != size);
 
     // TODO: do allocation
-    for(uint8_t j = size - 1; j >= 0; --j) {
+    for(int8_t j = size - 1; j >= 0; --j) {
         start[j] = j;
         start[j] |= FREE_MASK;
     }
-    rtos_mutex_unlock(ALLOC_MUTEX);
+    rtos_mutex_unlock(mutex);
 
     return alloc_2_buff(start);
 }

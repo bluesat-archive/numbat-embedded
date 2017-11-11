@@ -15,7 +15,6 @@
 
 #include "rtos-kochab.h"
 
-#define ALLOC_MUTEX RTOS_MUTEX_ID_ALLOC
 
 #include <string.h>
 //void *memcpy(void *dest, const void *src, size_t n);
@@ -25,8 +24,10 @@ namespace alloc {
 
     /**
      * Initalise the memory manegment system
+     *
+     * @param alloc_mutex the mutex id for malloc
      */
-    void init_mm();
+    void init_mm(const RtosMutexId alloc_mutex);
     /**
      * Allocates a block of memory
      *

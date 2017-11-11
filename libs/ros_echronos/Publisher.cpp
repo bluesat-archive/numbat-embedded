@@ -42,11 +42,11 @@ template <class T> Publisher<T>::~Publisher() {
 
 template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handle) {
     nh = &node_handle;
+    prev = NULL;
     if(nh->publishers != NULL) {
         next = nh->publishers;
         next->prev = this;
     }
-    prev = NULL;
     nh->publishers = this;
     header.fields.mode = can::ROS_CAN_MODE;
     header.fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
@@ -56,7 +56,7 @@ template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handl
     header.fields.topic = 1;
 }
 
-template <class T> void Publisher<T>::publish(T message, uint8_t priority) {
+template <class T> void Publisher<T>::publish(T & message, uint8_t priority) {
     buffer.put(message);
     //TODO: priority
 }

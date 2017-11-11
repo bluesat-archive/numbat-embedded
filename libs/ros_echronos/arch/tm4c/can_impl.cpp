@@ -21,7 +21,7 @@ void ros_echronos::can::send_can(ros_echronos::can::CAN_ROS_Message & msg) {
     can_tx_message.ui32MsgLen = msg.body_bytes;
     can_tx_message.pui8MsgData = msg.body;
 
-    CANMessageSet(CAN0_BASE, msg.head.bits, &can_tx_message, MSG_OBJ_TYPE_TX);
+    CANMessageSet(CAN0_BASE, 1, &can_tx_message, MSG_OBJ_TYPE_TX);
 }
 
 

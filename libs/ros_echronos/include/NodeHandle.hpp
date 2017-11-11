@@ -11,6 +11,7 @@
 #define NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 
 #include <cstdint>
+#include <stdlib.h>
 #include "ListNode.hpp"
 
 namespace ros_echronos {
@@ -31,7 +32,7 @@ namespace ros_echronos {
             /**
              * The first publisher in the publisher list
              */
-            ListNode * publishers;
+            ListNode * publishers = NULL;
 
             /**
              * Causes all messages to be published

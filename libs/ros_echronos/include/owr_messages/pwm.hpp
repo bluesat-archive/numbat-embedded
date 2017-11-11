@@ -35,7 +35,7 @@ class pwm_ : public ros_echronos::Message {
 
   typedef  ::owr_messages::pwm_  * Ptr;
   typedef  ::owr_messages::pwm_  * const ConstPtr;
-}; // class pwm
+} __attribute__((aligned (4)));; // class pwm
 typedef  ::owr_messages::pwm_ pwm;
 
 typedef  ::owr_messages::pwm pwmPtr;

@@ -45,8 +45,10 @@ $(BUILD_DIR)/%.elf:
 		 -mlittle-endian     \
 		 -fno-exceptions     \
 		 -fno-unwind-tables  \
+		 -ffreestanding \
 		 -fno-rtti		     \
 		 -frepo				  \
+          -flto \
 		 -mthumb \
 		 -Wall				   \
 		 -pedantic		     \

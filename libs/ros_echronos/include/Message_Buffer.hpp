@@ -17,9 +17,9 @@ class Message_Buffer {
 
     public:
         T * const buffer_start;
+        T * const buffer_end;
         T * buffer_head;
         T * buffer_tail;
-        T * const buffer_end;
 
         /**
          * Creates a new write buffer

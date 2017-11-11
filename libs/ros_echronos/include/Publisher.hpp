@@ -72,7 +72,7 @@ namespace ros_echronos {
              * @param message the message to publish
              * @param priority the priority of the message
              */
-            void publish(T message, uint8_t priority = 0);
+            void publish(T & message, uint8_t priority = 0);
 
             virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool &has_next, bool &empty)  __attribute__((used));
 

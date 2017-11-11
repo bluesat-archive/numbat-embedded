@@ -2,16 +2,27 @@
 
 #include "boilerplate.h"
 
-class Thing {
+class ParentThing {
+    public:
+        ParentThing();
+        virtual int virtual_derp() = 0;
+};
+
+class Thing : public ParentThing {
     public:
         Thing();
         int derp();
+        virtual int virtual_derp();
 
     private:
         int a;
 };
 
-Thing::Thing() {
+ParentThing::ParentThing() {
+    UARTprintf("ccc");
+}
+
+Thing::Thing() : ParentThing() {
     UARTprintf("aaa\n");
 };
 
@@ -20,6 +31,12 @@ int Thing::derp() {
     a = 2;
     return 0;
 }
+
+int Thing::virtual_derp()  {
+    UARTprintf("Hello Derp\n");
+    return 9;
+};
+
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -35,6 +52,7 @@ extern "C" bool tick_irq(void) {
 
 extern "C" void task_blink_fn(void) {
 
+    Thing a_thing;
     UARTprintf("Entered blinky task\n");
 
     // Enable the GPIO pin for the LEDs (PF3).  Set the direction as output, and
@@ -47,6 +65,10 @@ extern "C" void task_blink_fn(void) {
 
     // Loop forever.
     while(1) {
+        a_thing.derp();
+        a_thing.virtual_derp();
+        dynamic_cast<ParentThing*>(&a_thing)->virtual_derp();
+        ((ParentThing*)&(a_thing))->virtual_derp();
         // Turn off all but the red LED.
         GPIOPinWrite(GPIO_PORTF_BASE, ALL_LEDS, RED_LED);
 

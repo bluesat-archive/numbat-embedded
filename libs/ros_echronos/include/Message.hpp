@@ -62,6 +62,8 @@ namespace ros_echronos {
         protected:
             // needed because inheritance breaks the linker if there is not constructor
             Message();
+
+            Message &operator = (const Message & message);
             /**
              * If the message has been generated
              */
@@ -83,7 +85,7 @@ namespace ros_echronos {
              */
             bool done = false;
 
-    };
+    } __attribute__((aligned(16)));
 }
 
 

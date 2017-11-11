@@ -5,7 +5,7 @@
 #include "Publisher.hpp"
 
 owr_messages::pwm pwm_buffer[5];
-ros_echronos::Publisher<owr_messages::pwm> pub("aaa", (owr_messages::pwm*)pwm_buffer, 5, false);
+ros_echronos::Publisher<owr_messages::pwm> * pub;
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -67,11 +67,11 @@ extern "C" void task_ros_test_fn(void) {
     nh.init("ros_test_fn","ros_test_fn");
 
     UARTprintf("pub init\n");
-    pub.init(nh);
+    pub->init(nh);
     owr_messages::pwm msg;
     while(true) {
         UARTprintf("pub pub\n");
-        pub.publish(msg);
+        pub->publish(msg);
         UARTprintf("pub done\n");
 
         nh.spin();
@@ -95,8 +95,12 @@ int main(void) {
 
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
+    ros_echronos::Publisher<owr_messages::pwm> _pub("aaa", (owr_messages::pwm*)pwm_buffer, 5, false);
+    pub = &_pub;
 
     init_can();
+
+    alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
 
     // Actually start the RTOS
     UARTprintf("Starting RTOS...\n");
