@@ -40,6 +40,8 @@ extern "C" void can0_int_handler(void) {
     if(can_status == CAN_INT_INTID_STATUS) {
         // read the error status and store it to be handled latter
         error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
+        // clear so we can continue
+        CANIntClear(CAN0_BASE, 1);
     } else {
         // we are reciving a message, TODO: handle this
         // for now we clear the interup so we can continue
@@ -76,7 +78,6 @@ extern "C" void task_ros_test_fn(void) {
 
         nh.spin();
     }
-
 }
 
 int main(void) {
