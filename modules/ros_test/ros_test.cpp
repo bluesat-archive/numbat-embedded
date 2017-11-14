@@ -72,6 +72,8 @@ extern "C" void task_ros_test_fn(void) {
     pub->init(nh);
     owr_messages::pwm msg;
     while(true) {
+        msg.currentPos+=1.5;
+        msg.targetVel = 2;
         UARTprintf("pub pub\n");
         pub->publish(msg);
         UARTprintf("pub done\n");

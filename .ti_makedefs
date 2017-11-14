@@ -37,6 +37,8 @@ CPPFLAGS=-mthumb           \
        -DPART_${PART}      \
        -ffreestanding \
        -std=c++11          \
+       -mtpcs-frame \
+       -mtpcs-leaf-frame \
        -flto \
        -c
 

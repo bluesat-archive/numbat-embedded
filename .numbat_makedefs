@@ -53,6 +53,8 @@ $(BUILD_DIR)/%.elf:
 		 -Wall				   \
 		 -pedantic		     \
 		 -g \
+		 -mtpcs-frame \
+		 -mtpcs-leaf-frame \
 		 -DPART_${PART}		\
 		  $(MODULES_DIR)/boilerplate/crtn.cpp \
 		  ${^} 								    \

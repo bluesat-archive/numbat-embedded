@@ -5,11 +5,12 @@
 #ifndef NUMBAT_EMBEDDED_LISTNODE_H
 #define NUMBAT_EMBEDDED_LISTNODE_H
 
+#include "ros.hpp"
 
 class ListNode {
     public:
-        ListNode * next;
-        ListNode * prev;
+        ListNode * next = NULL;
+        ListNode * prev = NULL;
 };
 
 

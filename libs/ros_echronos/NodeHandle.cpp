@@ -21,9 +21,9 @@ void NodeHandle::spin() {
     using namespace can;
     _Publisher * current = (_Publisher *) publishers;
     do {
-        bool has_next = false;
+        bool has_next  __attribute__((aligned(8))) = false;
         do {
-            bool empty = false;
+            bool empty  __attribute__((aligned(8)))= false;
             CAN_ROS_Message msg = current->get_next_message(has_next, empty);
             can::send_can(msg);
         } while (has_next);
