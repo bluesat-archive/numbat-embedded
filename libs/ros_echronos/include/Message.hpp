@@ -71,7 +71,7 @@ namespace ros_echronos {
             /**
              * The current index of the block
              */
-            uint16_t offset = 0;
+            volatile uint16_t offset = 0;
             /**
              * All of the data blocks
              */

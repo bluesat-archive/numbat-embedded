@@ -75,8 +75,11 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
     }
 
     can_msg.head = header;
+
+    uint8_t * current = current_message.get_next_block(has_next, can_msg.body_bytes);
+
+    memcpy(can_msg.body, current, can_msg.body_bytes);
     can_msg.head.fields.message_length = current_message.message_size();
-    memcpy(can_msg.body, current_message.get_next_block(has_next, can_msg.body_bytes), can_msg.body_bytes);
     message_in_progress = has_next;
 
     // we also have next if there are more messages in the buffer

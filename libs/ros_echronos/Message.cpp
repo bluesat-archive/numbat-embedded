@@ -3,6 +3,7 @@
 //
 
 #include "include/Message.hpp"
+#include "ros.hpp"
 
 using namespace ros_echronos;
 
@@ -13,18 +14,23 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
         generate_block();
         block_generated = true;
         offset = 0;
+        done = false;
     }
     const uint16_t  diff = (size - offset);
-    bytes = diff % can::CAN_MESSAGE_MAX_LEN;
 
-    if(bytes == 0 && diff > 0) { // this is wrong!
+    // do we have a full block left or a partial one?
+    if(diff > can::CAN_MESSAGE_MAX_LEN) {
         bytes = can::CAN_MESSAGE_MAX_LEN;
+        has_next = true;
+    } else {
+        bytes = diff;
+        has_next = false;
     }
 
-    has_next = diff > can::CAN_MESSAGE_MAX_LEN;
     uint8_t * const ret = block+offset;
     if(has_next) {
-        offset += can::CAN_MESSAGE_MAX_LEN;
+        // += does not work here for some reason
+        offset += (uint16_t)  can::CAN_MESSAGE_MAX_LEN;
     } else {
         done = true;
     }
@@ -38,7 +44,10 @@ bool Message::is_done() {
 }
 
 uint16_t Message::message_size() {
-    //TODO: this is pretty wrong
+    if(!block_generated || done) {
+        // we don't know the size in messages until we have generated the block
+        generate_block();
+    }
     return size / can::CAN_MESSAGE_MAX_LEN;
 }
 
