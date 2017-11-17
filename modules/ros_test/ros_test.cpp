@@ -58,7 +58,7 @@ extern "C" void can0_int_handler(void) {
         sent_message = false;
     }
 
-    UARTprintf("A Error Code %x\n", can_status);
+    //UARTprintf("A Error Code %x\n", can_status);
 }
 
 extern "C" void task_ros_test_fn(void) {

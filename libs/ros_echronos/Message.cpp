@@ -3,6 +3,7 @@
 //
 
 #include "include/Message.hpp"
+#include "boilerplate.h"
 #include "ros.hpp"
 
 using namespace ros_echronos;
@@ -31,6 +32,7 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     if(has_next) {
         // += does not work here for some reason
         offset += (uint16_t)  can::CAN_MESSAGE_MAX_LEN;
+        UARTprintf("Offset %d\n", offset);
     } else {
         done = true;
     }
