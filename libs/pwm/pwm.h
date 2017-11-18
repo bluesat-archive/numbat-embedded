@@ -47,15 +47,22 @@ enum pwm_prescale_values {
     DIV64
 };
 
-/* Sets the clock divider for the pwm module. 
- *
- */
-extern enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre);
-
 /* Takes a pwm port and attempts to enable it with output disabled.
  * Returns PWM_FAILURE if there was an immediate problem, otherwise 
  * PWM_SUCCESS if status pending. */
 extern enum pwm_status pwm_init(enum pwm_pin pwm);
+
+/* Sets the clock divider for the pwm module. This divides the system
+ * clock (50 MHz) by the given value thus increasing the maximum period
+ * of the pwm signal. Max periods (ms) are as follows:
+ *  1 ->  1.311
+ *  2 ->  2.621
+ *  4 ->  5.243
+ *  8 -> 10.486
+ * 16 -> 20.972
+ * 32 -> 41.943
+ * 64 -> 83.886 */
+extern enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre);
 
 /* Sets the base period for pwm pin pair in milliseconds. Returns 
  * status PWM_SUCCESS, or PWM_FAILURE. */

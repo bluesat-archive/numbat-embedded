@@ -28,22 +28,12 @@ enum pwm_prescale_values get_pre(void) {
     };
 }
 
-enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre) {
-    ASSERT(pwm_prescale_valid(pre));
-
-    // Set pwm sysclk prescaler
-    SysCtlPWMClockSet(pwm_prescale[pre].flag);
-    
-    return PWM_SUCCESS;
-}
-
 /* Input: abstract PWM pin
  * Output: status code
  * Side Effects (in order):
  *     - Enables PWM module
  *     - Enables GPIO port
  *     - Configures GPIO pin for pwm output
- *     - Sets PWM module clock divider
  *     - Configures PWM generator
  *     - Disables PWM pin output */
 enum pwm_status pwm_init(enum pwm_pin pwm) {
@@ -83,6 +73,19 @@ enum pwm_status pwm_init(enum pwm_pin pwm) {
     // Enable PWM generator
     PWMGenEnable(pwm_module, pwm_gen[pwm]);
 
+    return PWM_SUCCESS;
+}
+
+/* Input: abstract PWM prescale value
+ * Output: status code
+ * Side Effects:
+ *     - Sets pwm module clock prescale value */
+enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre) {
+    ASSERT(pwm_prescale_valid(pre));
+
+    // Set pwm sysclk prescaler
+    SysCtlPWMClockSet(pwm_prescale[pre].flag);
+    
     return PWM_SUCCESS;
 }
 

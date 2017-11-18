@@ -6,8 +6,6 @@ void task_pwm_test_fn(void) {
 
     UARTprintf("Entered PWM Test task. Initializing...\n");
 
-    pwm_set_prescaler(DIV8);
-
     pwm_init(PWM0);
     pwm_init(PWM1);
     pwm_init(PWM2);
@@ -16,6 +14,8 @@ void task_pwm_test_fn(void) {
     pwm_init(PWM5);
     pwm_init(PWM6);
     pwm_init(PWM7);
+
+    pwm_set_prescaler(DIV8);
 
     pwm_set_period(PWM_PAIR0, 10.0);
     pwm_set_period(PWM_PAIR1, 10.0);
