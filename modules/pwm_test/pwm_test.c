@@ -5,6 +5,8 @@
 void task_pwm_test_fn(void) {
 
     UARTprintf("Entered PWM Test task. Initializing...\n");
+    
+    pwm_init(50);
 
     pwm_init(PWM0);
     pwm_init(PWM1);
@@ -16,11 +18,14 @@ void task_pwm_test_fn(void) {
     pwm_init(PWM7);
 
     pwm_set_prescaler(DIV8);
+    pwm_set_prescaler(50);
 
     pwm_set_period(PWM_PAIR0, 10.0);
     pwm_set_period(PWM_PAIR1, 10.0);
     pwm_set_period(PWM_PAIR2, 10.0);
     pwm_set_period(PWM_PAIR3, 10.0);
+    pwm_set_period(50, 10.0);
+    pwm_set_period(PWM_PAIR0, 200.0);
 
     pwm_get_period(PWM_PAIR0);
 
@@ -42,6 +47,9 @@ void task_pwm_test_fn(void) {
     pwm_set_duty(PWM6, 99.9);
     pwm_set_duty(PWM7, 0.1);
 
+    pwm_set_duty(50, 50.0);
+    pwm_set_duty(PWM0, 200.0);
+
     for (int i = PWM0; i <= PWM7; i++) {
         double duty = pwm_get_duty(i);
         char *dutyc = (char *)(&duty);
@@ -60,6 +68,7 @@ void task_pwm_test_fn(void) {
     pwm_enable(PWM5);
     pwm_enable(PWM6);
     pwm_enable(PWM7);
+    pwm_enable(40);
 
     UARTprintf("PWM initialisation complete...\n");
     

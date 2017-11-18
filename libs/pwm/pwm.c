@@ -1,6 +1,13 @@
 #include "pwm.h"
 #include "pwm_hw.h"
 
+#define c_assert(e)    ((e) ? (true) : (tst_debugging("%s,%d: assertion '%s' failed\n", __FILE__, __LINE__, #e), false)) 
+#define pwm_assert(e)    if (c_assert(e) == false) return PWM_FAILURE
+
+void tst_debugging(char *frmt_str, char *file, char *line, char *err) {
+    UARTprintf(frmt_str, file, line, err);
+}
+
 bool pwm_valid(enum pwm_pin val) {
     return (val >= PWM0 && val <= PWM7);
 }
@@ -24,7 +31,6 @@ enum pwm_prescale_values get_pre(void) {
         case SYSCTL_PWMDIV_16 : return DIV16;
         case SYSCTL_PWMDIV_32 : return DIV32;
         case SYSCTL_PWMDIV_64 : return DIV64;
-        default: ASSERT(false);
     };
 }
 
@@ -37,7 +43,7 @@ enum pwm_prescale_values get_pre(void) {
  *     - Configures PWM generator
  *     - Disables PWM pin output */
 enum pwm_status pwm_init(enum pwm_pin pwm) {
-    ASSERT(pwm_valid(pwm));
+    pwm_assert(pwm_valid(pwm));
 
     // if pwm module note enabled
     if (SysCtlPeripheralReady(sysctl_module) == false) {
@@ -81,7 +87,7 @@ enum pwm_status pwm_init(enum pwm_pin pwm) {
  * Side Effects:
  *     - Sets pwm module clock prescale value */
 enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre) {
-    ASSERT(pwm_prescale_valid(pre));
+    pwm_assert(pwm_prescale_valid(pre));
 
     // Set pwm sysclk prescaler
     SysCtlPWMClockSet(pwm_prescale[pre].flag);
@@ -92,12 +98,14 @@ enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre) {
 /* Input: abstract PWM pin pair, PWM carrier period in milliseconds
  * Output: status code */
 enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, period_ms period) {
-    ASSERT(pwm_pair_valid(pwm_pair));
+    pwm_assert(pwm_pair_valid(pwm_pair));
 
     enum pwm_prescale_values prescale = get_pre();
 
     uint32_t f_pwm = SysCtlClockGet() / pwm_prescale[prescale].value;
     uint32_t period_counts = (uint32_t)(period / 1000.0 * f_pwm);
+
+    pwm_assert(period_counts < 65536); // period counter is 16-bits
     
     PWMGenPeriodSet(pwm_module, pwm_pair_gen[pwm_pair], period_counts);
 
@@ -107,7 +115,7 @@ enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, period_ms period) {
 /* Input: abstract PWM pin pair
  * Output: PWM carrier period in milliseconds */
 period_ms pwm_get_period(enum pwm_pin_pair pwm_pair) {
-    ASSERT(pwm_pair_valid(pwm_pair));
+    pwm_assert(pwm_pair_valid(pwm_pair));
 
     enum pwm_prescale_values prescale = get_pre();
 
@@ -120,8 +128,8 @@ period_ms pwm_get_period(enum pwm_pin_pair pwm_pair) {
 /* Input: abstract PWM pin, PWM duty in percent
  * Output: status code */
 enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
-    ASSERT(pwm_valid(pwm));
-    ASSERT(duty >= 0.0 && duty <= 100.0);
+    pwm_assert(pwm_valid(pwm));
+    pwm_assert(duty >= 0.0 && duty <= 100.0);
 
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_gen[pwm]);
     uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0);
@@ -141,7 +149,7 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
 /* Input: abstract PWM pin
  * Output: PWM duty in percent */
 duty_pct pwm_get_duty(enum pwm_pin pwm) {
-    ASSERT(pwm_valid(pwm));
+    pwm_assert(pwm_valid(pwm));
 
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_gen[pwm]);
     uint32_t duty_period = PWMPulseWidthGet(pwm_module, pwm_out[pwm].out);
@@ -153,7 +161,7 @@ duty_pct pwm_get_duty(enum pwm_pin pwm) {
  * Output: status code
  * Side Effect: enables PWM pin */
 enum pwm_status pwm_enable(enum pwm_pin pwm) {
-    ASSERT(pwm_valid(pwm));
+    pwm_assert(pwm_valid(pwm));
 
     PWMOutputState(pwm_module, pwm_out[pwm].bit, true);
 
@@ -164,7 +172,7 @@ enum pwm_status pwm_enable(enum pwm_pin pwm) {
  * Output: status code
  * Side Effect: disables PWM pin */
 enum pwm_status pwm_disable(enum pwm_pin pwm) {
-    ASSERT(pwm_valid(pwm));
+    pwm_assert(pwm_valid(pwm));
 
     PWMOutputState(pwm_module, pwm_out[pwm].bit, false);
 
