@@ -3,7 +3,7 @@ CFLAGSgcc=-DTARGET_IS_TM4C123_RB1
 include .ti_makedefs
 ROS_ECHRONOS_DIR=libs/ros_echronos
 ROS_ARCH_DIR=$(ROS_ECHRONOS_DIR)/arch/tm4c
-IPATH+=$(ROS_ECHRONOS_DIR)/include
+IPATH+=$(ROS_ECHRONOS_DIR)/include $(LIB_DIR)/tlsf
 
 MODULE_BUILD_DIR=$(ECHRONOS_BUILD)/$(MODULE_NAME)-echronos
 ROS_BUILD_DIR=$(MODULE_BUILD_DIR)/lib/ros_echronos

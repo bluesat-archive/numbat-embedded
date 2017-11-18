@@ -172,3 +172,8 @@ Then add ` __attribute__((used))`  to the end of the function prototype.
 ### Other Problems
 
 http://wiki.osdev.org/C%2B%2B is a good reference if you are getting weird linker errors on this code 
+
+# libs
+The following libraries are used and have there own licenses
+ - ti libs
+ - tlsf (LGPL/GPL)
