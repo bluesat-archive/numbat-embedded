@@ -1,20 +1,16 @@
-PWM module:
-    Independent PWM peripheral running off a division of the system clock. Each module has 4 generators with 2 outputs each.
+This PWM library is intended to make development of code using the pwm
+peripheral faster for simple uses by people who already have an 
+undestanding of the PWM module architecture.
 
-PWM generator:
-    Takes PWM clock and generates a DOWN or UP_DOWN signal that is used by its comparitors to generate a PWM signal. 
+The PWM module consists of 4 generators each with two PWM signal
+outputs. 
 
-PWM module initialisation:
-    1. Enable PWM module
-    2. Enable GPIO port used by PWM module
-    3. Set GPIO pin type for pins used by PWM module
-    4. Configure GPIO pins for specific PWM output
-    5. Set PWM clock divisor
+The clock is set on a module level from the system clock with 
+a divider. This divider allows for signal periods up to about 80 ms.
 
-PWM generator initialisation:
-    1. Configure PWM generator
-    2. Set generator period
-    3. Set output pulse widths
-    4. Enable generator
-    5. Enable outputs
+The PWM signal period is set on a generator level, which means that
+pairs of outputs will share periods. 
 
+The PWM duty can be set on a per output basis.
+
+For usage details see the pwm.h file.
