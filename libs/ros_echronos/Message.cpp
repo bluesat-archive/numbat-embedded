@@ -46,7 +46,7 @@ bool Message::is_done() {
 }
 
 uint16_t Message::message_size() {
-    if(!block_generated || done) {
+    if(!block_generated) {
         // we don't know the size in messages until we have generated the block
         generate_block();
     }

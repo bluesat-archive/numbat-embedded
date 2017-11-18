@@ -35,6 +35,5 @@ arm-none-eabi-gdb $1 \
     -ex 'load' \
     -ex 'monitor reset halt' \
     -ex 'b main' \
-    -ex 'b can0_int_handler' \
     -ex 'c' \
 

@@ -58,7 +58,7 @@ void task_can_fn(void) {
     UARTprintf("Entered CAN task. Initializing...\n");
 
     uint8_t buff[CAN_MSG_LEN] = {0};
-    while(1) {
+    /*while(1) {
         if(error_flag != 0) {
             //TODO: error handling
             UARTprintf("Error occured 0x%X\n", error_flag);
@@ -70,7 +70,7 @@ void task_can_fn(void) {
         UARTprintf("Write!\n");
         sent_message = true;
         write_can(1, buff , CAN_MSG_LEN);
-    }
+    }*/
 }
 
 int main(void) {
