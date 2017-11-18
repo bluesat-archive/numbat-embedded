@@ -1,6 +1,6 @@
 #include "boilerplate.h"
 #include "rtos-kochab.h"
-#include "pwmlib.h"
+#include "pwm.h"
 
 void task_pwm_test_fn(void) {
 

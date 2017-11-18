@@ -1,5 +1,6 @@
 #ifndef PWM_HW
 #define PWM_HW
+
 #include <stdbool.h>
 #include <stdint.h>
 

@@ -1,7 +1,5 @@
-#include "pwmlib.h"
+#include "pwm.h"
 #include "pwm_hw.h"
-
-static enum pwm_prescale_values prescale = DIV1;
 
 bool pwm_valid(enum pwm_pin val) {
     return (val >= PWM0 && val <= PWM7);
@@ -15,10 +13,26 @@ bool pwm_prescale_valid(enum pwm_prescale_values val) {
     return (val >= DIV1 && val <= DIV64);
 }    
 
+enum pwm_prescale_values get_pre(void) {
+    uint32_t ui32Config = SysCtlPWMClockGet();
+
+    switch (ui32Config) {
+        case SYSCTL_PWMDIV_1 : return DIV1;
+        case SYSCTL_PWMDIV_2 : return DIV2;
+        case SYSCTL_PWMDIV_4 : return DIV4;
+        case SYSCTL_PWMDIV_8 : return DIV8;
+        case SYSCTL_PWMDIV_16 : return DIV16;
+        case SYSCTL_PWMDIV_32 : return DIV32;
+        case SYSCTL_PWMDIV_64 : return DIV64;
+        default: ASSERT(false);
+    };
+}
+
 enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre) {
     ASSERT(pwm_prescale_valid(pre));
 
-    prescale = pre;
+    // Set pwm sysclk prescaler
+    SysCtlPWMClockSet(pwm_prescale[pre].flag);
     
     return PWM_SUCCESS;
 }
@@ -63,9 +77,6 @@ enum pwm_status pwm_init(enum pwm_pin pwm) {
     // configure gpio pin
     GPIOPinConfigure(gpio_pin[pwm].config);
 
-    // Set pwm sysclk prescaler to /64
-    SysCtlPWMClockSet(pwm_prescale[prescale].flag);
-
     // Configure PWM generator
     PWMGenConfigure(pwm_module, pwm_gen[pwm], pwm_config);
     
@@ -80,6 +91,8 @@ enum pwm_status pwm_init(enum pwm_pin pwm) {
 enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, period_ms period) {
     ASSERT(pwm_pair_valid(pwm_pair));
 
+    enum pwm_prescale_values prescale = get_pre();
+
     uint32_t f_pwm = SysCtlClockGet() / pwm_prescale[prescale].value;
     uint32_t period_counts = (uint32_t)(period / 1000.0 * f_pwm);
     
@@ -92,6 +105,8 @@ enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, period_ms period) {
  * Output: PWM carrier period in milliseconds */
 period_ms pwm_get_period(enum pwm_pin_pair pwm_pair) {
     ASSERT(pwm_pair_valid(pwm_pair));
+
+    enum pwm_prescale_values prescale = get_pre();
 
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_pair_gen[pwm_pair]);
     uint32_t f_pwm_mhz = SysCtlClockGet() / 1000.0 / pwm_prescale[prescale].value;

@@ -36,7 +36,7 @@ enum pwm_status {
     PWM_FAILURE
 };
 
-// pwm prescaler enumeration
+// pwm prescale enumeration, each divides the clock by the given value
 enum pwm_prescale_values {
     DIV1,
     DIV2,
@@ -47,6 +47,9 @@ enum pwm_prescale_values {
     DIV64
 };
 
+/* Sets the clock divider for the pwm module. 
+ *
+ */
 extern enum pwm_status pwm_set_prescaler(enum pwm_prescale_values pre);
 
 /* Takes a pwm port and attempts to enable it with output disabled.
