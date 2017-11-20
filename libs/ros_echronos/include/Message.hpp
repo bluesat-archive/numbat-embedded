@@ -75,7 +75,7 @@ namespace ros_echronos {
             /**
              * All of the data blocks
              */
-            uint8_t * block;
+            uint8_t * block = NULL;
             /**
              * The size of the block
              */

@@ -7,6 +7,7 @@
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
+#include "boilerplate.h"
 #include "include/alloc.hpp"
 #include "tlsf.h"
 
@@ -25,7 +26,8 @@ static tlsf_t tlsf;
 
 void alloc::init_mm(const RtosMutexId alloc_mutex) {
     mutex = alloc_mutex;
-    tlsf = tlsf_create(buffer);
+    tlsf = tlsf_create_with_pool(buffer, ALLOC_BUFFER_SIZE);
+    UARTprintf("tlsf %p\n", tlsf);
 }
 
 void * alloc::malloc(size_t size) {

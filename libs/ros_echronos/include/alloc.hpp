@@ -10,7 +10,7 @@
 #ifndef NUMBAT_EMBEDDED_ALLOC_HPP
 #define NUMBAT_EMBEDDED_ALLOC_HPP
 
-#define ALLOC_BUFFER_SIZE 2048
+#define ALLOC_BUFFER_SIZE 4096
 #define ALLOC_MIN_ALLOC 16
 
 #include "rtos-kochab.h"
