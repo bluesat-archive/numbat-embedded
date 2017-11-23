@@ -9,6 +9,7 @@
 
 #include "include/NodeHandle.hpp"
 #include "include/Publisher.hpp"
+#include "boilerplate.h"
 // needed because template
 #include "Message_Buffer.cpp"
 
@@ -79,6 +80,7 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
     uint8_t * current = current_message.get_next_block(has_next, can_msg.body_bytes);
 
     memcpy(can_msg.body, current, can_msg.body_bytes);
+    UARTprintf("msg: 0: %c, 1: %c\n", can_msg.body[0], can_msg.body[1]);
     can_msg.head.fields.message_length = current_message.message_size();
     message_in_progress = has_next;
 
