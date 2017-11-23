@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-The code is dual licensed under the BSD License and AGPLv3 license.
+The code is dual licensed under the BSD License and LGPLv3 license.
 Copyright of code written after 13/05/2017 is BLUEsat UNSW, 2017.
 
 
