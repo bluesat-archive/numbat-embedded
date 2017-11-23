@@ -22,6 +22,7 @@ template <class T> Subscriber<T>::~Subscriber() {
 }
 
 template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
+    can::subscribe_can(0,can::CAN_TOPIC_FILTER_BITMASK); //TODO: add node id, function, etc
 
 }
 

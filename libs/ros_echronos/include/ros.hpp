@@ -20,6 +20,11 @@ namespace ros_echronos {
         extern int can_error_flag;
 
         const uint8_t CAN_MESSAGE_MAX_LEN = 8;
+
+        /**
+         * 10000011111111110000000000000
+         */
+        const uint32_t CAN_TOPIC_FILTER_BITMASK = 0x107FE000;
         /**
          * Value for the ros mode on the can bus
          */
