@@ -1,5 +1,42 @@
-#include "boilerplate.h"
 #include "rtos-kochab.h"
+
+#include "boilerplate.h"
+
+class ParentThing {
+    public:
+        ParentThing();
+        virtual int virtual_derp() = 0;
+};
+
+class Thing : public ParentThing {
+    public:
+        Thing();
+        int derp();
+        virtual int virtual_derp();
+
+    private:
+        int a;
+};
+
+ParentThing::ParentThing() {
+    UARTprintf("ccc");
+}
+
+Thing::Thing() : ParentThing() {
+    UARTprintf("aaa\n");
+};
+
+int Thing::derp() {
+    UARTprintf("Derp\n");
+    a = 2;
+    return 0;
+}
+
+int Thing::virtual_derp()  {
+    UARTprintf("Hello Derp\n");
+    return 9;
+};
+
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -8,13 +45,14 @@
 #define GREEN_LED GPIO_PIN_3
 #define ALL_LEDS (RED_LED|BLUE_LED|GREEN_LED)
 
-bool tick_irq(void) {
+extern "C" bool tick_irq(void) {
     rtos_timer_tick();
     return true;
 }
 
-void task_blink_fn(void) {
+extern "C" void task_blink_fn(void) {
 
+    Thing a_thing;
     UARTprintf("Entered blinky task\n");
 
     // Enable the GPIO pin for the LEDs (PF3).  Set the direction as output, and
@@ -27,6 +65,10 @@ void task_blink_fn(void) {
 
     // Loop forever.
     while(1) {
+        a_thing.derp();
+        a_thing.virtual_derp();
+        dynamic_cast<ParentThing*>(&a_thing)->virtual_derp();
+        ((ParentThing*)&(a_thing))->virtual_derp();
         // Turn off all but the red LED.
         GPIOPinWrite(GPIO_PORTF_BASE, ALL_LEDS, RED_LED);
 
@@ -50,6 +92,7 @@ void task_blink_fn(void) {
 
 int main(void) {
 
+
     // Initialize the floating-point unit.
     InitializeFPU();
 
@@ -64,6 +107,9 @@ int main(void) {
 
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
+
+    Thing t;
+    t.derp();
 
     // Actually start the RTOS
     UARTprintf("Starting RTOS...\n");

@@ -1,5 +1,11 @@
 #include "boilerplate.h"
 #include "rtos-kochab.h"
+#include "ros.hpp"
+#include "owr_messages/pwm.hpp"
+#include "Publisher.hpp"
+
+owr_messages::pwm pwm_buffer[5];
+ros_echronos::Publisher<owr_messages::pwm> * pub;
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -12,7 +18,7 @@ static uint8_t can_input_buffer[CAN_MSG_LEN];
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 
-bool tick_irq(void) {
+extern "C" bool tick_irq(void) {
     rtos_timer_tick();
     return true;
 }
@@ -24,7 +30,7 @@ static uint32_t error_flag;
 /**
  * Used to handle interups from can0
  */
-void can0_int_handler(void) {
+extern "C" void can0_int_handler(void) {
     uint32_t can_status = 0;
 
     // read the register
@@ -34,6 +40,8 @@ void can0_int_handler(void) {
     if(can_status == CAN_INT_INTID_STATUS) {
         // read the error status and store it to be handled latter
         error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
+        // clear so we can continue
+        CANIntClear(CAN0_BASE, 1);
     } else {
         // we are reciving a message, TODO: handle this
         // for now we clear the interup so we can continue
@@ -50,27 +58,32 @@ void can0_int_handler(void) {
         sent_message = false;
     }
 
-    UARTprintf("A Error Code %x\n", can_status);
+    //UARTprintf("A Error Code %x\n", can_status);
 }
 
-void task_can_fn(void) {
+extern "C" void task_ros_test_fn(void) {
 
     UARTprintf("Entered CAN task. Initializing...\n");
+    ros_echronos::NodeHandle nh;
+    UARTprintf("Done init\n");
+    nh.init("ros_test_fn","ros_test_fn");
 
-    uint8_t buff[CAN_MSG_LEN] = {0};
-    /*while(1) {
-        if(error_flag != 0) {
-            //TODO: error handling
-            UARTprintf("Error occured 0x%X\n", error_flag);
-        }
-        UARTprintf("Preparing to write\n");
-        buff[0] = 'a';
-        buff[1] = 'b';
-        buff[2] = 'c';
-        UARTprintf("Write!\n");
-        sent_message = true;
-        write_can(1, buff , CAN_MSG_LEN);
-    }*/
+    UARTprintf("pub init\n");
+    pub->init(nh);
+    owr_messages::pwm msg;
+    while(true) {
+        UARTprintf("Next loop!\n");
+        msg.currentPos+=1.5;
+        msg.targetVel = 2;
+        msg.pwm = 100;
+        msg.targetPos+=2;
+        memcpy(msg.joint, "the joint", 9);
+        UARTprintf("pub pub\n");
+        pub->publish(msg);
+        UARTprintf("pub done\n");
+
+        nh.spin();
+    }
 }
 
 int main(void) {
@@ -89,8 +102,12 @@ int main(void) {
 
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
+    ros_echronos::Publisher<owr_messages::pwm> _pub("aaa", (owr_messages::pwm*)pwm_buffer, 5, false);
+    pub = &_pub;
 
     init_can();
+
+    alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
 
     // Actually start the RTOS
     UARTprintf("Starting RTOS...\n");
@@ -132,7 +149,7 @@ void init_can(void) {
     rx_object.ui32MsgIDMask = 0;
     rx_object.ui32Flags = MSG_OBJ_TX_INT_ENABLE;
     rx_object.ui32MsgLen = CAN_MSG_LEN;
-    rx_object.pui8MsgData = &can_input_buffer;
+    rx_object.pui8MsgData = (uint8_t *) &can_input_buffer;
 }
 
 void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size) {

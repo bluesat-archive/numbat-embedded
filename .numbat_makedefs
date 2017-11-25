@@ -10,6 +10,15 @@ include .ti_makedefs
 IPATH=$(TI_LIBS)
 IPATH+=$(MODULES_DIR)/boilerplate
 
+# See  http://wiki.osdev.org/Calling_Global_Constructors this is needed to make C++ work
+CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
+CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtend.o)
+# we shouldn't do these two...
+CRTI_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crti.o)
+CRTN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtn.o)
+#CRTI_OBJ=crti.o
+#CRTN_OBJ=crtn.o
+
 $(BUILD_DIR)/%.o: $(wildcard $(MODULES_DIR)/*/%.c)
 	$(BUILD_PRINT)
 	${CC} ${CFLAGS} \
@@ -17,16 +26,47 @@ $(BUILD_DIR)/%.o: $(wildcard $(MODULES_DIR)/*/%.c)
 		-I$(<D) \
 		-D${COMPILER} -o ${@} ${<}
 
+$(BUILD_DIR)/%.opp: $(wildcard $(MODULES_DIR)/*/%.cpp)
+	$(BUILD_PRINT)
+	${CC} ${CPPFLAGS} \
+		-I$(ECHRONOS_BUILD)/$(subst modules/,,$(<D))-echronos/ \
+		-I$(<D) \
+		-D${COMPILER} -o ${@} ${<}
+
 $(BUILD_DIR)/%.elf:
 	$(BUILD_PRINT)
 	${LD} \
+		  -Wl,--emit-relocs \
+		  -Wl,-print-gc-sections \
+		  -nostdlib \
+		 ${CPU}				  \
+		 ${FPU}				  \
+		 -O0 \
+		 -mlittle-endian     \
+		 -fno-exceptions     \
+		 -fno-unwind-tables  \
+		 -ffreestanding \
+		 -fno-rtti		     \
+		 -frepo				  \
+          -flto \
+		 -mthumb \
+		 -Wall				   \
+		 -pedantic		     \
+		 -g \
+		 -mtpcs-frame \
+		 -mtpcs-leaf-frame \
+		 -DPART_${PART}		\
+		  $(MODULES_DIR)/boilerplate/crtn.cpp \
 		  ${^} 								    \
+		  $(ROS_BUILD_DIR)/*.opp \
 		  $(LIB_BUILD)/libusb.a                 \
 		  $(LIB_BUILD)/libutil.a                \
 		  $(LIB_BUILD)/libdriver.a				\
 		  $(LIB_BUILD)/libsensor.a				\
-		  '${LIBM}' '${LIBC}' '${LIBGCC}'       \
+		  '${LIBM}' '${LIBC}' '${LIBGCC}'      \
+		  $(MODULES_DIR)/boilerplate/crti.cpp \
 		  -T $(ECHRONOS_BUILD)/$(*F)-echronos/new.ld       \
 		  -o ${@} \
-          --print-memory-usage
+          -Wl,--print-memory-usage
 	$(MODULE_PRINT)
+

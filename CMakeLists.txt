@@ -367,9 +367,15 @@ include_directories(
         ${TI_LIBS}
         modules/boilerplate
         echronos/build/can_test-echronos
+        libs/ros_echronos/include
 )
 
-add_library(boilerplate modules/boilerplate/boilerplate.c)
+FILE(GLOB ros_files libs/ros_echronos/*.cpp libs/ros_echronos/include/*.hpp libs/ros_echronos/arch/tm4c/)
+add_library(ros_echronos ${ros_files})
+
+add_library(boilerplate modules/boilerplate/boilerplate.c libs/ros_echronos/NodeHandle.cpp libs/ros_echronos/include/NodeHandle.hpp libs/ros_echronos/Publisher.cpp libs/ros_echronos/Subscriber.cpp libs/ros_echronos/Message_Buffer.cpp libs/ros_echronos/ListNode.cpp libs/ros_echronos/include/ListNode.hpp libs/ros_echronos/Message.cpp libs/ros_echronos/include/Message.hpp libs/ros_echronos/include/alloc.hpp libs/ros_echronos/alloc.cpp libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp modules/boilerplate/crtn.cpp modules/boilerplate/crti.cpp)
 add_custom_target(can_test-echronos can_test/can_test.prx)
-add_executable(can_test.elf modules/can_test/can_test.c )
-target_link_libraries(can_test.elf ti_libs boilerplate echronos/build/can_test-echronos/*.o)
+add_executable(can_test.elf modules/can_test/can_test.c libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp)
+target_link_libraries(can_test.elf ti_libs ros_echronos boilerplate echronos/build/can_test-echronos/*.o)
+add_executable(ros_test.elf  modules/ros_test/ros_test.cpp libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp)
+target_link_libraries(ros_test.elf ros_echronos ti_libs boilerplate echronos/build/ros_test-echronos/*.o)

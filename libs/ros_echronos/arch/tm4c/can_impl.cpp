@@ -1,0 +1,64 @@
+/**
+ * @date: 22/09/17
+ * @author: (original author) Harry J.E Day <harry@dayfamilyweb.com>
+ * @authors: (Editors)
+ * @details: Purpose: This provides the implementation of can for the tm4c
+ * @copydetails: This code is released under dual LGPLv3 License and BSD license.
+ * @copyright: Copyright BLUEsat UNSW, 2017
+ */
+#include "can_impl.hpp"
+#include "boilerplate.h"
+#include "rtos-kochab.h"
+#include "ros.hpp"
+
+#define NUM_CAN_OBJS 32
+// reserve 0 for sending messages
+#define CAN_ID_START 1
+#define CAN_DEVICE_BASE CAN0_BASE
+#define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER | MSG_OBJ_USE_EXT_FILTER)
+
+/**
+ * The CAN msg objects we can use to store ids in
+ */
+static tCANMsgObject msgs[NUM_CAN_OBJS];
+/**
+ * Bump pointer for IDs
+ */
+static uint8_t current_id = CAN_ID_START;
+
+
+
+using namespace ros_echronos::can;
+
+void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
+
+    tCANMsgObject can_tx_message;
+    can_tx_message.ui32MsgID = msg.head.bits;
+    can_tx_message.ui32MsgIDMask = 0;
+    can_tx_message.ui32Flags =  MSG_OBJ_EXTENDED_ID;
+    can_tx_message.ui32MsgLen = msg.body_bytes;
+    can_tx_message.pui8MsgData = msg.body;
+
+    CANMessageSet(CAN_DEVICE_BASE, 1, &can_tx_message, MSG_OBJ_TYPE_TX);
+}
+
+can_sub_id ros_echronos::can::subscribe_can(uint32_t id_mask, uint32_t mask_bits) {
+
+    msgs[current_id].ui32Flags = CAN_RECEIVE_FLAGS;
+    msgs[current_id].ui32MsgID = id_mask;
+    msgs[current_id].ui32MsgIDMask = mask_bits;
+    msgs[current_id].ui32MsgID = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
+    CANMessageSet(CAN_DEVICE_BASE, current_id, msgs + current_id, MSG_OBJ_TYPE_RX);
+    ++current_id;
+    return 0;
+}
+
+void ros_echronos::can::unsubscribe_can(can_sub_id id) {
+    msgs[id].ui32MsgID = 0;
+    msgs[id].ui32MsgIDMask = MSG_OBJ_NO_FLAGS;
+    CANMessageClear(CAN_DEVICE_BASE, id);
+    //TODO: make a less dodgey bump pointer
+    if(current_id == id) {
+        current_id--;
+    }
+}

@@ -28,12 +28,3 @@ else
     echo "$1 does not exist!"
     exit
 fi
-
-arm-none-eabi-gdb $1 \
-    -ex 'target extended localhost:3333' \
-    -ex 'monitor reset halt' \
-    -ex 'load' \
-    -ex 'monitor reset halt' \
-    -ex 'b main' \
-    -ex 'c' \
-

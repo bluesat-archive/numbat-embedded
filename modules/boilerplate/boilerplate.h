@@ -19,10 +19,20 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/timer.h"
 #include "driverlib/can.h"
+#include "driverlib/interrupt.h"
 #include "utils/uartstdio.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void InitializeUARTStdio(void);
 
 void InitializeFPU(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

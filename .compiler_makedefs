@@ -3,5 +3,6 @@ export PREFIX=arm-none-eabi
 
 # The commands for calling the compiler.
 export CC=${PREFIX}-gcc
+export CPP=${PREFIX}-g++
 export AR=${PREFIX}-ar
-export LD=${PREFIX}-ld
+export LD=${PREFIX}-g++
