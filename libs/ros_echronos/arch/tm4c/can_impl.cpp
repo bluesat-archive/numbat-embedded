@@ -14,7 +14,7 @@
 #define NUM_CAN_OBJS 32
 // reserve 0 for sending messages
 #define CAN_ID_START 1
-#define CAN_DEVICE_BASE CAN0_BASE
+#define CAN_DEVICE_BASE CAN_DEVICE_BASE
 #define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER | MSG_OBJ_USE_EXT_FILTER)
 
 /**
@@ -60,5 +60,31 @@ void ros_echronos::can::unsubscribe_can(can_sub_id id) {
     //TODO: make a less dodgey bump pointer
     if(current_id == id) {
         current_id--;
+    }
+}
+
+static int error_flag = 0;
+
+extern "C" void ros_can_interupt_handler(void) {
+
+    uint32_t can_status = 0;
+
+    // read the register
+    can_status = CANIntStatus(CAN_DEVICE_BASE, CAN_INT_STS_CAUSE);
+
+    // in this case we are reciving a status interupt
+    if(can_status == CAN_INT_INTID_STATUS) {
+        // read the error status and store it to be handled latter
+        error_flag = CANStatusGet(CAN_DEVICE_BASE, CAN_STS_CONTROL);
+        // clear so we can continue
+        CANIntClear(CAN_DEVICE_BASE, 1);
+    } else {
+        CANMessageGet(CAN_DEVICE_BASE, )
+
+        // we are reciving a message, TODO: handle this
+        // for now we clear the interup so we can continue
+        CANIntClear(CAN_DEVICE_BASE, 1);
+
+
     }
 }

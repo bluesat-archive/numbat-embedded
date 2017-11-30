@@ -41,4 +41,9 @@ namespace ros_echronos {
     }
 }
 
+/**
+ * Function used to handle can interupts for ros
+ */
+extern "C" void ros_can_interupt_handler(void);
+
 #endif //NUMBAT_EMBEDDED_CAN_IMPL_H

@@ -12,6 +12,8 @@
 
 #include "ros.hpp"
 
+#define ROS_CAN_INPUT_BUFFER_SIZE 5
+
 template <class T>
 class Message_Buffer {
 
@@ -37,6 +39,30 @@ class Message_Buffer {
         T pop();
         void put(T msg);
         bool is_empty();
+
+};
+
+/**
+ * Provides a thread safe buffer for incoming can messages
+ */
+class Incoming_Message_Buffer<ros_echronos::can::can_ros_message> {
+    public:
+        ros_echronos::can::can_ros_message buffer[ROS_CAN_INPUT_BUFFER_SIZE];
+
+        Incoming_Message_Buffer(RtosMutexId mutex) : Message_Buffer(buffer, ROS_CAN_INPUT_BUFFER_SIZE), mutex(mutex);
+
+        /**
+         * Removes the next message in the queue
+         * @return the next message
+         *
+         * @pre isEmpty() == False
+         */
+        ros_echronos::can::can_ros_message pop_locked();
+        void put_locked(ros_echronos::can::can_ros_message msg);
+
+    private:
+        RtosMutexId mutex;
+
 
 };
 

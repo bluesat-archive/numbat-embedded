@@ -50,7 +50,9 @@ namespace ros_echronos {
              * unsubscribes the subscriber
              */
             void unsubscribe();
-            
+
+        private:
+            can::can_sub_id sub_id;
             
 
     };
