@@ -61,6 +61,18 @@ namespace ros_echronos {
             uint8_t body[CAN_MESSAGE_MAX_LEN];
             uint8_t body_bytes;
         } CAN_ROS_Message;
+
+        /**
+         * We can't use mutexes in buffers so we have to assume that we do not receive another message
+         * before this is written. I eventually want to replace this with a lockless queue.
+         */
+         struct _input_buffer {
+             CAN_ROS_Message buffer;
+             int start_counter = 0;
+             int end_counter = 0;
+         } input_buffer;
+
+        RtosInterruptEventId can_interupt_event;
     }
     template <class T> class Publisher;
     template <class T> class Subscriber;

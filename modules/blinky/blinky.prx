@@ -65,6 +65,14 @@
             <mutex>
                 <stats>false</stats>
             </mutex>
+            <!-- ignore this, just makes the headers generate correctly -->
+            <interrupt_events>
+                <interrupt_event>
+                    <name>can_receive_event</name>
+                    <task>task_blink</task>
+                    <sig_set>blink_delay</sig_set>
+                </interrupt_event>
+            </interrupt_events>
         </module>
     </modules>
 </system>

@@ -14,7 +14,7 @@
 #define NUM_CAN_OBJS 32
 // reserve 0 for sending messages
 #define CAN_ID_START 1
-#define CAN_DEVICE_BASE CAN_DEVICE_BASE
+#define CAN_DEVICE_BASE CAN0_BASE
 #define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER | MSG_OBJ_USE_EXT_FILTER)
 
 /**
@@ -65,6 +65,7 @@ void ros_echronos::can::unsubscribe_can(can_sub_id id) {
 
 static int error_flag = 0;
 
+
 extern "C" void ros_can_interupt_handler(void) {
 
     uint32_t can_status = 0;
@@ -76,15 +77,19 @@ extern "C" void ros_can_interupt_handler(void) {
     if(can_status == CAN_INT_INTID_STATUS) {
         // read the error status and store it to be handled latter
         error_flag = CANStatusGet(CAN_DEVICE_BASE, CAN_STS_CONTROL);
-        // clear so we can continue
-        CANIntClear(CAN_DEVICE_BASE, 1);
     } else {
-        CANMessageGet(CAN_DEVICE_BASE, )
-
-        // we are reciving a message, TODO: handle this
-        // for now we clear the interup so we can continue
-        CANIntClear(CAN_DEVICE_BASE, 1);
-
+        tCANMsgObject msg;
+        CANMessageGet(CAN_DEVICE_BASE, can_status, &msg, false);
+        //begin the copy
+        ros_echronos::can::input_buffer.start_counter++;
+        ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
+        memcpy(&ros_echronos::can::input_buffer.buffer.body_bytes, msg.pui8MsgData, msg.ui32MsgLen);
+        ros_echronos::can::input_buffer.end_counter++;
 
     }
+    // clear so we can continue
+    CANIntClear(CAN_DEVICE_BASE, 1);
+    // raise the event
+    rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+
 }

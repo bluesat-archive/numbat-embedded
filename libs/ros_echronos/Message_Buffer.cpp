@@ -30,3 +30,24 @@ template <class T> void Message_Buffer<T>::put(T msg) {
 template <class T> bool Message_Buffer<T>::is_empty() {
     return buffer_head == buffer_tail;
 }
+
+Incoming_Message_Buffer::Incoming_Message_Buffer(RtosMutexId mutex) :
+        Message_Buffer(buffer, ROS_CAN_INPUT_BUFFER_SIZE),
+        mutex(mutex) {
+
+
+}
+
+ros_echronos::can::can_ros_message Incoming_Message_Buffer::pop_locked() {
+    ros_echronos::can::can_ros_message msg;
+    rtos_mutex_lock(mutex);
+    msg = pop();
+    rtos_mutex_unlock(mutex);
+    return msg;
+}
+
+void Incoming_Message_Buffer::put_locked(ros_echronos::can::can_ros_message &msg) {
+    rtos_mutex_lock(mutex);
+    put(msg);
+    rtos_mutex_unlock(mutex);
+}

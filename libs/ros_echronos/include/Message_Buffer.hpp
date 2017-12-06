@@ -45,11 +45,15 @@ class Message_Buffer {
 /**
  * Provides a thread safe buffer for incoming can messages
  */
-class Incoming_Message_Buffer<ros_echronos::can::can_ros_message> {
+class Incoming_Message_Buffer : Message_Buffer<ros_echronos::can::can_ros_message> {
     public:
         ros_echronos::can::can_ros_message buffer[ROS_CAN_INPUT_BUFFER_SIZE];
 
-        Incoming_Message_Buffer(RtosMutexId mutex) : Message_Buffer(buffer, ROS_CAN_INPUT_BUFFER_SIZE), mutex(mutex);
+        /**
+         * Constructs a new fixed size buffer with the given mutex
+         * @param mutex the mutex to use when modifying the buffer
+         */
+        Incoming_Message_Buffer(RtosMutexId mutex);
 
         /**
          * Removes the next message in the queue
@@ -58,7 +62,11 @@ class Incoming_Message_Buffer<ros_echronos::can::can_ros_message> {
          * @pre isEmpty() == False
          */
         ros_echronos::can::can_ros_message pop_locked();
-        void put_locked(ros_echronos::can::can_ros_message msg);
+        /**
+         * Add a message to the queue
+         * @param msg the message to add
+         */
+        void put_locked(ros_echronos::can::can_ros_message & msg);
 
     private:
         RtosMutexId mutex;

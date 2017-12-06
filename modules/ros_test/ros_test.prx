@@ -52,6 +52,9 @@
                 <signal_label>
                     <name>can_delay</name>
                 </signal_label>
+                <signal_label>
+                    <name>can_receive_signal</name>
+                </signal_label>
             </signal_labels>
 
             <timers>
@@ -72,6 +75,13 @@
             <mutex>
                 <stats>false</stats>
             </mutex>
+            <interrupt_events>
+                <interrupt_event>
+                    <name>can_receive_event</name>
+                    <sig_set>can_receive_signal</sig_set>
+                    <task>task_ros_test</task>
+                </interrupt_event>
+            </interrupt_events>
         </module>
     </modules>
 </system>

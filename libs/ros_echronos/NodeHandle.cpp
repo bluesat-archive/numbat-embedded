@@ -11,10 +11,11 @@
 #include "include/Publisher.hpp"
 #include "include/can_impl.hpp"
 
+
 using namespace ros_echronos;
 
-void NodeHandle::init(char *node_name, char *ros_task) {
-
+void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event) {
+    can::can_interupt_event = can_interupt_event;
 }
 
 void NodeHandle::spin() {

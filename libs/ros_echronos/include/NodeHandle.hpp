@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <stdlib.h>
 #include "ListNode.hpp"
+#include "rtos-kochab.h"
 
 namespace ros_echronos {
     /**
@@ -27,7 +28,7 @@ namespace ros_echronos {
              * @param node_name
              * @param ros_task
              */
-            void init(char * node_name, char * ros_task);
+            void init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event);
 
             /**
              * The first publisher in the publisher list
