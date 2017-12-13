@@ -66,6 +66,14 @@
             <mutex>
                 <stats>false</stats>
             </mutex>
+            <!-- ignore this, just makes the headers generate correctly -->
+            <interrupt_events>
+                <interrupt_event>
+                    <name>can_receive_event</name>
+                    <task>task_delay</task>
+                    <sig_set>second_delay</sig_set>
+                </interrupt_event>
+            </interrupt_events>
         </module>
     </modules>
 </system>
