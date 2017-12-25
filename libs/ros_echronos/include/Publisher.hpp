@@ -32,6 +32,12 @@ namespace ros_echronos {
              * @return the next can message
              */
             virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool & has_next, bool &empty) = 0;
+
+        protected:
+            /**
+             * Stores the topic "number" on the can bus
+             */
+            uint8_t topic_id;
     };
 
     /**

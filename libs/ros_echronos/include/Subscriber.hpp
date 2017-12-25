@@ -7,18 +7,38 @@
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
-#ifndef NUMBAT_EMBEDDED_PUBLISHER_HPP
-#define NUMBAT_EMBEDDED_PUBLISHER_HPP
+#ifndef NUMBAT_EMBEDDED_SUBSCRIBER_HPP
+#define NUMBAT_EMBEDDED_SUBSCRIBER_HPP
 
 #include "ros.hpp"
+#include "can_impl.hpp"
+#include "ListNode.hpp"
 
 namespace ros_echronos {
+    /**
+     * None generic functions for the Subscriber class
+     */
+    class _Subscriber : public ListNode {
+        public:
+            /**
+             * the topic id of the subscription
+             */
+            uint8_t topic_id;
+
+            /**
+             * Handles receiving a message for a given topic
+             * @param msg the message to receive
+             */
+            virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg) = 0;
+
+    };
+
     /**
      * Mirrors ros::Subscriber
      * Responsible for handeling recieving messages on a specific topic
      * @tparam T the message type to subscribe to
      */
-    template <class T> class Subscriber {
+    template <class T> class Subscriber : public _Subscriber {
 
         public:
             /**
@@ -50,13 +70,13 @@ namespace ros_echronos {
              * unsubscribes the subscriber
              */
             void unsubscribe();
+            virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg);
 
         private:
-            can::can_sub_id sub_id;
-            
+            ros_echronos::can::can_sub_id sub_id;
 
     };
 }
 
 
-#endif //NUMBAT_EMBEDDED_PUBLISHER_HPP
+#endif //NUMBAT_EMBEDDED_SUBSCRIBER_HPP

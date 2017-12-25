@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include "ListNode.hpp"
 #include "rtos-kochab.h"
+#include "Subscriber.hpp"
+#include "Publisher.hpp"
 
 namespace ros_echronos {
     /**
@@ -33,7 +35,12 @@ namespace ros_echronos {
             /**
              * The first publisher in the publisher list
              */
-            ListNode * publishers = NULL;
+            _Publisher * publishers = NULL;
+
+            /*
+             * The first subscriber in the subscribers list
+             */
+            _Subscriber * subscribers = NULL;
 
             /**
              * Causes all messages to be published
@@ -44,6 +51,18 @@ namespace ros_echronos {
              * Returns the Node ID
              */
              uint8_t get_node_id();
+
+            /**
+             * Called by the highest priority task and used to handle incoming interupt singals
+             * This function does not return!
+             */
+            void run_handle_message_loop();
+
+        private:
+            /**
+             * If init has been run
+             */
+            volatile bool has_init = false;
 
     };
 }

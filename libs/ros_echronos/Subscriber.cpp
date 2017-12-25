@@ -23,13 +23,13 @@ template <class T> Subscriber<T>::~Subscriber() {
 }
 
 template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
-    sub_id = can::subscribe_can(0,can::CAN_TOPIC_FILTER_BITMASK); //TODO: add node id, function, etc
+    topic_id = can::subscribe_can(0,can::CAN_TOPIC_FILTER_BITMASK); //TODO: add node id, function, etc
 
 }
 
 template <class T> void Subscriber<T>::unsubscribe() {
-    if(sub_id) {
-        can::unsubscribe_can(sub_id);
-        sub_id = 0;
+    if(topic_id) {
+        can::unsubscribe_can(topic_id);
+        topic_id = 0;
     }
 }

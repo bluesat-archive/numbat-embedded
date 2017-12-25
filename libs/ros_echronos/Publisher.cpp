@@ -90,5 +90,3 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
     return can_msg;
 }
 
-
-

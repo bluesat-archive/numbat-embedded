@@ -9,6 +9,7 @@
 
 #include "include/NodeHandle.hpp"
 #include "include/Publisher.hpp"
+#include "include/Subscriber.hpp"
 #include "include/can_impl.hpp"
 
 
@@ -16,11 +17,12 @@ using namespace ros_echronos;
 
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event) {
     can::can_interupt_event = can_interupt_event;
+    has_init = true;
 }
 
 void NodeHandle::spin() {
     using namespace can;
-    _Publisher * current = (_Publisher *) publishers;
+    _Publisher * current =  publishers;
     do {
         bool has_next  __attribute__((aligned(8))) = false;
         do {
@@ -38,4 +40,36 @@ void NodeHandle::spin() {
 uint8_t NodeHandle::get_node_id() {
     //TODO
     return 1;
+}
+
+void NodeHandle::run_handle_message_loop() {
+    using namespace ros_echronos::can;
+    while(!has_init) {
+        rtos_sleep(3);
+    }
+    int start_counter, end_counter;
+    CAN_ROS_Message msg;
+    while(true) {
+        rtos_signal_wait(can::can_interupt_event);
+        start_counter = input_buffer.start_counter;
+        msg = input_buffer.buffer;
+        end_counter = input_buffer.start_counter;
+
+        // check we didn't interupt the message read half way through
+        if(end_counter != start_counter) {
+            //TODO: handle concurent requests
+            continue;
+        }
+        _Subscriber * current;
+        for(current = subscribers; current; current = (_Subscriber *) current->next) {
+            if(msg.head.fields.topic == current->topic_id) {
+                break;
+            }
+        }
+
+        if(current) {
+            current->receive_message(msg);
+        }
+
+    }
 }
