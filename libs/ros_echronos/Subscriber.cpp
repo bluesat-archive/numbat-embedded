@@ -14,7 +14,8 @@
 using namespace ros_echronos;
 
 
-template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))  {
+template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
+        : incoming_msgs(read_buffer, buffer_size) {
 
 }
 
@@ -33,3 +34,17 @@ template <class T> void Subscriber<T>::unsubscribe() {
         topic_id = 0;
     }
 }
+
+template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_ROS_Message &msg) {
+    // Step 1: Check if it is a new or existing message
+
+    if (msg.head.fields.seq_num == 0) {
+        T t;
+
+        incoming_msgs.put(t);
+    } else {
+        // TODO: go into the buffer and find the message
+    }
+}
+
+//TODO: flush unfinished messages from the buffer or rerequest them

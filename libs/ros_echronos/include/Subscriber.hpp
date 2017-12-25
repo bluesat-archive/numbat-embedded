@@ -13,6 +13,7 @@
 #include "ros.hpp"
 #include "can_impl.hpp"
 #include "ListNode.hpp"
+#include "Message_Buffer.hpp"
 
 namespace ros_echronos {
     /**
@@ -74,6 +75,10 @@ namespace ros_echronos {
 
         private:
             ros_echronos::can::can_sub_id sub_id;
+            /**
+             * Buffer of incoming constructed messages
+             */
+            Message_Buffer<T> incoming_msgs;
 
     };
 }

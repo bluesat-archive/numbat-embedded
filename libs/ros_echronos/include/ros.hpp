@@ -53,6 +53,8 @@ namespace ros_echronos {
                 unsigned int topic : 8;
                 unsigned int message_length : 9;
                 unsigned int node_id : 4;
+                //TODO(hjed): add these to the spec, and position them in the bitmask this won't work until it is done
+                unsigned int seq_num;
             }__attribute__((packed)) fields;
         } CAN_Header;
 

@@ -37,7 +37,12 @@ class Message_Buffer {
          * @pre isEmpty() == False
          */
         T pop();
-        void put(T msg);
+        /**
+         * Adds a message to the buffer
+         * @param msg the message to store
+         * @return a pointer to the message in the buffer
+         */
+        T * put(T msg);
         bool is_empty();
 
 };
@@ -46,7 +51,7 @@ class Message_Buffer {
  * Provides a thread safe buffer for incoming can messages
  */
 class Incoming_Message_Buffer : Message_Buffer<ros_echronos::can::can_ros_message> {
-    public:
+     public:
         ros_echronos::can::can_ros_message buffer[ROS_CAN_INPUT_BUFFER_SIZE];
 
         /**

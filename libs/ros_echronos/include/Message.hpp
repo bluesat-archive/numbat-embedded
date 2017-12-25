@@ -59,6 +59,17 @@ namespace ros_echronos {
              */
             virtual inline void generate_block() = 0;
 
+            /**
+             * Function to fill data from a can msg
+             * @param msg the msg to fill from
+             */
+            void fill(ros_echronos::can::CAN_ROS_Message & msg);
+
+            /**
+             * Getter function to determine which can msg this message is waiting for
+             */
+             unsigned int get_next_msg_index();
+
         protected:
             // needed because inheritance breaks the linker if there is not constructor
             Message();
@@ -84,6 +95,10 @@ namespace ros_echronos {
              * If we are done
              */
             bool done = false;
+            /**
+             * The next message we are waiting for, 0 if we are an outgoing message or have recived no data
+             */
+             uint32_t next_message_index = 0;
 
     } __attribute__((aligned(16)));
 }

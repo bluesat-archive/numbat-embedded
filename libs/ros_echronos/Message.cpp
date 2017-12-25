@@ -60,3 +60,7 @@ Message & Message::operator = (const Message & message) {
     done = message.done;
     block = message.block;
 }
+
+unsigned int Message::get_next_msg_index() {
+    return next_message_index;
+}

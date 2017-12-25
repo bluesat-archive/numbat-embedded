@@ -18,13 +18,17 @@ template <class T> T Message_Buffer<T>::pop() {
     return msg;
 }
 
-template <class T> void Message_Buffer<T>::put(T msg) {
+template <class T>
+T * Message_Buffer<T>::put(T msg) {
     (*buffer_tail) = msg;
+    T * output = buffer_tail;
     --buffer_tail;
     if(buffer_tail < buffer_start) {
         buffer_tail = buffer_end-1;
     }
     //TODO: override first item if full
+
+    return output;
 }
 
 template <class T> bool Message_Buffer<T>::is_empty() {
