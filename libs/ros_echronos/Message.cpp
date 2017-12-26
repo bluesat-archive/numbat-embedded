@@ -59,8 +59,26 @@ Message & Message::operator = (const Message & message) {
     size = message.size;
     done = message.done;
     block = message.block;
+    desc = NULL;
 }
 
 unsigned int Message::get_next_msg_index() {
     return next_message_index;
+}
+
+void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
+    // if we don't have a descriptor yet generate one.
+    // NOTE: a descriptor is not copied when a message is coppied, it will always start from
+    // scratch
+    if(!desc) {
+        desc = generate_descriptor();
+    }
+    desc->decode_msg(msg);
+}
+
+Message::~Message() {
+    //cleanup any message descriptors that still exist
+    if(desc) {
+        alloc::free(desc);
+    }
 }

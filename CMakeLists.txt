@@ -371,7 +371,7 @@ include_directories(
 )
 
 FILE(GLOB ros_files libs/ros_echronos/*.cpp libs/ros_echronos/include/*.hpp libs/ros_echronos/arch/tm4c/)
-add_library(ros_echronos ${ros_files})
+add_library(ros_echronos ${ros_files} libs/ros_echronos/Message_Descriptor.cpp libs/ros_echronos/include/Message_Descriptor.hpp)
 
 add_library(boilerplate modules/boilerplate/boilerplate.c libs/ros_echronos/NodeHandle.cpp libs/ros_echronos/include/NodeHandle.hpp libs/ros_echronos/Publisher.cpp libs/ros_echronos/Subscriber.cpp libs/ros_echronos/Message_Buffer.cpp libs/ros_echronos/ListNode.cpp libs/ros_echronos/include/ListNode.hpp libs/ros_echronos/Message.cpp libs/ros_echronos/include/Message.hpp libs/ros_echronos/include/alloc.hpp libs/ros_echronos/alloc.cpp libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp modules/boilerplate/crtn.cpp modules/boilerplate/crti.cpp libs/ros_echronos/Incoming_Message_Buffer.cpp)
 add_custom_target(can_test-echronos can_test/can_test.prx)

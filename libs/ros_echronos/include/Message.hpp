@@ -6,6 +6,8 @@
 #define NUMBAT_EMBEDDED_MESSAGE_HPP
 
 #include "ros.hpp"
+#include "Message_Descriptor.hpp"
+
 namespace ros_echronos {
 
     /**
@@ -69,12 +71,14 @@ namespace ros_echronos {
              * Getter function to determine which can msg this message is waiting for
              */
              unsigned int get_next_msg_index();
-
-        protected:
             // needed because inheritance breaks the linker if there is not constructor
             Message();
 
             Message &operator = (const Message & message);
+
+            ~Message();
+
+        protected:
             /**
              * If the message has been generated
              */
@@ -99,6 +103,17 @@ namespace ros_echronos {
              * The next message we are waiting for, 0 if we are an outgoing message or have recived no data
              */
              uint32_t next_message_index = 0;
+
+            /**
+             * Overiden by subclasses to provide a means of deserialising fields
+             * @return the `Message_Descriptor` class needed
+             */
+            virtual Message_Descriptor * generate_descriptor();
+        private:
+            /**
+             * Represents the current message descriptor, if needed
+             */
+            Message_Descriptor * desc = NULL;
 
     } __attribute__((aligned(16)));
 }
