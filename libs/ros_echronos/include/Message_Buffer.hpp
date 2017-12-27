@@ -45,6 +45,19 @@ class Message_Buffer {
         T * put(T msg);
         bool is_empty();
 
+        /**
+         * Calculates and returns the length of the buffer
+         * @return the length
+         */
+        size_t length();
+
+        /**
+         * Allows idempotent access to the buffer
+         * @param index the index of the array
+         * @return the pointer to the item in the buffer specified by the index
+         */
+        T *operator[](int index);
+
 };
 
 /**

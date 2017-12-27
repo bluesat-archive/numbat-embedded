@@ -10,6 +10,7 @@
 
 #include <can_impl.hpp>
 #include "include/Subscriber.hpp"
+#include "include/Message.hpp"
 
 using namespace ros_echronos;
 
@@ -40,9 +41,23 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 
     if (msg.head.fields.seq_num == 0) {
         T t;
-
+        t.fill(msg);
         incoming_msgs.put(t);
     } else {
+        //try and match a buffer
+        for(int i = 0; i < incoming_msgs.length(); ++i) {
+            if(incoming_msgs[i]->from_node == msg.head.fields.node_id) {
+                // because we have a limited bits in the seq number we overflow to the message length field
+                int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
+                if(msg_seq_num != incoming_msgs[i].decode_index) {
+                    //TODO: error handling
+                } else {
+                    incoming_msgs[i].fill(msg);
+                }
+                break;
+            }
+        }
+
         // TODO: go into the buffer and find the message
     }
 }

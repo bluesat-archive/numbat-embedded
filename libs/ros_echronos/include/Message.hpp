@@ -78,6 +78,15 @@ namespace ros_echronos {
 
             ~Message();
 
+            /**
+             * Indicates the node this message is from. Only valid for incoming messages.
+             */
+            uint8_t from_node;
+
+            /**
+             * The index for the next message to decode
+             */
+            uint8_t decode_index;
         protected:
             /**
              * If the message has been generated

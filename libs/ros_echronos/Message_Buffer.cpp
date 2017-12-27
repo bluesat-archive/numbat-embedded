@@ -35,3 +35,16 @@ template <class T> bool Message_Buffer<T>::is_empty() {
     return buffer_head == buffer_tail;
 }
 
+template <class T> size_t Message_Buffer<T>::length() {
+    if(buffer_head > buffer_tail) {
+        return buffer_head - buffer_tail;
+    } else {
+        return (buffer_end - buffer_tail) + (buffer_head - buffer_start);
+    }
+}
+
+template <class T> T * Message_Buffer<T>::operator[](int index) {
+    int nindex = (buffer_tail - buffer_start) + index;
+    nindex = nindex % (buffer_start - buffer_end);
+    return buffer_start[nindex];
+}

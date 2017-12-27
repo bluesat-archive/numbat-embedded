@@ -12,6 +12,7 @@
 
 #include "rtos-kochab.h"
 #include "alloc.hpp"
+
 #define ROS_STR_LEN 15
 
 
@@ -29,6 +30,10 @@ namespace ros_echronos {
          * Value for the ros mode on the can bus
          */
         const uint8_t ROS_CAN_MODE = 1;
+        /**
+         * Indicates that the "seq_num" field of a can message header is in special mode
+         */
+         const uint8_t SEQ_NUM_SPECIAL_MODE = 7;
 
         typedef enum _ROS_Function {
             FN_ROS_MESSAGE_TRANSMISSION = 0,
@@ -48,13 +53,12 @@ namespace ros_echronos {
                 // See: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0491i/Babjddhe.html
                 // (Also gcc docs, but they are less clear)
                 unsigned int mode : 1;
-                unsigned int priority : 5;
+                unsigned int priority : 2;
                 unsigned int ros_function : 2;
+                unsigned int seq_num : 3;
                 unsigned int topic : 8;
                 unsigned int message_length : 9;
                 unsigned int node_id : 4;
-                //TODO(hjed): add these to the spec, and position them in the bitmask this won't work until it is done
-                unsigned int seq_num;
             }__attribute__((packed)) fields;
         } CAN_Header;
 

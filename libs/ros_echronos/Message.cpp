@@ -67,13 +67,18 @@ unsigned int Message::get_next_msg_index() {
 }
 
 void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
+
     // if we don't have a descriptor yet generate one.
     // NOTE: a descriptor is not copied when a message is coppied, it will always start from
     // scratch
     if(!desc) {
         desc = generate_descriptor();
+        //set the from node
+        from_node = msg.head.fields.node_id;
+        decode_index = 0;
     }
     desc->decode_msg(msg);
+    decode_index++;
 }
 
 Message::~Message() {
@@ -82,3 +87,4 @@ Message::~Message() {
         alloc::free(desc);
     }
 }
+
