@@ -14,6 +14,7 @@ class pwm_ : public ros_echronos::Message {
   pwm_(const owr_messages::pwm_& copy); 
   ~pwm_();
   virtual void generate_block();
+  virtual ros_echronos::Message_Descriptor * generate_descriptor();
   typedef ros_echronos::String _joint_type;
   ros_echronos::String joint;
 
@@ -78,6 +79,10 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
       memcpy(block+offset, &targetPos, sizeof(targetPos));
       offset+=sizeof(targetPos);
   } // generate_block
+
+  ros_echronos::Message_Descriptor * owr_messages::pwm_::generate_descriptor() {
+
+  }
 
 } // namespace owr_messages
 /*

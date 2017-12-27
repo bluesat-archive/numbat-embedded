@@ -26,7 +26,7 @@ namespace ros_echronos {
              *  until all messages are decoded
              */
             void decode_msg(can::CAN_ROS_Message & msg);
-        protected:
+        //protected:
             /**
              * Creates a new Message Descriptor with references to the fields
              * @param field_ptrs pointers to each of the fields in the message
@@ -51,9 +51,13 @@ namespace ros_echronos {
              * If we have an offset inside the field
              */
             size_t field_internal_offset = 0;
+            /**
+             * If we have to split halfway through a length
+             */
+            bool decoding_len = false;
 
         // allow Messages to use our protected methofs
-        friend class Message;
+        //friend class Message;
 
     };
 }

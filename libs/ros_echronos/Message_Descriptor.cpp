@@ -33,7 +33,24 @@ void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
 
         // if we are starting a field and the size needs to be calculated
         if(curr_field_size==0 && field_internal_offset == 0) {
-            //TODO: calc this
+            if(msg.body_bytes-i > sizeof(uint16_t)) {
+                // we can't memcpy this as we are changing unsinged/signed and integer size
+                field_size[field_offset] = *((uint16_t *) (msg.body + i));
+                ++i;
+                continue;
+            } else {
+                // got to copy second byte
+                // shift it by one byte and convert to the right type
+                field_size[field_offset] = ((size_t)(*((uint8_t *) (msg.body + i)))) << 8;
+                decoding_len = true;
+                // we have finished this message then
+                break;
+            }
+        } else if (decoding_len) {
+            //this should always be the first byte in the message
+            field_size[field_offset] |= msg.body[i];
+            ++i;
+            continue;
         }
         curr_field_size-=field_internal_offset;
         curr_field_size = min(curr_field_size, (msg.body_bytes - i));

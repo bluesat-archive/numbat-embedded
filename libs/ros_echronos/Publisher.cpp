@@ -31,7 +31,7 @@ template <class T> Publisher<T>::~Publisher() {
             prev->next = next;
             next->prev = prev;
         } else {
-            nh->publishers = next;
+            nh->publishers = (_Publisher*) next;
             // TODO: move start of list
         }
     } else if (prev != NULL) {

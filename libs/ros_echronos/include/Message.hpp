@@ -70,7 +70,7 @@ namespace ros_echronos {
             /**
              * Getter function to determine which can msg this message is waiting for
              */
-             unsigned int get_next_msg_index();
+            unsigned int get_next_msg_index();
             // needed because inheritance breaks the linker if there is not constructor
             Message();
 
@@ -108,7 +108,7 @@ namespace ros_echronos {
              * Overiden by subclasses to provide a means of deserialising fields
              * @return the `Message_Descriptor` class needed
              */
-            virtual Message_Descriptor * generate_descriptor();
+            virtual Message_Descriptor * generate_descriptor() = 0;
         private:
             /**
              * Represents the current message descriptor, if needed
