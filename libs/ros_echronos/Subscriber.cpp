@@ -16,7 +16,7 @@ using namespace ros_echronos;
 
 
 template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
-        : incoming_msgs(read_buffer, buffer_size) {
+        : incoming_msgs(read_buffer, buffer_size), callback(callback) {
 
 }
 
@@ -59,6 +59,17 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
         }
 
         // TODO: go into the buffer and find the message
+    }
+}
+
+template <class T> void Subscriber<T>::call_callback() {
+    // for now we assume that the top of the buffer must be valid for any future messages to be valid
+    while(!incoming_msgs.is_empty()) {
+        if(incoming_msgs[0].is_done()) {
+            callback(incoming_msgs.pop());
+        } else {
+            break;
+        }
     }
 }
 

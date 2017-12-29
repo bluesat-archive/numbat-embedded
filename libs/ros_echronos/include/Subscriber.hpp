@@ -32,6 +32,11 @@ namespace ros_echronos {
              */
             virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg) = 0;
 
+            /**
+             * Calls the callback for all waiting complete messages in the buffer
+             */
+            virtual void call_callback() = 0;
+
     };
 
     /**
@@ -72,6 +77,7 @@ namespace ros_echronos {
              */
             void unsubscribe();
             virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg);
+            virtual void call_callback();
 
         private:
             ros_echronos::can::can_sub_id sub_id;
@@ -79,6 +85,8 @@ namespace ros_echronos {
              * Buffer of incoming constructed messages
              */
             Message_Buffer<T> incoming_msgs;
+
+            void (*callback)(const T &);
 
     };
 }

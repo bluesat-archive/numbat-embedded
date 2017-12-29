@@ -64,6 +64,22 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
+# *************
+# ROS_SUB_TEST MODULE
+# *************
+
+MODULE_NAME=ros_sub_test
+include .construct_numbat_module
+
+$(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/can_wait_task.oop: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/ros_sub_test.opp \
+	$(BUILD_DIR)/can_wait_task.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
 # *****************
 # TIMER TEST MODULE
 # *****************

@@ -379,3 +379,5 @@ add_executable(can_test.elf modules/can_test/can_test.c libs/ros_echronos/arch/t
 target_link_libraries(can_test.elf ti_libs ros_echronos boilerplate echronos/build/can_test-echronos/*.o)
 add_executable(ros_test.elf  modules/ros_test/ros_test.cpp libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp)
 target_link_libraries(ros_test.elf ros_echronos ti_libs boilerplate echronos/build/ros_test-echronos/*.o)
+add_executable(ros_sub_test.elf  modules/ros_sub_test/ros_sub_test.cpp libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp modules/ros_sub_test/can_wait_task.cpp)
+target_link_libraries(ros_sub_test.elf ros_echronos ti_libs boilerplate echronos/build/ros_sub_test-echronos/*.o)
