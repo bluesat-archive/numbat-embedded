@@ -30,7 +30,8 @@ namespace ros_echronos {
              * @param node_name
              * @param ros_task
              */
-            void init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event);
+            void init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
+                      RtosSignalId can_interupt_signal);
 
             /**
              * The first publisher in the publisher list
@@ -63,6 +64,11 @@ namespace ros_echronos {
              * If init has been run
              */
             volatile bool has_init = false;
+
+            /**
+             * Signal for incoming can messages
+             */
+            RtosSignalId can_receive_signal;
 
     };
 }

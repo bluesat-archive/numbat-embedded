@@ -7,10 +7,12 @@
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
-
+#include "boilerplate.h"
 #include <can_impl.hpp>
+#include <NodeHandle.hpp>
 #include "include/Subscriber.hpp"
 #include "include/Message.hpp"
+#include "Message_Buffer.cpp"
 
 using namespace ros_echronos;
 
@@ -26,7 +28,13 @@ template <class T> Subscriber<T>::~Subscriber() {
 
 template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
     topic_id = can::subscribe_can(0,can::CAN_TOPIC_FILTER_BITMASK); //TODO: add node id, function, etc
-
+    nh = &node_handle;
+    prev = NULL;
+    if(nh->subscribers != NULL) {
+        next = nh->subscribers;
+        next->prev = this;
+    }
+    nh->subscribers = this;
 }
 
 template <class T> void Subscriber<T>::unsubscribe() {
@@ -49,10 +57,10 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
             if(incoming_msgs[i]->from_node == msg.head.fields.node_id) {
                 // because we have a limited bits in the seq number we overflow to the message length field
                 int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
-                if(msg_seq_num != incoming_msgs[i].decode_index) {
+                if(msg_seq_num != incoming_msgs[i]->decode_index) {
                     //TODO: error handling
                 } else {
-                    incoming_msgs[i].fill(msg);
+                    incoming_msgs[i]->fill(msg);
                 }
                 break;
             }
@@ -63,9 +71,10 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 }
 
 template <class T> void Subscriber<T>::call_callback() {
+    UARTprintf("call callback!\n");
     // for now we assume that the top of the buffer must be valid for any future messages to be valid
     while(!incoming_msgs.is_empty()) {
-        if(incoming_msgs[0].is_done()) {
+        if(incoming_msgs[0]->is_done()) {
             callback(incoming_msgs.pop());
         } else {
             break;

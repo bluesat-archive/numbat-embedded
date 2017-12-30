@@ -72,7 +72,7 @@ MODULE_NAME=ros_sub_test
 include .construct_numbat_module
 
 $(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
-$(BUILD_DIR)/can_wait_task.oop: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/ros_sub_test.opp \
 	$(BUILD_DIR)/can_wait_task.opp \
@@ -131,7 +131,8 @@ TARGETS=\
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
 	$(BUILD_DIR)/echronos_test.elf \
-	$(BUILD_DIR)/ros_test.elf
+	$(BUILD_DIR)/ros_test.elf \
+	$(BUILD_DIR)/ros_sub_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
 

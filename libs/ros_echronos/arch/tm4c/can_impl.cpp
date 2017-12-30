@@ -87,9 +87,13 @@ extern "C" void ros_can_interupt_handler(void) {
         ros_echronos::can::input_buffer.end_counter++;
 
     }
+    //UARTprintf("triggering %d on ie %d\n", ros_echronos::can::node_handle_ready, ros_echronos::can::can_interupt_event);
     // clear so we can continue
     CANIntClear(CAN_DEVICE_BASE, 1);
-    // raise the event
-    rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+    if(ros_echronos::can::node_handle_ready) {
+        //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
+        // raise the event
+        rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+    }
 
 }

@@ -1,3 +1,4 @@
+#include <rtos-kochab.h>
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 #include "ros.hpp"
@@ -67,12 +68,13 @@ extern "C" void task_ros_sub_test_fn(void) {
 
     UARTprintf("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
-    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT);
+    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
     UARTprintf("Done init\n");
     nh_ptr = &nh;
 
-    UARTprintf("pub init\n");
+    UARTprintf("sub init\n");
     ros_echronos::Subscriber<owr_messages::pwm> sub("aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
+    sub.init(nh);
     owr_messages::pwm msg;
     while(true) {
         UARTprintf("Next loop!\n");

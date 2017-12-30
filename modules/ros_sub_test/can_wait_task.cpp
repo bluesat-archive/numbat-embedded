@@ -7,11 +7,11 @@
  * @copyright: Copyright BLUEsat UNSW 2017
  */
 #include "boilerplate.h"
-#include "include/ros.hpp"
+#include "ros.hpp"
 #include "NodeHandle.hpp"
-extern ros_echronos::NodeHandle * volatile nh_ptr = NULL;
+extern ros_echronos::NodeHandle * volatile nh_ptr;
 
-extern "C" void task_can_wait_task_fn(void) {
+extern "C" void task_can_wait_fn(void) {
 
     UARTprintf("Entered wait task. Waiting for node handle to be initalised\n");
     while (!nh_ptr) {

@@ -49,7 +49,7 @@
                 <task>
                     <name>task_can_wait</name>
                     <function>task_can_wait_fn</function>
-                    <priority>1</priority>
+                    <priority>31</priority>
                     <stack_size>512</stack_size>
                 </task>
             </tasks>

@@ -81,6 +81,7 @@ namespace ros_echronos {
         extern input_buffer_t input_buffer;
 
         extern RtosInterruptEventId can_interupt_event;
+        extern volatile bool node_handle_ready;
     }
     template <class T> class Publisher;
     template <class T> class Subscriber;

@@ -85,7 +85,14 @@ namespace ros_echronos {
              * Buffer of incoming constructed messages
              */
             Message_Buffer<T> incoming_msgs;
+            /**
+             * The subscribers node handle
+             */
+            NodeHandle * nh = NULL;
 
+            /**
+             * The callback
+             */
             void (*callback)(const T &);
 
     };
