@@ -75,10 +75,12 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
         desc = generate_descriptor();
         //set the from node
         from_node = msg.head.fields.node_id;
+        size = msg.head.fields.message_length;
         decode_index = 0;
     }
     desc->decode_msg(msg);
     decode_index++;
+    done = decode_index == size;
 }
 
 Message::~Message() {
