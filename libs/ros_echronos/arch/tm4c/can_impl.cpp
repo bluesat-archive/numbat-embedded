@@ -8,7 +8,6 @@
  */
 #include "can_impl.hpp"
 #include "boilerplate.h"
-#include "rtos-kochab.h"
 #include "ros.hpp"
 
 #define NUM_CAN_OBJS 32
@@ -77,7 +76,8 @@ extern "C" void ros_can_interupt_handler(void) {
     if(can_status == CAN_INT_INTID_STATUS) {
         // read the error status and store it to be handled latter
         error_flag = CANStatusGet(CAN_DEVICE_BASE, CAN_STS_CONTROL);
-    } else {
+        //UARTprintf("CAN error %u\n", error_flag);
+    } else if (can_status > 0 && can_status <32) {
         tCANMsgObject msg;
         CANMessageGet(CAN_DEVICE_BASE, can_status, &msg, false);
         //begin the copy
@@ -85,15 +85,14 @@ extern "C" void ros_can_interupt_handler(void) {
         ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
         memcpy(&ros_echronos::can::input_buffer.buffer.body_bytes, msg.pui8MsgData, msg.ui32MsgLen);
         ros_echronos::can::input_buffer.end_counter++;
+        if(ros_echronos::can::node_handle_ready) {
+            //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
+            // raise the event
+            rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+        }
 
-    }
-    //UARTprintf("triggering %d on ie %d\n", ros_echronos::can::node_handle_ready, ros_echronos::can::can_interupt_event);
-    // clear so we can continue
-    CANIntClear(CAN_DEVICE_BASE, 1);
-    if(ros_echronos::can::node_handle_ready) {
-        //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
-        // raise the event
-        rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+    } else {
+        UARTprintf("No Interupt!\n");
     }
 
 }

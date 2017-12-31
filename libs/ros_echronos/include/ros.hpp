@@ -23,10 +23,6 @@ namespace ros_echronos {
         const uint8_t CAN_MESSAGE_MAX_LEN = 8;
 
         /**
-         * 10000011111111110000000000000
-         */
-        const uint32_t CAN_TOPIC_FILTER_BITMASK = 0x107FE000;
-        /**
          * Value for the ros mode on the can bus
          */
         const uint8_t ROS_CAN_MODE = 1;
@@ -77,6 +73,13 @@ namespace ros_echronos {
              int start_counter = 0;
              int end_counter = 0;
          } input_buffer_t;
+
+        const CAN_Header TOPIC_BITMASK_HEADER = {
+                .fields={
+                    1, 0, 0xF, 0, 0xFFFFF, 0, 0
+                }
+        };
+
 
         extern input_buffer_t input_buffer;
 

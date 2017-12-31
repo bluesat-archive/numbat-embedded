@@ -75,6 +75,7 @@ extern "C" void task_ros_sub_test_fn(void) {
     UARTprintf("sub init\n");
     ros_echronos::Subscriber<owr_messages::pwm> sub("aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
     sub.init(nh);
+    UARTprintf("starting the main loop\n");
     owr_messages::pwm msg;
     while(true) {
         UARTprintf("Next loop!\n");

@@ -59,13 +59,16 @@ uint8_t NodeHandle::get_node_id() {
 
 void NodeHandle::run_handle_message_loop() {
     using namespace ros_echronos::can;
+    UARTprintf("Waiting for NodeHandle to init\n");
     while(!has_init) {
         rtos_sleep(3);
     }
+    UARTprintf("NodeHandle init done\n");
     int start_counter, end_counter;
     CAN_ROS_Message msg;
     while(true) {
         rtos_signal_wait(can_receive_signal);
+
         start_counter = input_buffer.start_counter;
         msg = input_buffer.buffer;
         end_counter = input_buffer.start_counter;
@@ -81,9 +84,10 @@ void NodeHandle::run_handle_message_loop() {
                 break;
             }
         }
-
+        UARTprintf("Finished checking for subscribers %p\n", current);
         if(current) {
             current->receive_message(msg);
+            UARTprintf("Finished calling receive message\n");
         }
 
     }

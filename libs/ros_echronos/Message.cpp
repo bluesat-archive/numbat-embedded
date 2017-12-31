@@ -67,18 +67,21 @@ unsigned int Message::get_next_msg_index() {
 }
 
 void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
-
+    UARTprintf("fill\n");
     // if we don't have a descriptor yet generate one.
     // NOTE: a descriptor is not copied when a message is coppied, it will always start from
     // scratch
     if(!desc) {
+        UARTprintf("descriptor gen %p\n", &Message::generate_descriptor);
         desc = generate_descriptor();
         //set the from node
         from_node = msg.head.fields.node_id;
         size = msg.head.fields.message_length;
         decode_index = 0;
     }
+    UARTprintf("Decoding\n");
     desc->decode_msg(msg);
+    UARTprintf("Decoding Done\n");
     decode_index++;
     done = decode_index == size;
 }

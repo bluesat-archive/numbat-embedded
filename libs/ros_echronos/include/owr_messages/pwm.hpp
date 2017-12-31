@@ -15,7 +15,8 @@ class pwm_ : public ros_echronos::Message {
   ~pwm_();
   virtual void generate_block();
   virtual ros_echronos::Message_Descriptor * generate_descriptor();
-  typedef ros_echronos::String _joint_type;
+  typedef ros_echronos::String _joint_type;\
+  ros_echronos::Message_Descriptor * desc = NULL;
   ros_echronos::String joint;
 
   typedef int32_t _pwm_type;
@@ -60,6 +61,7 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
 
   owr_messages::pwm_::~pwm_() {
       if (block) { alloc::free(block); }
+      if (desc) { alloc::free(desc); }
   } //deconstructor
 
   void owr_messages::pwm_::generate_block() {
@@ -81,7 +83,26 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   } // generate_block
 
   ros_echronos::Message_Descriptor * owr_messages::pwm_::generate_descriptor() {
-
+      UARTprintf("Generating descriptor\n");
+      void * field_ptrs[6];
+      size_t field_sizes[6];
+      field_ptrs[0] = &joint;
+      field_ptrs[1] = &pwm;
+      field_ptrs[2] = &targetVel;
+      field_ptrs[3] = &currentVel;
+      field_ptrs[4] = &currentPos;
+      field_ptrs[5] = &targetPos;
+      field_sizes[0] = sizeof(joint);
+      field_sizes[1] = sizeof(pwm);
+      field_sizes[2] = sizeof(targetVel);
+      field_sizes[3] = sizeof(currentVel);
+      field_sizes[4] = sizeof(currentPos);
+      field_sizes[5] = sizeof(targetPos);
+      ros_echronos::Message_Descriptor descriptor(field_ptrs, field_sizes, 6);
+      desc = (ros_echronos::Message_Descriptor *) alloc::malloc(sizeof(descriptor));
+      *desc = descriptor;
+      UARTprintf("Generating descriptor [DONE]\n");
+      return desc;
   }
 
 } // namespace owr_messages

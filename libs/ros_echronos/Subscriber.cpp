@@ -27,14 +27,25 @@ template <class T> Subscriber<T>::~Subscriber() {
 }
 
 template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
-    topic_id = can::subscribe_can(0,can::CAN_TOPIC_FILTER_BITMASK); //TODO: add node id, function, etc
+    can::can_ros_message msg;
+    msg.head.fields.message_length = 0;
+    msg.head.fields.mode = 1;
+    msg.head.fields.node_id = 0;
+    msg.head.fields.priority = 0;
+    msg.head.fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
+    msg.head.fields.seq_num = 0;
+    msg.head.fields.topic = topic_id;
+    topic_id = can::subscribe_can(msg.head.bits, can::TOPIC_BITMASK_HEADER.bits); //TODO: add node id, function, etc
     nh = &node_handle;
     prev = NULL;
     if(nh->subscribers != NULL) {
+        //UARTprintf("null\n");
         next = nh->subscribers;
         next->prev = this;
     }
+    //UARTprintf("not null\n");
     nh->subscribers = this;
+    UARTprintf("done init\n");
 }
 
 template <class T> void Subscriber<T>::unsubscribe() {
@@ -46,11 +57,11 @@ template <class T> void Subscriber<T>::unsubscribe() {
 
 template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_ROS_Message &msg) {
     // Step 1: Check if it is a new or existing message
-
+    UARTprintf("Receiving Message\n");
     if (msg.head.fields.seq_num == 0) {
         T t;
-        t.fill(msg);
-        incoming_msgs.put(t);
+        T * msg_ptr = incoming_msgs.put(t);
+        msg_ptr->fill(msg);
     } else {
         //try and match a buffer
         for(int i = 0; i < incoming_msgs.length(); ++i) {
@@ -68,6 +79,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 
         // TODO: go into the buffer and find the message
     }
+    UARTprintf("Finished Message\n");
 }
 
 template <class T> void Subscriber<T>::call_callback() {

@@ -17,6 +17,8 @@ Message_Descriptor::Message_Descriptor(
         size_t *field_size,
         size_t num_fields
 ) : num_fields(num_fields) {
+    this->field_ptrs = (void **) alloc::malloc(sizeof(void*)* num_fields);
+    this->field_size = (size_t *) alloc::malloc(sizeof(size_t)* num_fields);
     memcpy(&this->field_ptrs, &field_ptrs, sizeof(void *) * num_fields);
     memcpy(&this->field_size, &field_size, sizeof(void *) * num_fields);
 }
