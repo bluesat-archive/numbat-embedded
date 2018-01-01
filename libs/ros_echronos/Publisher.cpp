@@ -74,6 +74,7 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
             return  can_msg;
         }
         current_message = buffer.pop();
+        seq_num = 0;
     }
 
     can_msg.head = header;
@@ -81,8 +82,13 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
     uint8_t * current = current_message.get_next_block(has_next, can_msg.body_bytes);
 
     memcpy(can_msg.body, current, can_msg.body_bytes);
-    UARTprintf("msg: 0: %c, 1: %c\n", can_msg.body[0], can_msg.body[1]);
+    ros_echronos::ROS_INFO("msg: 0: %c, 1: %c\n", can_msg.body[0], can_msg.body[1]);
     can_msg.head.fields.message_length = current_message.message_size();
+    can_msg.head.fields.seq_num = seq_num++;
+    if (can_msg.head.fields.seq_num >= can::SEQ_NUM_SPECIAL_MODE) {
+        can_msg.head.fields.seq_num = can::SEQ_NUM_SPECIAL_MODE;
+        can_msg.head.fields.message_length = seq_num;
+    }
     message_in_progress = has_next;
 
     // we also have next if there are more messages in the buffer

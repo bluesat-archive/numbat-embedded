@@ -2,4 +2,5 @@ monitor reset halt
 load
 monitor reset halt
 b main
+b hardfault
 c

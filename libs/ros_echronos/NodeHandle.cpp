@@ -19,7 +19,7 @@ using namespace ros_echronos;
 volatile bool can::node_handle_ready = false;
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
                       RtosSignalId can_interupt_signal) {
-    UARTprintf("can interupt event %d\n", can_interupt_event);
+    ros_echronos::ROS_INFO("can interupt event %d\n", can_interupt_event);
     can::can_interupt_event = can_interupt_event;
     can_receive_signal = can_interupt_signal;
     has_init = true;
@@ -43,7 +43,7 @@ void NodeHandle::spin() {
     }
 
     _Subscriber * current_sub = subscribers;
-    UARTprintf("current_subs %p\n", current_sub);
+    ros_echronos::ROS_INFO("current_subs %p\n", current_sub);
     if(current_sub) {
         do {
             current_sub->call_callback();
@@ -59,11 +59,11 @@ uint8_t NodeHandle::get_node_id() {
 
 void NodeHandle::run_handle_message_loop() {
     using namespace ros_echronos::can;
-    UARTprintf("Waiting for NodeHandle to init\n");
+    ros_echronos::ROS_INFO("Waiting for NodeHandle to init\n");
     while(!has_init) {
         rtos_sleep(3);
     }
-    UARTprintf("NodeHandle init done\n");
+    ros_echronos::ROS_INFO("NodeHandle init done\n");
     int start_counter, end_counter;
     CAN_ROS_Message msg;
     while(true) {
@@ -84,10 +84,10 @@ void NodeHandle::run_handle_message_loop() {
                 break;
             }
         }
-        UARTprintf("Finished checking for subscribers %p\n", current);
+        ros_echronos::ROS_INFO("Finished checking for subscribers %p\n", current);
         if(current) {
             current->receive_message(msg);
-            UARTprintf("Finished calling receive message\n");
+            ros_echronos::ROS_INFO("Finished calling receive message\n");
         }
 
     }

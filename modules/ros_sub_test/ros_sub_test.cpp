@@ -6,7 +6,6 @@
 #include "Subscriber.hpp"
 #include "NodeHandle.hpp"
 
-owr_messages::pwm pwm_buffer[5];
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define SYSTICKS_PER_SECOND     100
@@ -30,61 +29,29 @@ bool sent_message;
 
 static uint32_t error_flag;
 
-/**
- * Used to handle interups from can0
- */
-extern "C" void can0_int_handler(void) {
-    uint32_t can_status = 0;
-
-    // read the register
-    can_status = CANIntStatus(CAN0_BASE, CAN_INT_STS_CAUSE);
-
-    // in this case we are reciving a status interupt
-    if(can_status == CAN_INT_INTID_STATUS) {
-        // read the error status and store it to be handled latter
-        error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
-        // clear so we can continue
-        CANIntClear(CAN0_BASE, 1);
-    } else {
-        // we are reciving a message, TODO: handle this
-        // for now we clear the interup so we can continue
-        CANIntClear(CAN0_BASE, 1);
-
-        // clear the error flag (otherwise we will store recive or write statuses)
-        error_flag = 0;
-
-        // if we haven't just sent a message read.
-        if(!sent_message) {
-            CANMessageGet(CAN0_BASE, can_status, &rx_object, 0);
-            UARTprintf("Received: %c\n", can_input_buffer);
-        }
-        sent_message = false;
-    }
-
-    //UARTprintf("A Error Code %x\n", can_status);
-}
 
 extern "C" void task_ros_sub_test_fn(void) {
+    owr_messages::pwm pwm_buffer[5];
 
-    UARTprintf("Entered CAN task. Initializing...\n");
+    ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
     nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
-    UARTprintf("Done init\n");
+    ros_echronos::ROS_INFO("Done init\n");
     nh_ptr = &nh;
 
-    UARTprintf("sub init\n");
+    ros_echronos::ROS_INFO("sub init\n");
     ros_echronos::Subscriber<owr_messages::pwm> sub("aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
     sub.init(nh);
-    UARTprintf("starting the main loop\n");
+    ros_echronos::ROS_INFO("starting the main loop\n");
     owr_messages::pwm msg;
     while(true) {
-        UARTprintf("Next loop!\n");
+        ros_echronos::ROS_INFO("Next loop!\n");
         nh.spin();
     }
 }
 
 void callback(const owr_messages::pwm & msg) {
-    UARTprintf("Received Message\n");
+    ros_echronos::ROS_INFO("Received Message\n");
 }
 
 int main(void) {
@@ -107,6 +74,9 @@ int main(void) {
     init_can();
 
     alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
+
+    ros_echronos::write_mutex = RTOS_MUTEX_ID_PRINT;
+    ros_echronos::write_mutex_set = true;
 
     // Actually start the RTOS
     UARTprintf("Starting RTOS...\n");

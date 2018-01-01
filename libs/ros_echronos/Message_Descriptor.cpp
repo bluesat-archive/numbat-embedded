@@ -19,8 +19,8 @@ Message_Descriptor::Message_Descriptor(
 ) : num_fields(num_fields) {
     this->field_ptrs = (void **) alloc::malloc(sizeof(void*)* num_fields);
     this->field_size = (size_t *) alloc::malloc(sizeof(size_t)* num_fields);
-    memcpy(&this->field_ptrs, &field_ptrs, sizeof(void *) * num_fields);
-    memcpy(&this->field_size, &field_size, sizeof(void *) * num_fields);
+    memcpy(this->field_ptrs, field_ptrs, sizeof(void *) * num_fields);
+    memcpy(this->field_size, field_size, sizeof(size_t) * num_fields);
 }
 
 Message_Descriptor::~Message_Descriptor() {
@@ -38,7 +38,7 @@ void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
             if(msg.body_bytes-i > sizeof(uint16_t)) {
                 // we can't memcpy this as we are changing unsinged/signed and integer size
                 field_size[field_offset] = *((uint16_t *) (msg.body + i));
-                ++i;
+                i+= sizeof(uint16_t);
                 continue;
             } else {
                 // got to copy second byte
@@ -55,8 +55,11 @@ void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
             continue;
         }
         curr_field_size-=field_internal_offset;
+        ros_echronos::ROS_INFO("cfs %d, body_bytes %d\n", curr_field_size, msg.body_bytes);
         curr_field_size = min(curr_field_size, (msg.body_bytes - i));
-        memcpy((uint8_t *)field_ptrs[i],&msg.body[i], curr_field_size);
+        ros_echronos::ROS_INFO("Copying %d bytes from %p to %p\n", curr_field_size, msg.body + i, field_ptrs[field_offset]);
+        memcpy((uint8_t *)field_ptrs[field_offset],msg.body + i, curr_field_size);
+        i+=curr_field_size;
         field_internal_offset+=curr_field_size;
         if(field_internal_offset==field_size[field_offset]) {
             ++field_offset;

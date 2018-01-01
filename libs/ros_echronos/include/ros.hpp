@@ -10,7 +10,8 @@
 #ifndef NUMBAT_EMBEDDED_ROS_HPP
 #define NUMBAT_EMBEDDED_ROS_HPP
 
-#include "rtos-kochab.h"
+#include <cstdarg>
+#include "boilerplate.h"
 #include "alloc.hpp"
 
 #define ROS_STR_LEN 15
@@ -119,6 +120,22 @@ namespace ros_echronos {
 
     typedef char String[ROS_STR_LEN];
 
+    extern RtosMutexId write_mutex;
+    extern bool write_mutex_set;
+
+    inline void ROS_INFO(const char *pcString, ...) {
+        va_list args;
+        va_start(args, pcString);
+        if(write_mutex_set) {
+            rtos_mutex_lock(write_mutex);
+        }
+
+        UARTvprintf(pcString, args);
+
+        if(write_mutex_set) {
+            rtos_mutex_unlock(write_mutex);
+        }
+    }
 }
 
 

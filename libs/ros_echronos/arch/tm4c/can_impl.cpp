@@ -14,7 +14,7 @@
 // reserve 0 for sending messages
 #define CAN_ID_START 1
 #define CAN_DEVICE_BASE CAN0_BASE
-#define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER | MSG_OBJ_USE_EXT_FILTER)
+#define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER |  MSG_OBJ_EXTENDED_ID)
 
 /**
  * The CAN msg objects we can use to store ids in
@@ -46,7 +46,7 @@ can_sub_id ros_echronos::can::subscribe_can(uint32_t id_mask, uint32_t mask_bits
     msgs[current_id].ui32Flags = CAN_RECEIVE_FLAGS;
     msgs[current_id].ui32MsgID = id_mask;
     msgs[current_id].ui32MsgIDMask = mask_bits;
-    msgs[current_id].ui32MsgID = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
+    msgs[current_id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
     CANMessageSet(CAN_DEVICE_BASE, current_id, msgs + current_id, MSG_OBJ_TYPE_RX);
     ++current_id;
     return 0;
@@ -79,11 +79,15 @@ extern "C" void ros_can_interupt_handler(void) {
         //UARTprintf("CAN error %u\n", error_flag);
     } else if (can_status > 0 && can_status <32) {
         tCANMsgObject msg;
-        CANMessageGet(CAN_DEVICE_BASE, can_status, &msg, false);
+        uint8_t data[CAN_MESSAGE_MAX_LEN];
+        msg.pui8MsgData = data;
+        msg.ui32MsgLen = CAN_MESSAGE_MAX_LEN;
+        CANMessageGet(CAN_DEVICE_BASE, can_status, &msg, true);
         //begin the copy
         ros_echronos::can::input_buffer.start_counter++;
         ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
-        memcpy(&ros_echronos::can::input_buffer.buffer.body_bytes, msg.pui8MsgData, msg.ui32MsgLen);
+        ros_echronos::can::input_buffer.buffer.body_bytes = msg.ui32MsgLen;
+        memcpy(ros_echronos::can::input_buffer.buffer.body, msg.pui8MsgData, msg.ui32MsgLen);
         ros_echronos::can::input_buffer.end_counter++;
         if(ros_echronos::can::node_handle_ready) {
             //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);

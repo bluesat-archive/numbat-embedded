@@ -32,7 +32,7 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     if(has_next) {
         // += does not work here for some reason
         offset += (uint16_t)  can::CAN_MESSAGE_MAX_LEN;
-        UARTprintf("Offset %d\n", offset);
+        ros_echronos::ROS_INFO("Offset %d\n", offset);
     } else {
         done = true;
     }
@@ -67,21 +67,20 @@ unsigned int Message::get_next_msg_index() {
 }
 
 void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
-    UARTprintf("fill\n");
+    ros_echronos::ROS_INFO("fill\n");
     // if we don't have a descriptor yet generate one.
     // NOTE: a descriptor is not copied when a message is coppied, it will always start from
     // scratch
     if(!desc) {
-        UARTprintf("descriptor gen %p\n", &Message::generate_descriptor);
         desc = generate_descriptor();
         //set the from node
         from_node = msg.head.fields.node_id;
         size = msg.head.fields.message_length;
         decode_index = 0;
     }
-    UARTprintf("Decoding\n");
+    ros_echronos::ROS_INFO("Decoding\n");
     desc->decode_msg(msg);
-    UARTprintf("Decoding Done\n");
+    ros_echronos::ROS_INFO("Decoding Done\n");
     decode_index++;
     done = decode_index == size;
 }

@@ -112,6 +112,11 @@ namespace ros_echronos {
              */
             bool message_in_progress = false;
 
+            /**
+             * The sequence number for the current encoding
+             */
+            uint16_t seq_num = 0;
+
     };
 }
 

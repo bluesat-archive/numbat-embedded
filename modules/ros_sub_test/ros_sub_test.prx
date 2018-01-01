@@ -76,6 +76,9 @@
                 <mutex>
                     <name>alloc</name>
                 </mutex>
+                <mutex>
+                    <name>print</name>
+                </mutex>
             </mutexes>
 
             <mutex>

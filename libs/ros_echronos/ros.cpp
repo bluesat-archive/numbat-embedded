@@ -4,7 +4,7 @@
  * Editors:
  * Purpose: This provides the core file for implementing ros on echronos
  * This code is released under the AGPLv3 License.
- * Copyright BLUEsat UNSW, 2017
+ * Copyright BLUEsat UNSW, 2017 - 2018
  */
 
 #include "ros.hpp"
@@ -46,3 +46,6 @@ extern "C" void ros_can_int_handler(void) {
 int ros_echronos::can::can_error_flag;
 
 uint32_t  ros_echronos::can::can_base;
+
+RtosMutexId ros_echronos::write_mutex = 0;
+bool ros_echronos::write_mutex_set = false;

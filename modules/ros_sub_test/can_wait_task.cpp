@@ -13,14 +13,14 @@ extern ros_echronos::NodeHandle * volatile nh_ptr;
 
 extern "C" void task_can_wait_fn(void) {
 
-    UARTprintf("Entered wait task. Waiting for node handle to be initalised\n");
+    ros_echronos::ROS_INFO("Entered wait task. Waiting for node handle to be initalised\n");
     while (!nh_ptr) {
         rtos_sleep(2);
     }
 
-    UARTprintf("Node Handle Initalised\n");
+    ros_echronos::ROS_INFO("Node Handle Initalised\n");
 
     nh_ptr->run_handle_message_loop();
-    UARTprintf("Message Loop Exited Unexpectedly!\n");
+    ros_echronos::ROS_INFO("Message Loop Exited Unexpectedly!\n");
 
 }
