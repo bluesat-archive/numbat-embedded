@@ -55,6 +55,7 @@ namespace ros_echronos {
                 unsigned int topic : 8;
                 unsigned int message_length : 9;
                 unsigned int node_id : 4;
+                unsigned int not_in_range : 3;
             }__attribute__((packed)) fields;
         } CAN_Header;
 
@@ -76,7 +77,7 @@ namespace ros_echronos {
 
         const CAN_Header TOPIC_BITMASK_HEADER = {
                 .fields={
-                    1, 0, 0xF, 0, 0xFFFFF, 0, 0
+                    1, 0, 0xF, 0, 0xFFFFF, 0, 0, 0
                 }
         };
 

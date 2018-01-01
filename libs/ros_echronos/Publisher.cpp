@@ -52,6 +52,7 @@ template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handl
     header.fields.mode = can::ROS_CAN_MODE;
     header.fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
     header.fields.node_id = nh->get_node_id();
+    header.fields.not_in_range = 0;
 
     // TODO: topic registration
     header.fields.topic = 1;
