@@ -67,7 +67,7 @@ unsigned int Message::get_next_msg_index() {
 }
 
 void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
-    ros_echronos::ROS_INFO("fill\n");
+    //ros_echronos::ROS_INFO("fill\n");
     // if we don't have a descriptor yet generate one.
     // NOTE: a descriptor is not copied when a message is coppied, it will always start from
     // scratch
@@ -78,11 +78,12 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
         size = msg.head.fields.message_length;
         decode_index = 0;
     }
-    ros_echronos::ROS_INFO("Decoding\n");
+    //ros_echronos::ROS_INFO("Decoding\n");
     desc->decode_msg(msg);
-    ros_echronos::ROS_INFO("Decoding Done\n");
+    ros_echronos::ROS_INFO("Decoding Done %d/%d\n", decode_index, size);
     decode_index++;
     done = decode_index == size;
+    while(done) {}
 }
 
 Message::~Message() {

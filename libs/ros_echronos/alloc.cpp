@@ -33,16 +33,16 @@ void alloc::init_mm(const RtosMutexId alloc_mutex) {
 
 void * alloc::malloc(size_t size) {
     rtos_mutex_lock(mutex);
-    ros_echronos::ROS_INFO("alloc size %d\n",size);
+//    ros_echronos::ROS_INFO("alloc size %d\n",size);
     void * val = tlsf_malloc(tlsf, size);
-    ros_echronos::ROS_INFO("alloc'd %p\n", val);
+//    ros_echronos::ROS_INFO("alloc'd %p\n", val);
     rtos_mutex_unlock(mutex);
     return val;
 }
 
 void alloc::free(void * ptr) {
     rtos_mutex_lock(mutex);
-    ros_echronos::ROS_INFO("Dealloc %p\n", ptr);
+//    ros_echronos::ROS_INFO("Dealloc %p\n", ptr);
     tlsf_free(tlsf, ptr);
     rtos_mutex_unlock(mutex);
 }

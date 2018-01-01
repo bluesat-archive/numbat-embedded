@@ -11,6 +11,7 @@
 #include "ros.hpp"
 
 #define NUM_CAN_OBJS 32
+#define CAN_FIFO_QUEUE_LENGTH 30
 // reserve 0 for sending messages
 #define CAN_ID_START 1
 #define CAN_DEVICE_BASE CAN0_BASE
@@ -31,6 +32,12 @@ using namespace ros_echronos::can;
 
 void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
 
+    //wait for the buffer to be empty before starting
+    while(CANStatusGet(CAN_DEVICE_BASE, CAN_STS_TXREQUEST)) {
+        UARTprintf("Waiting for CAN bus to have no pending sends\n");
+        rtos_sleep(1);
+    }
+
     tCANMsgObject can_tx_message;
     can_tx_message.ui32MsgID = msg.head.bits;
     can_tx_message.ui32MsgIDMask = 0;
@@ -42,14 +49,19 @@ void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
 }
 
 can_sub_id ros_echronos::can::subscribe_can(uint32_t id_mask, uint32_t mask_bits) {
-
-    msgs[current_id].ui32Flags = CAN_RECEIVE_FLAGS;
-    msgs[current_id].ui32MsgID = id_mask;
-    msgs[current_id].ui32MsgIDMask = mask_bits;
-    msgs[current_id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
-    CANMessageSet(CAN_DEVICE_BASE, current_id, msgs + current_id, MSG_OBJ_TYPE_RX);
-    ++current_id;
-    return 0;
+    can_sub_id id = current_id;
+    for(int i = 0; i < CAN_FIFO_QUEUE_LENGTH; ++i) {
+        msgs[current_id].ui32Flags = CAN_RECEIVE_FLAGS;
+        if (i < CAN_FIFO_QUEUE_LENGTH-1) {
+            msgs[current_id].ui32Flags |= MSG_OBJ_FIFO;
+        }
+        msgs[current_id].ui32MsgID = id_mask;
+        msgs[current_id].ui32MsgIDMask = mask_bits;
+        msgs[current_id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
+        CANMessageSet(CAN_DEVICE_BASE, current_id, msgs + current_id, MSG_OBJ_TYPE_RX);
+        ++current_id;
+    }
+    return id;
 }
 
 void ros_echronos::can::unsubscribe_can(can_sub_id id) {
@@ -57,6 +69,7 @@ void ros_echronos::can::unsubscribe_can(can_sub_id id) {
     msgs[id].ui32MsgIDMask = MSG_OBJ_NO_FLAGS;
     CANMessageClear(CAN_DEVICE_BASE, id);
     //TODO: make a less dodgey bump pointer
+    // TODO: account for FIFO
     if(current_id == id) {
         current_id--;
     }

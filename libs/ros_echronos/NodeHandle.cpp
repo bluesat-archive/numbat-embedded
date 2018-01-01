@@ -84,10 +84,8 @@ void NodeHandle::run_handle_message_loop() {
                 break;
             }
         }
-        ros_echronos::ROS_INFO("Finished checking for subscribers %p\n", current);
         if(current) {
             current->receive_message(msg);
-            ros_echronos::ROS_INFO("Finished calling receive message\n");
         }
 
     }
