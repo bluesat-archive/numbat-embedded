@@ -81,12 +81,9 @@ void NodeHandle::run_handle_message_loop() {
         _Subscriber * current;
         for(current = subscribers; current; current = (_Subscriber *) current->next) {
             if(msg.head.fields.topic == current->topic_id) {
+                current->receive_message(msg);
                 break;
             }
         }
-        if(current) {
-            current->receive_message(msg);
-        }
-
     }
 }

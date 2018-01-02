@@ -59,7 +59,7 @@ template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handl
 }
 
 template <class T> void Publisher<T>::publish(T & message, uint8_t priority) {
-    buffer.put(message);
+    buffer.put(&message);
     //TODO: priority
 }
 

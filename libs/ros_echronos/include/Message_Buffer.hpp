@@ -42,7 +42,7 @@ class Message_Buffer {
          * @param msg the message to store
          * @return a pointer to the message in the buffer
          */
-        T * put(T msg);
+        T * put(T * msg);
         bool is_empty();
 
         /**
@@ -108,8 +108,8 @@ template <class T> T Message_Buffer<T>::pop() {
 }
 
 template <class T>
-T * Message_Buffer<T>::put(T msg) {
-        (*buffer_tail) = msg;
+T * Message_Buffer<T>::put(T * msg) {
+        (*buffer_tail) = *msg;
         T * output = buffer_tail;
         --buffer_tail;
         if(buffer_tail < buffer_start) {

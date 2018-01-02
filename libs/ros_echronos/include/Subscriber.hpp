@@ -52,9 +52,10 @@ namespace ros_echronos {
              * Does not register it with the node
              *
              * @param topic_name the name of the topic to publish on as a null terminated string
-             * @param read_buffer the buffer used to store outgoing messages. The caller should not use this pointer
-             *  once it is passed.
-             * @param buffer_size the size of reade_buffer
+             * @param read_buffer the buffer used to store incoming messages. The caller should not use this pointer
+             *  once it is passed. This buffer will be split and half used for message construction and half used for
+         *      messages awaiting a callback
+             * @param buffer_size the size of incoming buffer
              * @param callback the callback to be called when a message is recieved
              */
             Subscriber(char * topic_name, T * const read_buffer, int buffer_size, void (*callback)(const T &));
@@ -82,9 +83,21 @@ namespace ros_echronos {
         private:
             ros_echronos::can::can_sub_id sub_id;
             /**
-             * Buffer of incoming constructed messages
+             * Buffer of incoming messages
              */
-            Message_Buffer<T> incoming_msgs;
+            T * incoming_msgs;
+            /**
+             * Bitmask of free buffer slots in incoming messages
+             */
+            uint32_t mask = 0;
+            /**
+             * Max size of buffer
+             */
+            size_t message_construction_buff_size;
+            /**
+             * Buffer of ready messages
+             */
+            Message_Buffer<T> ready_msgs;
             /**
              * The subscribers node handle
              */
@@ -94,6 +107,8 @@ namespace ros_echronos {
              * The callback
              */
             void (*callback)(const T &);
+
+            inline T * next_construction_msg();
 
     };
 }

@@ -39,9 +39,17 @@ namespace ros_echronos {
              * Destroys the descriptor
              */
             ~Message_Descriptor();
+
+            /**
+             * Copy constructor for Message_Descriptor
+             * @param to_copy the descriptor to copy
+             */
+            Message_Descriptor(const Message_Descriptor & to_copy);
+
+
         private:
-            void ** field_ptrs;
-            size_t * field_size;
+            void ** field_ptrs = NULL;
+            size_t * field_size = NULL;
             size_t num_fields;
             /**
              * The field we are currently on

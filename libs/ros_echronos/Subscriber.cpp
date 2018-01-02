@@ -18,7 +18,7 @@ using namespace ros_echronos;
 
 
 template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
-        : incoming_msgs(read_buffer, buffer_size), callback(callback) {
+        : incoming_msgs(read_buffer), message_construction_buff_size(buffer_size/2), ready_msgs(incoming_msgs + message_construction_buff_size, buffer_size-message_construction_buff_size), callback(callback) {
 
 }
 
@@ -59,43 +59,57 @@ template <class T> void Subscriber<T>::unsubscribe() {
 }
 
 template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_ROS_Message &msg) {
+    T * msg_ptr = NULL;
+
     // Step 1: Check if it is a new or existing message
-    ros_echronos::ROS_INFO("Receiving Message seq num %d\n", msg.head.fields.seq_num);
+    //ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
     if (msg.head.fields.seq_num == 0) {
-        T t;
-        T * msg_ptr = incoming_msgs.put(t);
-        msg_ptr->fill(msg);
+        msg_ptr = new (next_construction_msg()) T();
     } else {
         //try and match a buffer
-        for(int i = 0; i < incoming_msgs.length(); ++i) {
-            if(incoming_msgs[i]->from_node == msg.head.fields.node_id) {
+        for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask << 1) {
+            if((lmask & mask) &&incoming_msgs[i].from_node == msg.head.fields.node_id) {
                 // because we have a limited bits in the seq number we overflow to the message length field
                 int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
-                if(msg_seq_num != incoming_msgs[i]->decode_index) {
+                if(msg_seq_num != incoming_msgs[i].decode_index) {
                     //TODO: error handling
-                    ros_echronos::ROS_INFO("Missing Message!\n");
+                    //ros_echronos::ROS_INFO("Missing Message!\n");
                 } else {
-                    ros_echronos::ROS_INFO("Adding to Message in the buffer\n");
-                    incoming_msgs[i]->fill(msg);
+                    msg_ptr = incoming_msgs + i;
                 }
                 break;
             }
         }
 
-        // TODO: go into the buffer and find the message
     }
-    ros_echronos::ROS_INFO("Finished Message\n");
+    if(msg_ptr) {
+        msg_ptr->fill(msg);
+        if (msg_ptr->is_done()) {
+            T * a = ready_msgs.put(msg_ptr);
+            msg_ptr->~T();
+            ros_echronos::ROS_INFO("Done %d\n", a->is_done());
+            // clear the mask
+            mask ^= (1 << (msg_ptr - incoming_msgs));
+        }
+    }
+}
+
+template <class T> T * Subscriber<T>::next_construction_msg() {
+    uint32_t local_mask = 1;
+    for(int i = 0; i < message_construction_buff_size; ++i, local_mask << 1) {
+        if(!(local_mask & mask)) {
+            mask |= local_mask;
+            return incoming_msgs + i;
+        }
+    }
+    return NULL;
 }
 
 template <class T> void Subscriber<T>::call_callback() {
-    ros_echronos::ROS_INFO("call callback!\n");
+    ros_echronos::ROS_INFO("call callback! len %d\n", ready_msgs.length());
     // for now we assume that the top of the buffer must be valid for any future messages to be valid
-    while(!incoming_msgs.is_empty()) {
-        if(incoming_msgs[0]->is_done()) {
-            callback(incoming_msgs.pop());
-        } else {
-            break;
-        }
+    while(!ready_msgs.is_empty()) {
+        callback(ready_msgs.pop());
     }
 }
 

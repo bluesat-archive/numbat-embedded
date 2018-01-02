@@ -32,6 +32,6 @@ ros_echronos::can::can_ros_message Incoming_Message_Buffer::pop_locked() {
 
 void Incoming_Message_Buffer::put_locked(ros_echronos::can::can_ros_message &msg) {
     rtos_mutex_lock(mutex);
-    put(msg);
+    put(&msg);
     rtos_mutex_unlock(mutex);
 }

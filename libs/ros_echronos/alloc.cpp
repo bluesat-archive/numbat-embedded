@@ -35,6 +35,10 @@ void * alloc::malloc(size_t size) {
     rtos_mutex_lock(mutex);
 //    ros_echronos::ROS_INFO("alloc size %d\n",size);
     void * val = tlsf_malloc(tlsf, size);
+    if(!val) {
+        ros_echronos::ROS_INFO("NULL alloc\n");
+        while (true){}
+    }
 //    ros_echronos::ROS_INFO("alloc'd %p\n", val);
     rtos_mutex_unlock(mutex);
     return val;

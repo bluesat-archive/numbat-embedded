@@ -51,7 +51,11 @@ extern "C" void task_ros_sub_test_fn(void) {
 }
 
 void callback(const owr_messages::pwm & msg) {
-    ros_echronos::ROS_INFO("Received Message\n");
+    ros_echronos::ROS_INFO("Received Full Message\n");
+    ros_echronos::ROS_INFO("\tJoint \"%s\"\n", msg.joint);
+    ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
+    ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
+    ros_echronos::ROS_INFO("\ttarget pos %lf\n", msg.targetPos);
 }
 
 int main(void) {
@@ -105,7 +109,7 @@ void init_can(void) {
     CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
 
     // enable can interupts
-    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR | CAN_INT_STATUS);
+    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR); //| CAN_INT_STATUS);
     IntEnable(INT_CAN0);
 
     //start CAN

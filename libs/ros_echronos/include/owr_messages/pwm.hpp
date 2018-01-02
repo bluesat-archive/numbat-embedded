@@ -3,6 +3,7 @@
 #define OWR_MESSAGES_MESSAGE_PWM_H
 #include "ros.hpp"
 #include "Message.hpp"
+#include <new>
 
 namespace owr_messages
 {
@@ -83,7 +84,6 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   } // generate_block
 
   ros_echronos::Message_Descriptor * owr_messages::pwm_::generate_descriptor() {
-      UARTprintf("Generating descriptor\n");
       void * field_ptrs[6];
       size_t field_sizes[6];
       field_ptrs[0] = &joint;
@@ -98,11 +98,10 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
       field_sizes[3] = sizeof(currentVel);
       field_sizes[4] = sizeof(currentPos);
       field_sizes[5] = sizeof(targetPos);
-      ros_echronos::Message_Descriptor descriptor(field_ptrs, field_sizes, 6);
-      desc = (ros_echronos::Message_Descriptor *) alloc::malloc(sizeof(descriptor));
-      *desc = descriptor;
-      UARTprintf("Generating descriptor [DONE]\n");
-      return desc;
+      void * desc = (ros_echronos::Message_Descriptor *) alloc::malloc(sizeof(ros_echronos::Message_Descriptor));
+      ros_echronos::Message_Descriptor * descriptor =
+              new (desc) ros_echronos::Message_Descriptor(field_ptrs, field_sizes, 6);
+      return descriptor;
   }
 
 } // namespace owr_messages
