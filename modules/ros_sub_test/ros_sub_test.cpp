@@ -4,6 +4,7 @@
 #include "ros.hpp"
 #include "owr_messages/pwm.hpp"
 #include "Subscriber.hpp"
+#include "Publisher.hpp"
 #include "NodeHandle.hpp"
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
@@ -48,6 +49,44 @@ extern "C" void task_ros_sub_test_fn(void) {
         ros_echronos::ROS_INFO("Next loop!\n");
         nh.spin();
     }
+    /*
+    // create a test message
+    owr_messages::pwm out_msg;
+    strncpy(out_msg.joint, "aaaa", 4);
+    out_msg.pwm = 0xDEADBEEF;
+
+    // create a publisher
+    Publisher<owr_messages::pwm> pub("null", pwm_buffer, 5, false);
+
+    //create some messages
+    ros_echronos::can::can_ros_message cmsgs[7];
+
+    // "publish them"
+    pub.publish(out_msg, 0);
+    bool has_next;
+    bool is_empty;
+    for(int i = 0; i < 7; ++i) {
+        cmsgs[i] = pub.get_next_message(has_next, is_empty);
+    }
+
+    // create a subscriber
+    owr_messages::pwm pwm_buffer_in[5];
+    Subscriber<owr_messages::pwm> sub("null", pwm_buffer_in, 5, callback);
+
+
+    // read them back
+    owr_messages::pwm in_msg;
+    for(int i = 0; i < 7; ++i) {
+        sub.receive_message(cmsgs[i]);
+    }
+    sub.call_callback();
+
+    //ros_echronos::ROS_INFO("Joint %s\n", in_msg.joint);
+    //ros_echronos::ROS_INFO("PWM %d\n", in_msg.pwm);
+
+    ros_echronos::ROS_INFO("Done\n");
+    while (true) {}*/
+
 }
 
 void callback(const owr_messages::pwm & msg) {
@@ -56,6 +95,7 @@ void callback(const owr_messages::pwm & msg) {
     ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
     ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
     ros_echronos::ROS_INFO("\ttarget pos %lf\n", msg.targetPos);
+    while(true) {}
 }
 
 int main(void) {
@@ -113,7 +153,7 @@ void init_can(void) {
     IntEnable(INT_CAN0);
 
     //start CAN
-    CANEnable(CAN0_BASE);
+    //CANEnable(CAN0_BASE);
 
 }
 

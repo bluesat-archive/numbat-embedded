@@ -30,8 +30,7 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
 
     uint8_t * const ret = block+offset;
     if(has_next) {
-        // += does not work here for some reason
-        offset += (uint16_t)  can::CAN_MESSAGE_MAX_LEN;
+        offset += can::CAN_MESSAGE_MAX_LEN;
         ros_echronos::ROS_INFO("Offset %d\n", offset);
     } else {
         done = true;
