@@ -153,7 +153,7 @@ void init_can(void) {
     IntEnable(INT_CAN0);
 
     //start CAN
-    //CANEnable(CAN0_BASE);
+    CANEnable(CAN0_BASE);
 
 }
 

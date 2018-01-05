@@ -33,9 +33,9 @@ using namespace ros_echronos::can;
 void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
 
     //wait for the buffer to be empty before starting
+    UARTprintf("Waiting for CAN bus to have no pending sends\n");
     while(CANStatusGet(CAN_DEVICE_BASE, CAN_STS_TXREQUEST)) {
-        UARTprintf("Waiting for CAN bus to have no pending sends\n");
-        rtos_sleep(1);
+        //rtos_sleep(1);
     }
 
     tCANMsgObject can_tx_message;
@@ -46,6 +46,7 @@ void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
     can_tx_message.pui8MsgData = msg.body;
 
     CANMessageSet(CAN_DEVICE_BASE, 1, &can_tx_message, MSG_OBJ_TYPE_TX);
+    UARTprintf("Sent\n");
 }
 
 can_sub_id ros_echronos::can::subscribe_can(uint32_t id_mask, uint32_t mask_bits) {

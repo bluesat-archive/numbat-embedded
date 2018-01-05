@@ -12,6 +12,9 @@ Message::Message() {}
 
 uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     if(!block_generated || done) {
+        if(block) {
+            alloc::free(block);
+        }
         generate_block();
         block_generated = true;
         offset = 0;
@@ -99,6 +102,10 @@ Message::~Message() {
         desc->~Message_Descriptor();
         alloc::free(desc);
         desc = NULL;
+    }
+    if(block) {
+        alloc::free(block);
+        block = NULL;
     }
 }
 
