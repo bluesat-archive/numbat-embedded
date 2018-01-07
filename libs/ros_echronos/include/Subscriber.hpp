@@ -109,6 +109,11 @@ namespace ros_echronos {
             void (*callback)(const T &);
 
             inline T * next_construction_msg();
+            inline void clear_slot(T * msg_ptr);
+            /**
+             * which error handling mode we are in
+             */
+            Transmission_Mode mode = DROP_MISSING;
 
     };
 }

@@ -69,6 +69,16 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
         //try and match a buffer
         for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask << 1) {
             if((lmask & mask) &&incoming_msgs[i].from_node == msg.head.fields.node_id) {
+                // handle the case where we've dropped a packet
+                if(incoming_msgs[i].from_msg_num != msg.head.fields.message_num) {
+                    if(mode == DROP_MISSING) {
+                        ros_echronos::ROS_INFO("Dropped a packet!\n");
+                        clear_slot(msg_ptr);
+                    } else {
+                        ros_echronos::ROS_INFO("Chosen Missing Packet Function Not Implemented!\n");
+                    }
+                    continue;
+                }
                 // because we have a limited bits in the seq number we overflow to the message length field
                 int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
                 if(msg_seq_num != incoming_msgs[i].decode_index) {
@@ -86,10 +96,8 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
         msg_ptr->fill(msg);
         if (msg_ptr->is_done()) {
             T * a = ready_msgs.put(msg_ptr);
-            msg_ptr->~T();
             ros_echronos::ROS_INFO("Done %d\n", a->is_done());
-            // clear the mask
-            mask ^= (1 << (msg_ptr - incoming_msgs));
+            clear_slot(msg_ptr);
         }
     }
 }
@@ -113,4 +121,10 @@ template <class T> void Subscriber<T>::call_callback() {
     }
 }
 
+template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
+    msg_ptr->~T();
+    // clear the mask
+    mask ^= (1 << (msg_ptr - incoming_msgs));
+
+}
 //TODO: flush unfinished messages from the buffer or rerequest them

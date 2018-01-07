@@ -75,6 +75,7 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
         }
         current_message = buffer.pop();
         seq_num = 0;
+        ++msg_num;
     }
 
     can_msg.head = header;
@@ -85,6 +86,7 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
     ros_echronos::ROS_INFO("msg: 0: %c, 1: %c\n", can_msg.body[0], can_msg.body[1]);
     can_msg.head.fields.message_length = current_message.message_size();
     can_msg.head.fields.seq_num = seq_num++;
+    can_msg.head.fields.message_num = msg_num;
     if (can_msg.head.fields.seq_num >= can::SEQ_NUM_SPECIAL_MODE) {
         can_msg.head.fields.seq_num = can::SEQ_NUM_SPECIAL_MODE;
         can_msg.head.fields.message_length = seq_num;

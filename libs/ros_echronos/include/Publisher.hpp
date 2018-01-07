@@ -116,6 +116,14 @@ namespace ros_echronos {
              * The sequence number for the current encoding
              */
             uint16_t seq_num = 0;
+            /**
+             * The number of the current message, note that this is cyclical and inteded to overflow
+             */
+            uint8_t msg_num : 2; //NOTE: it doesn't actually matter what this is initalised to
+            /**
+             * which error handling mode we are in
+             */
+            Transmission_Mode mode = DROP_MISSING;
 
     };
 }

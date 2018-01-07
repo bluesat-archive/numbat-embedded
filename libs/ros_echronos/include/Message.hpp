@@ -82,6 +82,10 @@ namespace ros_echronos {
              * Indicates the node this message is from. Only valid for incoming messages.
              */
             uint8_t from_node;
+            /**
+             * Indicates the message number of an incoming message
+             */
+            uint8_t from_msg_num;
 
             /**
              * The index for the next message to decode

@@ -53,8 +53,9 @@ namespace ros_echronos {
                 unsigned int priority : 2;
                 unsigned int ros_function : 2;
                 unsigned int seq_num : 3;
-                unsigned int topic : 8;
-                unsigned int message_length : 9;
+                unsigned int message_num : 2;
+                unsigned int topic : 7;
+                unsigned int message_length : 8;
                 unsigned int node_id : 4;
                 unsigned int not_in_range : 3;
             }__attribute__((packed)) fields;
@@ -65,6 +66,7 @@ namespace ros_echronos {
             uint8_t body[CAN_MESSAGE_MAX_LEN];
             uint8_t body_bytes;
         } CAN_ROS_Message;
+
 
         /**
          * We can't use mutexes in buffers so we have to assume that we do not receive another message
@@ -91,6 +93,10 @@ namespace ros_echronos {
     template <class T> class Publisher;
     template <class T> class Subscriber;
     class NodeHandle;
+    /**
+     * used to indicate which transmission mode and publisher or subscriber is in
+     */
+    enum Transmission_Mode { DROP_MISSING, REREQUEST_MISSING};
 
     template <typename T> class Array {
         public:
