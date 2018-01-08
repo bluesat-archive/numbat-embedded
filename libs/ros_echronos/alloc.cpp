@@ -39,16 +39,17 @@ void * alloc::malloc(size_t size) {
         ros_echronos::ROS_INFO("NULL alloc\n");
         while (true){
             ros_echronos::ROS_INFO("NULL alloc\n");
+            rtos_sleep(10);
         }
     }
-//    ros_echronos::ROS_INFO("alloc'd %p\n", val);
+    ros_echronos::ROS_INFO("alloc'd %p\n", val);
     rtos_mutex_unlock(mutex);
     return val;
 }
 
 void alloc::free(void * ptr) {
     rtos_mutex_lock(mutex);
-//    ros_echronos::ROS_INFO("Dealloc %p\n", ptr);
+    ros_echronos::ROS_INFO("Dealloc %p\n", ptr);
     tlsf_free(tlsf, ptr);
     rtos_mutex_unlock(mutex);
 }

@@ -24,7 +24,10 @@ void fatal(const uint8_t error_id) {
  * CPP Handlers
  * TODO: move these to their own file
  */
-void __cxa_pure_virtual() { fatal(1); }
+void __cxa_pure_virtual() {
+    UARTprintf("Bad call to pure virtual!\n");
+    fatal(1);
+}
 void exit() { fatal(1); }
 //this is called when C++ wants to run deconstructors on exit
 int __aeabi_atexit (void *arg, void (*fun) (void *), void *d) {

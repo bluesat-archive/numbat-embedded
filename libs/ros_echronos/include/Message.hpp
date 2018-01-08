@@ -56,10 +56,6 @@ namespace ros_echronos {
              */
             bool is_done();
 
-            /**
-             * Function to generate a block
-             */
-            virtual inline void generate_block() = 0;
 
             /**
              * Function to fill data from a can msg
@@ -74,7 +70,7 @@ namespace ros_echronos {
             // needed because inheritance breaks the linker if there is not constructor
             Message();
 
-            Message &operator = (const Message & message);
+            Message(const Message & message);
 
             ~Message();
 
@@ -91,6 +87,10 @@ namespace ros_echronos {
              * The index for the next message to decode
              */
             uint8_t decode_index;
+            /**
+             * Function to generate a block
+             */
+            void generate_block();
         protected:
             /**
              * If the message has been generated
@@ -122,6 +122,10 @@ namespace ros_echronos {
              * @return the `Message_Descriptor` class needed
              */
             virtual Message_Descriptor * generate_descriptor() = 0;
+            /**
+             * Function to generate a block
+             */
+            virtual inline void generate_block_impl() = 0;
         private:
             /**
              * Represents the current message descriptor, if needed

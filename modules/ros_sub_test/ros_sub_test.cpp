@@ -95,7 +95,6 @@ void callback(const owr_messages::pwm & msg) {
     ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
     ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
     ros_echronos::ROS_INFO("\ttarget pos %lf\n", msg.targetPos);
-    while(true) {}
 }
 
 int main(void) {

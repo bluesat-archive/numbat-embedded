@@ -12,13 +12,7 @@ Message::Message() {}
 
 uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     if(!block_generated || done) {
-        if(block) {
-            alloc::free(block);
-        }
         generate_block();
-        block_generated = true;
-        offset = 0;
-        done = false;
     }
     const uint16_t  diff = (size - offset);
 
@@ -48,19 +42,26 @@ bool Message::is_done() {
 }
 
 uint16_t Message::message_size() {
-    if(!block_generated ) {
+    if(!block_generated) {
         // we don't know the size in messages until we have generated the block
         generate_block();
     }
     return size / can::CAN_MESSAGE_MAX_LEN;
 }
 
-Message & Message::operator = (const Message & message) {
+Message::Message(const Message & message) {
     block_generated = message.block_generated;
     offset = message.offset;
     size = message.size;
     done = message.done;
-    block = message.block;
+    if (message.block) {
+        // if the block is generated the size is set
+        block = (uint8_t *) alloc::malloc(size);
+        ros_echronos::ROS_INFO("block is %p\n", block);
+        memcpy(block, message.block, size);
+    } else {
+        block = NULL;
+    }
     desc = NULL;
 }
 
@@ -98,6 +99,7 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
 }
 
 Message::~Message() {
+    ros_echronos::ROS_INFO("Deconstructor\n");
     //cleanup any message descriptors that still exist
     if(desc) {
         desc->~Message_Descriptor();
@@ -110,3 +112,13 @@ Message::~Message() {
     }
 }
 
+void Message::generate_block() {
+    if(block) {
+        alloc::free(block);
+        block = NULL;
+    }
+    generate_block_impl();
+    block_generated = true;
+    offset = 0;
+    done = false;
+}

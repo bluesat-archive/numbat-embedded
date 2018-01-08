@@ -14,7 +14,7 @@ class pwm_ : public ros_echronos::Message {
   pwm_();
   pwm_(const owr_messages::pwm_& copy); 
   ~pwm_();
-  virtual void generate_block();
+  virtual void generate_block_impl();
   virtual ros_echronos::Message_Descriptor * generate_descriptor();
   typedef ros_echronos::String _joint_type;\
   ros_echronos::Message_Descriptor * desc = NULL;
@@ -51,21 +51,21 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   , currentVel(0.0)
   , currentPos(0.0)
   , targetPos(0.0)
+  , Message()
   {
   }
 
   owr_messages::pwm_::pwm_(const owr_messages::pwm_& copy) : 
-  pwm(copy.pwm),  targetVel(copy.targetVel),  currentVel(copy.currentVel),  currentPos(copy.currentPos),  targetPos(copy.targetPos)
+  pwm(copy.pwm),  targetVel(copy.targetVel),  currentVel(copy.currentVel),  currentPos(copy.currentPos),  targetPos(copy.targetPos),
+  Message(copy)
   {
       memcpy(joint, copy.joint, ROS_STR_LEN);
   } // copy constructor
 
-  owr_messages::pwm_::~pwm_() {
-      if (block) { alloc::free(block); }
-      if (desc) { alloc::free(desc); }
+  owr_messages::pwm_::~pwm_()  {
   } //deconstructor
 
-  void owr_messages::pwm_::generate_block() {
+  void owr_messages::pwm_::generate_block_impl() {
       size_t offset = 0;
       size = sizeof(joint)+sizeof(pwm)+sizeof(targetVel)+sizeof(currentVel)+sizeof(currentPos)+sizeof(targetPos);
       block = (uint8_t *) alloc::malloc(size);
