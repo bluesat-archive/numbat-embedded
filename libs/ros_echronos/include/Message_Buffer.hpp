@@ -99,7 +99,6 @@ template <class T> Message_Buffer<T>::Message_Buffer(T *const buffer, const uint
 
 template <class T> T Message_Buffer<T>::pop() {
         T msg = (*buffer_head);
-        buffer_head->~T();
         --buffer_head;
         if(buffer_head < buffer_start) {
             buffer_head = buffer_end-1;

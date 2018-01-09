@@ -63,6 +63,7 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   } // copy constructor
 
   owr_messages::pwm_::~pwm_()  {
+      ros_echronos::ROS_INFO("Deconstructor pwm\n");
   } //deconstructor
 
   void owr_messages::pwm_::generate_block_impl() {

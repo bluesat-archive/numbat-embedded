@@ -73,6 +73,8 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
             empty = true;
             return  can_msg;
         }
+        current_message.~T();
+        //current_message.~Message();
         current_message = buffer.pop();
         seq_num = 0;
         ++msg_num;

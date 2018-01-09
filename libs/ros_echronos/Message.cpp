@@ -8,7 +8,10 @@
 
 using namespace ros_echronos;
 
-Message::Message() {}
+Message::Message() {
+
+    ros_echronos::ROS_INFO("constructor block %p \n", block);
+}
 
 uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     if(!block_generated || done) {
@@ -50,6 +53,7 @@ uint16_t Message::message_size() {
 }
 
 Message::Message(const Message & message) {
+    ros_echronos::ROS_INFO("%p: Copy constructor block %p old block %p\n",this, block, message.block);
     block_generated = message.block_generated;
     offset = message.offset;
     size = message.size;
@@ -99,7 +103,7 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
 }
 
 Message::~Message() {
-    ros_echronos::ROS_INFO("Deconstructor\n");
+    ros_echronos::ROS_INFO("Deconstructor block %p this %p\n", block, this);
     //cleanup any message descriptors that still exist
     if(desc) {
         desc->~Message_Descriptor();
@@ -117,7 +121,9 @@ void Message::generate_block() {
         alloc::free(block);
         block = NULL;
     }
+    ros_echronos::ROS_INFO("Generate block for %p generated befor %d\n", this, block_generated);
     generate_block_impl();
+    ros_echronos::ROS_INFO("Gen B done\n");
     block_generated = true;
     offset = 0;
     done = false;
