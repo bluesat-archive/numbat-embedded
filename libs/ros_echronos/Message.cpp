@@ -128,3 +128,32 @@ void Message::generate_block() {
     offset = 0;
     done = false;
 }
+
+Message & Message::operator=(const Message &new_value) {
+
+    ros_echronos::ROS_INFO("%p: Assignment Opperator called on block %p old block %p\n",this, block, new_value.block);
+    //cleanup any message descriptors that still exist
+    if(desc) {
+        desc->~Message_Descriptor();
+        alloc::free(desc);
+        desc = NULL;
+    }
+    if(block) {
+        alloc::free(block);
+        block = NULL;
+    }
+
+    block_generated = new_value.block_generated;
+    offset = new_value.offset;
+    size = new_value.size;
+    done = new_value.done;
+    if (new_value.block) {
+        // if the block is generated the size is set
+        block = (uint8_t *) alloc::malloc(size);
+        ros_echronos::ROS_INFO("block is %p\n", block);
+        memcpy(block, new_value.block, size);
+    } else {
+        block = NULL;
+    }
+    desc = NULL;
+}

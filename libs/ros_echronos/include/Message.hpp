@@ -75,6 +75,13 @@ namespace ros_echronos {
             ~Message();
 
             /**
+             * Assignment operator, called when an assignment occurs to an initalised value
+             * @param new_value the value being assigned
+             * @return our value
+             */
+            virtual Message& operator=(const Message & new_value);
+
+            /**
              * Indicates the node this message is from. Only valid for incoming messages.
              */
             uint8_t from_node;
