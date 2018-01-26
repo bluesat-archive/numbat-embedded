@@ -98,7 +98,29 @@ namespace ros_echronos {
      */
     enum Transmission_Mode { DROP_MISSING, REREQUEST_MISSING};
 
-    template <typename T> class Array {
+    class Message_Descriptor;
+
+    /**
+     * Class used by message descriptors to decode arrays
+     */
+    class _Array {
+        protected:
+            /**
+             * Used by message descriptors to load data into empty array classes
+             * @param size the size to load
+             */
+            virtual void overide_with_new_size(const size_t & size) = 0;
+
+            /**
+             * Used by message descriptors to access the values array
+             * @return ptr to Array.values
+             */
+            virtual void * get_values_ptr() = 0;
+
+        friend Message_Descriptor;
+    };
+
+    template <typename T> class Array : public _Array {
         public:
             T operator[] (int index) {
                 return values[index];
@@ -109,22 +131,53 @@ namespace ros_echronos {
             //copy constructor
             Array(const Array & arr);
 
+            /**
+             * Used to define an empty array
+             */
+            Array();
+
             ~Array();
+
+            /**
+             * Allows this to be assigned to an array if needed
+             * @return the array
+             */
+            operator T*();
+            /**
+             * Allows this to be assigned to an array if needed
+             * @return the array
+             */
+            operator void*();
+
+            /**
+             * Allows overwriting a class with a new array
+             *
+             * This operation performs a deep copy
+             *
+             * @param new_value the new value to overwrite with
+             */
+            Array<T> & operator  =(const Array<T> & new_value);
+
 
             /**
              * Number of elements in the array
              */
-            const size_t size;
+            size_t size;
             /**
              * Number of bytes
              */
-            const size_t bytes;
-            T * const values;
+            size_t bytes;
+            T * values;
+
+        protected:
+
+            virtual void overide_with_new_size(const size_t & size);
+            virtual void * get_values_ptr();
 
     };
 
 
-    typedef char String[ROS_STR_LEN];
+    typedef Array<char> String;
 
     extern RtosMutexId write_mutex;
     extern bool write_mutex_set;
@@ -149,14 +202,58 @@ namespace ros_echronos {
  * Because GCC for ARM is broken we need to add these here rather than in the class decleration
  */
 template <typename  T>
-ros_echronos::Array<T>::Array(size_t size) : size(size), bytes(size*sizeof(T)), values(alloc::malloc(size)) { }
+ros_echronos::Array<T>::Array(size_t size) :
+        size(size),
+        bytes(size*sizeof(T)),
+        values((T*)alloc::malloc(size)
+) { }
+
+template <typename  T>
+ros_echronos::Array<T>::Array() : size(-1), bytes(-1), values(NULL) {
+    ROS_INFO("Warning: initalising empty array");
+}
 template <typename T>
 ros_echronos::Array<T>::Array(const Array & arr) : Array(arr.size) {
     memcpy(values, arr.values, size);
 }
-template <typename T>
+template <typename T> inline
 ros_echronos::Array<T>::~Array() {
-    free(values);
+    if(size != -1) {
+        alloc::free(values);
+    }
+}
+
+template <typename T> inline ros_echronos::Array<T>::operator T*() {
+    return values;
+}
+
+template <typename T> inline ros_echronos::Array<T>::operator void*() {
+    return values;
+}
+
+template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::operator  =(const ros_echronos::Array<T> & new_value) {
+    alloc::free(values);
+    if(size!=-1) {
+        values = (char*) alloc::malloc(new_value.size);
+        bytes = size * sizeof(T);
+        memcpy(values, new_value.values, new_value.size);
+        size = new_value.size;
+    }
+}
+
+template <typename T> inline void ros_echronos::Array<T>::overide_with_new_size(const size_t &new_size) {
+    //TODO: this should only work if size == -1
+
+    if(size!=-1) {
+        alloc::free(values);
+    }
+    size=new_size;
+    bytes=size * sizeof(T);
+    values = (T*) alloc::malloc(size);
+}
+
+template <typename T> inline void * ros_echronos::Array<T>::get_values_ptr() {
+    return (void*)values;
 }
 
 extern "C" void ros_can_int_handler(void);

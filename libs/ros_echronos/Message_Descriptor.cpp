@@ -47,6 +47,10 @@ void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
                 // we can't memcpy this as we are changing unsinged/signed and integer size
                 field_size[field_offset] = *((uint16_t *) (msg.body + i));
                 i+= sizeof(uint16_t);
+                // setup the array so we can copy into it, then switch it out for the actual array ptr
+                _Array * array = ((_Array *) field_ptrs[field_internal_offset]);
+                array->overide_with_new_size(field_size[field_offset]);
+                field_ptrs[field_offset] = array->get_values_ptr();
                 continue;
             } else {
                 // got to copy second byte

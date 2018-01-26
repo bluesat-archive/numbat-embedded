@@ -46,20 +46,20 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
 
  owr_messages::pwm_::pwm_()
   : joint()
+  , Message()
   , pwm(0)
   , targetVel(0.0)
   , currentVel(0.0)
   , currentPos(0.0)
   , targetPos(0.0)
-  , Message()
   {
   }
 
   owr_messages::pwm_::pwm_(const owr_messages::pwm_& copy) : 
   pwm(copy.pwm),  targetVel(copy.targetVel),  currentVel(copy.currentVel),  currentPos(copy.currentPos),  targetPos(copy.targetPos),
+  joint(copy.joint),
   Message(copy)
   {
-      memcpy(joint, copy.joint, ROS_STR_LEN);
   } // copy constructor
 
   owr_messages::pwm_::~pwm_()  {
