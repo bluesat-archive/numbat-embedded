@@ -205,11 +205,12 @@ template <typename  T>
 ros_echronos::Array<T>::Array(size_t size) :
         size(size),
         bytes(size*sizeof(T)),
-        values((T*)alloc::malloc(size)
-) { }
+        // allow for empty arrays (note size is unsinged so we can't use >)
+        values(size!=0 ? (T*)alloc::malloc(size) : NULL)
+{ }
 
 template <typename  T>
-ros_echronos::Array<T>::Array() : size(-1), bytes(-1), values(NULL) {
+ros_echronos::Array<T>::Array() : size(0), bytes(0), values(NULL) {
     ROS_INFO("Warning: initalising empty array");
 }
 template <typename T>
@@ -218,7 +219,7 @@ ros_echronos::Array<T>::Array(const Array & arr) : Array(arr.size) {
 }
 template <typename T> inline
 ros_echronos::Array<T>::~Array() {
-    if(size != -1) {
+    if(size != 0) {
         alloc::free(values);
     }
 }
@@ -232,8 +233,10 @@ template <typename T> inline ros_echronos::Array<T>::operator void*() {
 }
 
 template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::operator  =(const ros_echronos::Array<T> & new_value) {
-    alloc::free(values);
-    if(size!=-1) {
+    if(size!=0 && values) {
+        alloc::free(values);
+    }
+    if(new_value.size!=0) {
         values = (char*) alloc::malloc(new_value.size);
         bytes = size * sizeof(T);
         memcpy(values, new_value.values, new_value.size);
@@ -244,7 +247,7 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
 template <typename T> inline void ros_echronos::Array<T>::overide_with_new_size(const size_t &new_size) {
     //TODO: this should only work if size == -1
 
-    if(size!=-1) {
+    if(size!=0 && values) {
         alloc::free(values);
     }
     size=new_size;
