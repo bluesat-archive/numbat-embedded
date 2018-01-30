@@ -242,6 +242,7 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
         memcpy(values, new_value.values, new_value.size);
         size = new_value.size;
     }
+    return *this;
 }
 
 template <typename T> inline void ros_echronos::Array<T>::overide_with_new_size(const size_t &new_size) {

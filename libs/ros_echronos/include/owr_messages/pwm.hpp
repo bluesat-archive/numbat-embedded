@@ -12,11 +12,12 @@ class pwm_ : public ros_echronos::Message {
 
   public:
   pwm_();
-  pwm_(const owr_messages::pwm_& copy); 
+  //pwm_(const pwm_& copy);
   ~pwm_();
+  //virtual pwm_ & operator=(const pwm_ & copy);
   virtual void generate_block_impl();
   virtual ros_echronos::Message_Descriptor * generate_descriptor();
-  typedef ros_echronos::String _joint_type;\
+  typedef ros_echronos::String _joint_type;
   ros_echronos::Message_Descriptor * desc = NULL;
   ros_echronos::String joint;
 
@@ -55,12 +56,13 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   {
   }
 
-  owr_messages::pwm_::pwm_(const owr_messages::pwm_& copy) : 
+  /*owr_messages::pwm_::pwm_(const owr_messages::pwm_& copy) :
   pwm(copy.pwm),  targetVel(copy.targetVel),  currentVel(copy.currentVel),  currentPos(copy.currentPos),  targetPos(copy.targetPos),
   joint(copy.joint),
   Message(copy)
   {
-  } // copy constructor
+  } */// copy constructor
+
 
   owr_messages::pwm_::~pwm_()  {
       ros_echronos::ROS_INFO("Deconstructor pwm\n");

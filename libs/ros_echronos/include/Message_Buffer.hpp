@@ -113,7 +113,7 @@ T * Message_Buffer<T>::put(T * msg) {
         T * output = buffer_tail;
         --buffer_tail;
         if(buffer_tail < buffer_start) {
-                buffer_tail = buffer_end-1;
+            buffer_tail = buffer_end-1;
         }
         //TODO: override first item if full
 
