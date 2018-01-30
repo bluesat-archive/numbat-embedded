@@ -80,7 +80,9 @@ extern "C" void task_ros_test_fn(void) {
         msg.targetVel = 2;
         msg.pwm = 100;
         msg.targetPos+=2;
-        strncpy(msg.joint, "Hello CAN!", 15);
+        String j(15);
+        msg.joint = j;
+        memcpy(msg.joint, "Hello CAN!", 11);
         UARTprintf("pub pub\n");
         pub->publish(msg);
         UARTprintf("pub done\n");

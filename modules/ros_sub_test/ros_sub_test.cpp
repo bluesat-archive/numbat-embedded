@@ -91,7 +91,7 @@ extern "C" void task_ros_sub_test_fn(void) {
 
 void callback(const owr_messages::pwm & msg) {
     ros_echronos::ROS_INFO("Received Full Message\n");
-    ros_echronos::ROS_INFO("\tJoint \"%s\"\n", msg.joint);
+    ros_echronos::ROS_INFO("\tJoint \"%s\"\n", msg.joint.values);
     ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
     ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
     ros_echronos::ROS_INFO("\ttarget pos %lf\n", msg.targetPos);
