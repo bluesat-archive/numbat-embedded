@@ -82,7 +82,7 @@ extern "C" void task_ros_test_fn(void) {
         msg.targetPos+=2;
         String j(15);
         msg.joint = j;
-        memcpy(msg.joint, "Hello CAN!", 11);
+        memcpy(msg.joint.values, "Hello CAN!", 11);
         UARTprintf("pub pub\n");
         pub->publish(msg);
         UARTprintf("pub done\n");
@@ -141,7 +141,7 @@ void init_can(void) {
     CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
 
     // enable can interupts
-    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR | CAN_INT_STATUS);
+    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR );
     IntEnable(INT_CAN0);
 
     //start CAN

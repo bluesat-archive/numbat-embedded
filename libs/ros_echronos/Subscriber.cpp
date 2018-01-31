@@ -62,12 +62,12 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     T * msg_ptr = NULL;
 
     // Step 1: Check if it is a new or existing message
-    //ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
+    ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
     if (msg.head.fields.seq_num == 0) {
         msg_ptr = new (next_construction_msg()) T();
     } else {
         //try and match a buffer
-        for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask << 1) {
+        for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask = lmask<< 1) {
             if((lmask & mask) &&incoming_msgs[i].from_node == msg.head.fields.node_id) {
                 // handle the case where we've dropped a packet
                 if(incoming_msgs[i].from_msg_num != msg.head.fields.message_num) {
@@ -104,7 +104,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 
 template <class T> T * Subscriber<T>::next_construction_msg() {
     uint32_t local_mask = 1;
-    for(int i = 0; i < message_construction_buff_size; ++i, local_mask << 1) {
+    for(int i = 0; i < message_construction_buff_size; ++i, local_mask= local_mask << 1) {
         if(!(local_mask & mask)) {
             mask |= local_mask;
             return incoming_msgs + i;
@@ -122,7 +122,6 @@ template <class T> void Subscriber<T>::call_callback() {
 }
 
 template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
-    msg_ptr->~T();
     // clear the mask
     mask ^= (1 << (msg_ptr - incoming_msgs));
 
