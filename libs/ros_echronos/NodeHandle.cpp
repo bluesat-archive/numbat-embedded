@@ -43,7 +43,6 @@ void NodeHandle::spin() {
     }
 
     _Subscriber * current_sub = subscribers;
-    ros_echronos::ROS_INFO("current_subs %p\n", current_sub);
     if(current_sub) {
         do {
             current_sub->call_callback();

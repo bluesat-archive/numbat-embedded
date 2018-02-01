@@ -147,6 +147,8 @@ Message & Message::operator=(const Message &new_value) {
     offset = new_value.offset;
     size = new_value.size;
     done = new_value.done;
+    from_msg_num = from_msg_num;
+    from_node = from_node;
     if (new_value.block) {
         // if the block is generated the size is set
         block = (uint8_t *) alloc::malloc(size);

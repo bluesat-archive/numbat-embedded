@@ -62,28 +62,32 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     T * msg_ptr = NULL;
 
     // Step 1: Check if it is a new or existing message
-    ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
+    //ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
     if (msg.head.fields.seq_num == 0) {
         msg_ptr = new (next_construction_msg()) T();
     } else {
         //try and match a buffer
         for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask = lmask<< 1) {
             if((lmask & mask) &&incoming_msgs[i].from_node == msg.head.fields.node_id) {
+                // because we have a limited bits in the seq number we overflow to the message length field
+                int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
                 // handle the case where we've dropped a packet
-                if(incoming_msgs[i].from_msg_num != msg.head.fields.message_num) {
+                if(
+                        incoming_msgs[i].from_msg_num != msg.head.fields.message_num ||
+                        msg_seq_num != incoming_msgs[i].decode_index
+                ) {
                     if(mode == DROP_MISSING) {
-                        ros_echronos::ROS_INFO("Dropped a packet!\n");
+                        ros_echronos::ROS_INFO("Dropped a packet got seq %d exp %d, mnum %d emnum %d\n",
+                                               msg_seq_num,
+                                               incoming_msgs[i].decode_index,
+                                               msg.head.fields.message_num,
+                                               incoming_msgs[i].from_msg_num
+                        );
                         clear_slot(msg_ptr);
                     } else {
                         ros_echronos::ROS_INFO("Chosen Missing Packet Function Not Implemented!\n");
                     }
                     continue;
-                }
-                // because we have a limited bits in the seq number we overflow to the message length field
-                int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
-                if(msg_seq_num != incoming_msgs[i].decode_index) {
-                    //TODO: error handling
-                    //ros_echronos::ROS_INFO("Missing Message!\n");
                 } else {
                     msg_ptr = incoming_msgs + i;
                 }
@@ -111,10 +115,11 @@ template <class T> T * Subscriber<T>::next_construction_msg() {
         }
     }
     return NULL;
+    //return incoming_msgs + ;
 }
 
 template <class T> void Subscriber<T>::call_callback() {
-    ros_echronos::ROS_INFO("call callback! len %d\n", ready_msgs.length());
+    //ros_echronos::ROS_INFO("call callback! len %d\n", ready_msgs.length());
     // for now we assume that the top of the buffer must be valid for any future messages to be valid
     while(!ready_msgs.is_empty()) {
         callback(ready_msgs.pop());

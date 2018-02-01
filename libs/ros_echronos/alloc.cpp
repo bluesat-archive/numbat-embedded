@@ -17,6 +17,7 @@ using namespace alloc;
 #define MEMORY_MANAGMENT_D_STRUCTURE_SIZE (ALLOC_BUFFER_SIZE/ALLOC_MIN_ALLOC)
 #define BUFF_2_ALLOC_SHIFT 3
 #define FREE_MASK 0x80
+//#define DEBUG_ALLOC
 
 uint8_t buffer[ALLOC_BUFFER_SIZE];
 static RtosMutexId mutex;
@@ -28,28 +29,35 @@ static tlsf_t tlsf;
 void alloc::init_mm(const RtosMutexId alloc_mutex) {
     mutex = alloc_mutex;
     tlsf = tlsf_create_with_pool(buffer, ALLOC_BUFFER_SIZE);
+#ifdef DEBUG_ALLOC
     UARTprintf("tlsf %p\n", tlsf);
+#endif
 }
 
 void * alloc::malloc(size_t size) {
     rtos_mutex_lock(mutex);
+#ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("alloc size %d\n",size);
+#endif
     void * val = tlsf_malloc(tlsf, size);
     if(!val) {
-        ros_echronos::ROS_INFO("NULL alloc\n");
         while (true){
             ros_echronos::ROS_INFO("NULL alloc\n");
             rtos_sleep(10);
         }
     }
+#ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("alloc'd %p\n", val);
+#endif
     rtos_mutex_unlock(mutex);
     return val;
 }
 
 void alloc::free(void * ptr) {
     rtos_mutex_lock(mutex);
+#ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("Dealloc %p\n", ptr);
+#endif
     tlsf_free(tlsf, ptr);
     rtos_mutex_unlock(mutex);
 }

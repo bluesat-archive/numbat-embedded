@@ -46,7 +46,6 @@ extern "C" void task_ros_sub_test_fn(void) {
     ros_echronos::ROS_INFO("starting the main loop\n");
     owr_messages::pwm msg;
     while(true) {
-        ros_echronos::ROS_INFO("Next loop!\n");
         nh.spin();
     }
     /*
@@ -90,7 +89,7 @@ extern "C" void task_ros_sub_test_fn(void) {
 }
 
 void callback(const owr_messages::pwm & msg) {
-    ros_echronos::ROS_INFO("Received Full Message\n");
+    ros_echronos::ROS_INFO("\n\nReceived Full Message %d\n", msg.from_msg_num);
     ros_echronos::ROS_INFO("\tJoint \"%s\"\n", msg.joint.values);
     ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
     ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
