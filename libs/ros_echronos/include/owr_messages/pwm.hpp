@@ -70,10 +70,12 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
 
   void owr_messages::pwm_::generate_block_impl() {
       size_t offset = 0;
-      size = sizeof(joint)+sizeof(pwm)+sizeof(targetVel)+sizeof(currentVel)+sizeof(currentPos)+sizeof(targetPos);
+      size = joint.size+2+sizeof(pwm)+sizeof(targetVel)+sizeof(currentVel)+sizeof(currentPos)+sizeof(targetPos);
       block = (uint8_t *) alloc::malloc(size);
-      memcpy(block+offset, &joint, sizeof(joint));
-      offset+=sizeof(joint);
+      memcpy(block+offset, &joint.size, sizeof(uint16_t));
+      offset+=sizeof(uint16_t);
+      memcpy(block+offset, joint.values, joint.size);
+      offset+=joint.size;
       memcpy(block+offset, &pwm, sizeof(pwm));
       offset+=sizeof(pwm);
       memcpy(block+offset, &targetVel, sizeof(targetVel));
