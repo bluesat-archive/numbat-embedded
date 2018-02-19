@@ -83,7 +83,8 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
                                                msg.head.fields.message_num,
                                                incoming_msgs[i].from_msg_num
                         );
-                        clear_slot(msg_ptr);
+                        clear_slot(incoming_msgs+i);
+                        msg_ptr = NULL;
                     } else {
                         ros_echronos::ROS_INFO("Chosen Missing Packet Function Not Implemented!\n");
                     }
@@ -127,6 +128,9 @@ template <class T> void Subscriber<T>::call_callback() {
 }
 
 template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
+    // assign an empty message to clear arrays, descriptors, etc
+    T msg;
+    *msg_ptr = msg;
     // clear the mask
     mask ^= (1 << (msg_ptr - incoming_msgs));
 

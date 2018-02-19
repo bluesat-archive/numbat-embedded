@@ -65,7 +65,7 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
 
 
   owr_messages::pwm_::~pwm_()  {
-      ros_echronos::ROS_INFO("Deconstructor pwm\n");
+      //ros_echronos::ROS_INFO("Deconstructor pwm\n");
   } //deconstructor
 
   void owr_messages::pwm_::generate_block_impl() {
@@ -97,7 +97,7 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
       field_ptrs[3] = &currentVel;
       field_ptrs[4] = &currentPos;
       field_ptrs[5] = &targetPos;
-      field_sizes[0] = sizeof(joint);
+      field_sizes[0] = 0;
       field_sizes[1] = sizeof(pwm);
       field_sizes[2] = sizeof(targetVel);
       field_sizes[3] = sizeof(currentVel);

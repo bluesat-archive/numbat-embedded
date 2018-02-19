@@ -26,6 +26,12 @@ static tlsf_t tlsf;
 
 #define is_free(ptr) ((*ptr) ^ FREE_MASK)
 
+#ifdef DEBUG_ALLOC
+void walker(void * ptr, size_t size, int used, void * user) {
+    UARTprintf("\tptr 0x%x, size %u used %d\n", ptr, size, used);
+}
+#endif
+
 void alloc::init_mm(const RtosMutexId alloc_mutex) {
     mutex = alloc_mutex;
     tlsf = tlsf_create_with_pool(buffer, ALLOC_BUFFER_SIZE);
@@ -47,7 +53,8 @@ void * alloc::malloc(size_t size) {
         }
     }
 #ifdef DEBUG_ALLOC
-    ros_echronos::ROS_INFO("alloc'd %p\n", val);
+    ros_echronos::ROS_INFO("A+ alloc'd %p\n", val);
+    tlsf_walk_pool(tlsf, walker, NULL);
 #endif
     rtos_mutex_unlock(mutex);
     return val;
@@ -56,9 +63,10 @@ void * alloc::malloc(size_t size) {
 void alloc::free(void * ptr) {
     rtos_mutex_lock(mutex);
 #ifdef DEBUG_ALLOC
-    ros_echronos::ROS_INFO("Dealloc %p\n", ptr);
+    ros_echronos::ROS_INFO("A- Dealloc %p\n", ptr);
 #endif
     tlsf_free(tlsf, ptr);
     rtos_mutex_unlock(mutex);
 }
+
 

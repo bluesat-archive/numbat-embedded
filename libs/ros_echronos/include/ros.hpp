@@ -109,7 +109,7 @@ namespace ros_echronos {
              * Used by message descriptors to load data into empty array classes
              * @param size the size to load
              */
-            virtual void overide_with_new_size(const size_t & size) = 0;
+            virtual void override_with_new_size(const size_t &size) = 0;
 
             /**
              * Used by message descriptors to access the values array
@@ -171,7 +171,7 @@ namespace ros_echronos {
 
         protected:
 
-            virtual void overide_with_new_size(const size_t & size);
+            virtual void override_with_new_size(const size_t &size);
             virtual void * get_values_ptr();
 
     };
@@ -196,7 +196,8 @@ namespace ros_echronos {
         }
     }
 }
-
+//NOTE: this is too slow with this on
+//#define DEBUG_ARRAY
 
 /**
  * Because GCC for ARM is broken we need to add these here rather than in the class decleration
@@ -207,14 +208,23 @@ ros_echronos::Array<T>::Array(size_t size) :
         bytes(size*sizeof(T)),
         // allow for empty arrays (note size is unsinged so we can't use >)
         values(size!=0 ? (T*)alloc::malloc(size) : NULL)
-{ }
+{
+#ifdef DEBUG_ARRAY
+    ROS_INFO("Init array size %d\n", size);
+#endif
+}
 
 template <typename  T>
 ros_echronos::Array<T>::Array() : size(0), bytes(0), values(NULL) {
-    ROS_INFO("Warning: initalising empty array");
+#ifdef DEBUG_ARRAY
+    ROS_INFO("Warning: initalising empty array\n");
+#endif
 }
 template <typename T>
 ros_echronos::Array<T>::Array(const Array & arr) : Array(arr.size) {
+#ifdef DEBUG_ARRAY
+    ROS_INFO("Init array - cc. Size %d\n", arr.size);
+#endif
     memcpy(values, arr.values, size);
 }
 template <typename T> inline
@@ -233,6 +243,9 @@ template <typename T> inline ros_echronos::Array<T>::operator void*() {
 }
 
 template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::operator  =(const ros_echronos::Array<T> & new_value) {
+#ifdef DEBUG_ARRAY
+    ROS_INFO("Init array - op=. size %d\n", new_value.size);
+#endif
     if(size!=0 && values) {
         alloc::free(values);
     }
@@ -240,20 +253,23 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
         values = (char*) alloc::malloc(new_value.size);
         bytes = size * sizeof(T);
         memcpy(values, new_value.values, new_value.size);
-        size = new_value.size;
     }
+    size = new_value.size;
     return *this;
 }
 
-template <typename T> inline void ros_echronos::Array<T>::overide_with_new_size(const size_t &new_size) {
-    //TODO: this should only work if size == -1
+template <typename T> inline void ros_echronos::Array<T>::override_with_new_size(const size_t &new_size) {
 
     if(size!=0 && values) {
         alloc::free(values);
     }
     size=new_size;
     bytes=size * sizeof(T);
-    values = (T*) alloc::malloc(size);
+    if (size!=0) {
+        values = (T *) alloc::malloc(size);
+    } else {
+        values = NULL;
+    }
 }
 
 template <typename T> inline void * ros_echronos::Array<T>::get_values_ptr() {

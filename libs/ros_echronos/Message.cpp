@@ -8,9 +8,12 @@
 
 using namespace ros_echronos;
 
+//NOTE: this makes the system to slow to read can messages in sequence
+//#define DEBUG_MESSAGE_INTERNAL
+
 Message::Message() {
 
-    ros_echronos::ROS_INFO("constructor block %p \n", block);
+    //ros_echronos::ROS_INFO("constructor block %p \n", block);
 }
 
 uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
@@ -31,7 +34,9 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
     uint8_t * const ret = block+offset;
     if(has_next) {
         offset += can::CAN_MESSAGE_MAX_LEN;
+#ifdef DEBUG_MESSAGE_INTERNAL
         ros_echronos::ROS_INFO("Offset %d\n", offset);
+#endif
     } else {
         done = true;
     }
@@ -53,7 +58,9 @@ uint16_t Message::message_size() {
 }
 
 Message::Message(const Message & message) {
+#ifdef DEBUG_MESSAGE_INTERNAL
     ros_echronos::ROS_INFO("%p: Copy constructor block %p old block %p\n",this, block, message.block);
+#endif
     block_generated = message.block_generated;
     offset = message.offset;
     size = message.size;
@@ -61,7 +68,9 @@ Message::Message(const Message & message) {
     if (message.block) {
         // if the block is generated the size is set
         block = (uint8_t *) alloc::malloc(size);
+#ifdef DEBUG_MESSAGE_INTERNAL
         ros_echronos::ROS_INFO("block is %p\n", block);
+#endif
         memcpy(block, message.block, size);
     } else {
         block = NULL;
@@ -103,7 +112,9 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
 }
 
 Message::~Message() {
+#ifdef DEBUG_MESSAGE_INTERNAL
     ros_echronos::ROS_INFO("Deconstructor block %p this %p\n", block, this);
+#endif
     //cleanup any message descriptors that still exist
     if(desc) {
         desc->~Message_Descriptor();
@@ -121,9 +132,10 @@ void Message::generate_block() {
         alloc::free(block);
         block = NULL;
     }
+#ifdef DEBUG_MESSAGE_INTERNAL
     ros_echronos::ROS_INFO("Generate block for %p generated befor %d\n", this, block_generated);
+#endif
     generate_block_impl();
-    ros_echronos::ROS_INFO("Gen B done\n");
     block_generated = true;
     offset = 0;
     done = false;
@@ -131,7 +143,9 @@ void Message::generate_block() {
 
 Message & Message::operator=(const Message &new_value) {
 
+#ifdef DEBUG_MESSAGE_INTERNAL
     ros_echronos::ROS_INFO("%p: Assignment Opperator called on block %p old block %p\n",this, block, new_value.block);
+#endif
     //cleanup any message descriptors that still exist
     if(desc) {
         desc->~Message_Descriptor();
@@ -147,12 +161,14 @@ Message & Message::operator=(const Message &new_value) {
     offset = new_value.offset;
     size = new_value.size;
     done = new_value.done;
-    from_msg_num = from_msg_num;
-    from_node = from_node;
+    from_msg_num = new_value.from_msg_num;
+    from_node = new_value.from_node;
     if (new_value.block) {
         // if the block is generated the size is set
         block = (uint8_t *) alloc::malloc(size);
+#ifdef DEBUG_MESSAGE_INTERNAL
         ros_echronos::ROS_INFO("block is %p\n", block);
+#endif
         memcpy(block, new_value.block, size);
     } else {
         block = NULL;

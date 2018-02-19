@@ -3,4 +3,5 @@ load
 monitor reset halt
 b main
 b hardfault
+b alloc.cpp : 51
 c
