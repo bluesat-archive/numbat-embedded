@@ -115,6 +115,11 @@ namespace ros_echronos {
              */
             Transmission_Mode mode = DROP_MISSING;
 
+            /*
+             * Empty message for fast clearing of slots
+             */
+            const T EMPTY_MSG;
+
     };
 }
 

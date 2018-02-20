@@ -17,6 +17,7 @@
 using namespace ros_echronos;
 
 
+
 template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
         : incoming_msgs(read_buffer), message_construction_buff_size(buffer_size/2), ready_msgs(incoming_msgs + message_construction_buff_size, buffer_size-message_construction_buff_size), callback(callback) {
 
@@ -68,9 +69,9 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     } else {
         //try and match a buffer
         for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask = lmask<< 1) {
-            if((lmask & mask) &&incoming_msgs[i].from_node == msg.head.fields.node_id) {
+            if((lmask & mask) && incoming_msgs[i].from_node == msg.head.fields.node_id) {
                 // because we have a limited bits in the seq number we overflow to the message length field
-                int msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
+                const uint16_t msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
                 // handle the case where we've dropped a packet
                 if(
                         incoming_msgs[i].from_msg_num != msg.head.fields.message_num ||
@@ -109,7 +110,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 
 template <class T> T * Subscriber<T>::next_construction_msg() {
     uint32_t local_mask = 1;
-    for(int i = 0; i < message_construction_buff_size; ++i, local_mask= local_mask << 1) {
+    for(int i = 0; i != message_construction_buff_size; ++i, local_mask= local_mask << 1) {
         if(!(local_mask & mask)) {
             mask |= local_mask;
             return incoming_msgs + i;
@@ -129,8 +130,7 @@ template <class T> void Subscriber<T>::call_callback() {
 
 template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
     // assign an empty message to clear arrays, descriptors, etc
-    T msg;
-    *msg_ptr = msg;
+    *msg_ptr = EMPTY_MSG;
     // clear the mask
     mask ^= (1 << (msg_ptr - incoming_msgs));
 

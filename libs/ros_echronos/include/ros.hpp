@@ -246,27 +246,29 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
 #ifdef DEBUG_ARRAY
     ROS_INFO("Init array - op=. size %d\n", new_value.size);
 #endif
-    if(size!=0 && values) {
+    if(size!=0) {
         alloc::free(values);
     }
-    if(new_value.size!=0) {
-        values = (char*) alloc::malloc(new_value.size);
-        bytes = size * sizeof(T);
-        memcpy(values, new_value.values, new_value.size);
-    }
     size = new_value.size;
+    if(size!=0) {
+        bytes = size * sizeof(T);
+        values = (char*) alloc::malloc(bytes);
+        memcpy(values, new_value.values, size);
+    }
     return *this;
 }
 
 template <typename T> inline void ros_echronos::Array<T>::override_with_new_size(const size_t &new_size) {
 
-    if(size!=0 && values) {
+    if(size!=0) {
         alloc::free(values);
     }
+
     size=new_size;
     bytes=size * sizeof(T);
+
     if (size!=0) {
-        values = (T *) alloc::malloc(size);
+        values = (T *) alloc::malloc(bytes);
     } else {
         values = NULL;
     }

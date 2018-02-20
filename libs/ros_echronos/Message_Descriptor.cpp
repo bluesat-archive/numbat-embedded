@@ -37,7 +37,6 @@ Message_Descriptor::~Message_Descriptor() {
 }
 
 void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
-    uint8_t * current_in_byte = msg.body + 0;
     for(int i = 0; i  < msg.body_bytes; ) {
         size_t curr_field_size = field_size[field_offset];
 
@@ -70,7 +69,11 @@ void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
         //ros_echronos::ROS_INFO("cfs %d, body_bytes %d bb-i\n", curr_field_size, msg.body_bytes, msg.body_bytes-i);
         curr_field_size = min(curr_field_size, (msg.body_bytes - i));
         //ros_echronos::ROS_INFO("Copying %d bytes from %p to %p\n", curr_field_size, msg.body + i, field_ptrs[field_offset]);
-        memcpy((uint8_t*)field_ptrs[field_offset]+field_internal_offset,msg.body + i, curr_field_size);
+        memcpy(
+                (uint8_t*)field_ptrs[field_offset]+field_internal_offset,
+                msg.body + i,
+                curr_field_size
+        );
         i+=curr_field_size;
         field_internal_offset+=curr_field_size;
         if(field_internal_offset==field_size[field_offset]) {

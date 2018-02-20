@@ -91,7 +91,8 @@ extern "C" void ros_can_interupt_handler(void) {
         // read the error status and store it to be handled latter
         error_flag = CANStatusGet(CAN_DEVICE_BASE, CAN_STS_CONTROL);
         //UARTprintf("CAN error %u\n", error_flag);
-    } else if (can_status > 0 && can_status <32) {
+    } else if (can_status != 0 && can_status <32) {
+        // we use slot 0 for sending
         tCANMsgObject msg;
         uint8_t data[CAN_MESSAGE_MAX_LEN];
         msg.pui8MsgData = data;

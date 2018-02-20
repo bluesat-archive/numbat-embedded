@@ -41,22 +41,21 @@ void alloc::init_mm(const RtosMutexId alloc_mutex) {
 }
 
 void * alloc::malloc(size_t size) {
-    rtos_mutex_lock(mutex);
 #ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("alloc size %d\n",size);
 #endif
+    rtos_mutex_lock(mutex);
     void * val = tlsf_malloc(tlsf, size);
-    if(!val) {
-        while (true){
-            ros_echronos::ROS_INFO("NULL alloc\n");
-            rtos_sleep(10);
-        }
-    }
+    rtos_mutex_unlock(mutex);
 #ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("A+ alloc'd %p\n", val);
     tlsf_walk_pool(tlsf, walker, NULL);
 #endif
-    rtos_mutex_unlock(mutex);
+    if(!val) {
+        while (true){
+            ros_echronos::ROS_INFO("NULL alloc\n");
+        }
+    }
     return val;
 }
 

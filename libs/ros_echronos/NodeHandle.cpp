@@ -75,6 +75,7 @@ void NodeHandle::run_handle_message_loop() {
         // check we didn't interupt the message read half way through
         if(end_counter != start_counter) {
             //TODO: handle concurent requests
+            ROS_INFO("Thread error\n");
             continue;
         }
         _Subscriber * current;
