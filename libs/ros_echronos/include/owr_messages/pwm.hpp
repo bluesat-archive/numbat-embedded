@@ -91,21 +91,22 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   ros_echronos::Message_Descriptor * owr_messages::pwm_::generate_descriptor() {
       void * field_ptrs[6];
       size_t field_sizes[6];
-      field_ptrs[0] = &joint;
-      field_ptrs[1] = &pwm;
-      field_ptrs[2] = &targetVel;
-      field_ptrs[3] = &currentVel;
-      field_ptrs[4] = &currentPos;
-      field_ptrs[5] = &targetPos;
-      field_sizes[0] = 0;
-      field_sizes[1] = sizeof(pwm);
-      field_sizes[2] = sizeof(targetVel);
-      field_sizes[3] = sizeof(currentVel);
-      field_sizes[4] = sizeof(currentPos);
-      field_sizes[5] = sizeof(targetPos);
-      void * desc = (ros_echronos::Message_Descriptor *) alloc::malloc(sizeof(ros_echronos::Message_Descriptor));
-      ros_echronos::Message_Descriptor * descriptor =
-              new (desc) ros_echronos::Message_Descriptor(field_ptrs, field_sizes, 6);
+      void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<6>));
+      ros_echronos::Message_Descriptor_Fixed<6> * descriptor =
+              new (desc) ros_echronos::Message_Descriptor_Fixed<6>();
+      descriptor->fixed_field_ptrs[0] = &joint;
+      descriptor->fixed_field_ptrs[1] = &pwm;
+      descriptor->fixed_field_ptrs[2] = &targetVel;
+      descriptor->fixed_field_ptrs[3] = &currentVel;
+      descriptor->fixed_field_ptrs[4] = &currentPos;
+      descriptor->fixed_field_ptrs[5] = &targetPos;
+      descriptor->fixed_field_sizes[0] = 0;
+      descriptor->fixed_field_sizes[1] = sizeof(pwm);
+      descriptor->fixed_field_sizes[2] = sizeof(targetVel);
+      descriptor->fixed_field_sizes[3] = sizeof(currentVel);
+      descriptor->fixed_field_sizes[4] = sizeof(currentPos);
+      descriptor->fixed_field_sizes[5] = sizeof(targetPos);
+
       return descriptor;
   }
 

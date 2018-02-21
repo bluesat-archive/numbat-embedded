@@ -140,6 +140,10 @@ namespace ros_echronos {
             Message_Descriptor * desc = NULL;
 
     } __attribute__((aligned(16)));
+
+    inline bool Message::is_done() {
+        return done;
+    }
 }
 
 

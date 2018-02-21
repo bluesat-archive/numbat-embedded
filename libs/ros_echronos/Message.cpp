@@ -45,10 +45,6 @@ uint8_t * Message::get_next_block(bool &has_next, uint8_t &bytes) {
 
 }
 
-bool Message::is_done() {
-    return done;
-}
-
 uint16_t Message::message_size() {
     if(!block_generated) {
         // we don't know the size in messages until we have generated the block

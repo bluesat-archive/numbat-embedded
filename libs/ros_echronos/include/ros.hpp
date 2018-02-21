@@ -80,7 +80,7 @@ namespace ros_echronos {
 
         const CAN_Header TOPIC_BITMASK_HEADER = {
                 .fields={
-                    1, 0, 0xF, 0, 0xFFFFF, 0, 0, 0
+                    1, 0, 0xF, 0, 0, 0xFFFFF, 0, 0, 0
                 }
         };
 
@@ -207,7 +207,7 @@ ros_echronos::Array<T>::Array(size_t size) :
         size(size),
         bytes(size*sizeof(T)),
         // allow for empty arrays (note size is unsinged so we can't use >)
-        values(size!=0 ? (T*)alloc::malloc(size) : NULL)
+        values(size!=0 ? (T*)alloc::malloc(bytes) : NULL)
 {
 #ifdef DEBUG_ARRAY
     ROS_INFO("Init array size %d\n", size);

@@ -47,7 +47,17 @@ namespace ros_echronos {
             Message_Descriptor(const Message_Descriptor & to_copy);
 
 
-        private:
+        protected:
+
+            /**
+             * Creates a new Message Descriptor with references to the fields, has the option to just use
+             * pointers rather than copy them. This is designed for use with Message_Descriptor_Fixed to reduce mallocs.
+             * @param field_ptrs pointers to each of the fields in the message
+             * @param field_size the size of each field, 0 represents a variable length field
+             * @param num_fields the number of fields in the message (and thus the number of elements in each array)
+             * @param copy if the fields should be copied or just use the existing pointers
+             */
+            Message_Descriptor(void ** field_ptrs, size_t * field_size, size_t num_fields, bool copy);
             void ** field_ptrs = NULL;
             size_t * field_size = NULL;
             size_t num_fields;
@@ -63,11 +73,38 @@ namespace ros_echronos {
              * If we have to split halfway through a length
              */
             bool decoding_len = false;
+        private:
+            /**
+             * If we need to memory manage our arrays
+             */
+            bool mem_manage_arrays;
 
         // allow Messages to use our protected methofs
         //friend class Message;
 
     };
+
+    /**
+     * Template used to avoid doing extra allocations for the fields. Since a message descriptor is initalised at
+     * compile time this can be done
+     * @tparam FIELDS the number of fields in this descriptor
+     */
+    template <const int FIELDS>
+    class Message_Descriptor_Fixed : public Message_Descriptor {
+
+        public:
+            Message_Descriptor_Fixed();
+            void * fixed_field_ptrs[FIELDS];
+            size_t fixed_field_sizes[FIELDS];
+    };
+
+    template <const int FIELDS>
+    inline Message_Descriptor_Fixed<FIELDS>::Message_Descriptor_Fixed() :
+            Message_Descriptor(fixed_field_ptrs, fixed_field_sizes, FIELDS, false) {
+
+    }
 }
+
+
 
 #endif //NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP

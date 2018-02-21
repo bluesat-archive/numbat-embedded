@@ -33,6 +33,7 @@ template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handl
     topic_id = 1;
 
     msg.head.fields.message_length = 0;
+    msg.head.fields.message_num = 0;
     msg.head.fields.mode = 1;
     msg.head.fields.node_id = 0;
     msg.head.fields.priority = 0;
@@ -74,9 +75,11 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
                 const uint16_t msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.message_length;
                 // handle the case where we've dropped a packet
                 if(
-                        incoming_msgs[i].from_msg_num != msg.head.fields.message_num ||
-                        msg_seq_num != incoming_msgs[i].decode_index
+                        incoming_msgs[i].from_msg_num == msg.head.fields.message_num &&
+                        msg_seq_num == incoming_msgs[i].decode_index
                 ) {
+                    msg_ptr = incoming_msgs + i;
+                } else {
                     if(mode == DROP_MISSING) {
                         ros_echronos::ROS_INFO("Dropped a packet got seq %d exp %d, mnum %d emnum %d\n",
                                                msg_seq_num,
@@ -90,8 +93,6 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
                         ros_echronos::ROS_INFO("Chosen Missing Packet Function Not Implemented!\n");
                     }
                     continue;
-                } else {
-                    msg_ptr = incoming_msgs + i;
                 }
                 break;
             }
