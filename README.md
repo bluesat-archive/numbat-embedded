@@ -177,3 +177,4 @@ http://wiki.osdev.org/C%2B%2B is a good reference if you are getting weird linke
 The following libraries are used and have there own licenses
  - ti libs
  - tlsf (LGPL/GPL)
+ - SPSCQueue from [https://github.com/rigtorp/SPSCQueue]

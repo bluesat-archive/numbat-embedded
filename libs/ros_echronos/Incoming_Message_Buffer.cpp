@@ -12,6 +12,7 @@
 #include "Message_Buffer.cpp"
 
 ros_echronos::can::input_buffer_t ros_echronos::can::input_buffer;
+rigtorp::SPSCQueue<ros_echronos::can::CAN_ROS_Message, 5> ros_echronos::can::msg_queue;
 
 RtosInterruptEventId ros_echronos::can::can_interupt_event;
 

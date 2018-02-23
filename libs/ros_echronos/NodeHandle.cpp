@@ -68,21 +68,28 @@ void NodeHandle::run_handle_message_loop() {
     while(true) {
         rtos_signal_wait(can_receive_signal);
 
-        start_counter = input_buffer.start_counter;
-        msg = input_buffer.buffer;
-        end_counter = input_buffer.start_counter;
+        //ROS_INFO("start %d", input_buffer.start_counter);
 
-        // check we didn't interupt the message read half way through
-        if(end_counter != start_counter) {
-            //TODO: handle concurent requests
-            ROS_INFO("Thread error\n");
-            continue;
-        }
-        _Subscriber * current;
-        for(current = subscribers; current; current = (_Subscriber *) current->next) {
-            if(msg.head.fields.topic == current->topic_id) {
-                current->receive_message(msg);
-                break;
+        //TODO: check the queue is not empty, although if we get here it shouldn't be
+        if(msg_queue.front()) {
+            msg = *(msg_queue.front());
+            msg_queue.pop();
+            /*start_counter = input_buffer.start_counter;
+            msg = input_buffer.buffer;
+            end_counter = input_buffer.start_counter;*/
+
+            // check we didn't interupt the message read half way through
+            /*if(end_counter != start_counter) {
+                //TODO: handle concurent requests
+                ROS_INFO("Thread error\n");
+                continue;
+            }*/
+            _Subscriber *current;
+            for (current = subscribers; current; current = (_Subscriber *) current->next) {
+                if (msg.head.fields.topic == current->topic_id) {
+                    current->receive_message(msg);
+                    break;
+                }
             }
         }
     }

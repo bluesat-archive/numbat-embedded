@@ -11,6 +11,7 @@
 #define NUMBAT_EMBEDDED_ROS_HPP
 
 #include <cstdarg>
+#include "SPSCQueue.h"
 #include "boilerplate.h"
 #include "alloc.hpp"
 
@@ -86,6 +87,7 @@ namespace ros_echronos {
 
 
         extern input_buffer_t input_buffer;
+        extern rigtorp::SPSCQueue<CAN_ROS_Message, 5> msg_queue;
 
         extern RtosInterruptEventId can_interupt_event;
         extern volatile bool node_handle_ready;

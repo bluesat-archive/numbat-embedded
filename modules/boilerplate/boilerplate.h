@@ -31,6 +31,9 @@ void InitializeUARTStdio(void);
 
 void InitializeFPU(void);
 
+
+void fatal(const uint8_t error_id);
+
 #ifdef __cplusplus
 }
 #endif

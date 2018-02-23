@@ -369,6 +369,7 @@ include_directories(
         echronos/build/can_test-echronos
         libs/ros_echronos/include
         libs/tlsf
+        libs/SPSCQueue
 )
 
 FILE(GLOB ros_files libs/ros_echronos/*.cpp libs/ros_echronos/include/*.hpp libs/ros_echronos/arch/tm4c/)

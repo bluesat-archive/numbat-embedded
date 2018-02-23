@@ -77,6 +77,7 @@ void ros_echronos::can::unsubscribe_can(can_sub_id id) {
 }
 
 static int error_flag = 0;
+static ros_echronos::can::CAN_ROS_Message can_msg;
 
 
 extern "C" void ros_can_interupt_handler(void) {
@@ -99,15 +100,21 @@ extern "C" void ros_can_interupt_handler(void) {
         msg.ui32MsgLen = CAN_MESSAGE_MAX_LEN;
         CANMessageGet(CAN_DEVICE_BASE, can_status, &msg, true);
         //begin the copy
-        ros_echronos::can::input_buffer.start_counter++;
-        ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
-        ros_echronos::can::input_buffer.buffer.body_bytes = msg.ui32MsgLen;
-        memcpy(ros_echronos::can::input_buffer.buffer.body, msg.pui8MsgData, msg.ui32MsgLen);
-        ros_echronos::can::input_buffer.end_counter++;
-        if(ros_echronos::can::node_handle_ready) {
-            //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
-            // raise the event
-            rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+        can_msg.head.bits = msg.ui32MsgID;
+        can_msg.body_bytes = msg.ui32MsgLen;
+        memcpy(can_msg.body, msg.pui8MsgData, msg.ui32MsgLen);
+        if(msg_queue.try_emplace(can_msg)) {
+
+            /*ros_echronos::can::input_buffer.start_counter++;
+            ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
+            ros_echronos::can::input_buffer.buffer.body_bytes = msg.ui32MsgLen;
+            memcpy(ros_echronos::can::input_buffer.buffer.body, msg.pui8MsgData, msg.ui32MsgLen);
+            ros_echronos::can::input_buffer.end_counter++;*/
+            if (ros_echronos::can::node_handle_ready) {
+                //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
+                // raise the event
+                rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+            }
         }
 
     } else {

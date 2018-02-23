@@ -8,6 +8,7 @@ PART=TM4C123GH6PM
 CFLAGSgcc=-DTARGET_IS_TM4C123_RB1
 include .ti_makedefs
 IPATH=$(TI_LIBS)
+IPATH+=libs/SPSCQueue
 IPATH+=$(MODULES_DIR)/boilerplate
 
 # See  http://wiki.osdev.org/Calling_Global_Constructors this is needed to make C++ work
