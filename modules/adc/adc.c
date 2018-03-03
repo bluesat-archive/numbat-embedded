@@ -5,6 +5,15 @@
 #include <stdint.h>
 
 
+//---------------------------ERROR_HANDLING---------------------------//
+#define c_assert(e)    ((e) ? (true) : (tst_debugging(\
+    "%s,%d: assertion '%s' failed\n", __FILE__, __LINE__, #e), false)) 
+#define adc_assert(e)    if (c_assert(e) == false) return ADC_FAILURE
+
+void tst_debugging(char *frmt_str, char *file, char *line, char *err) {
+    UARTprintf(frmt_str, file, line, err);
+}
+
 //---------------------------SIZE_CONSTANTS---------------------------//
 #define PC 9              /* ADC pin count */
 #define GPIO_PORT_COUNT 2 /* number of GPIO ports used by ADC */
@@ -58,17 +67,48 @@ static const struct gpio_port gpio_lut[PC] = {
 //------------------------------GLOBALS-------------------------------//
 static int status = PRE_INIT;
 static uint8_t active_pins = 0;
-static uint16_t *buffer = NULL;
-static void (*callback)(void) = NULL;
+static uint16_t *adc_buffer = NULL;
+static void (*adc_callback)(void) = NULL;
 
 
-//-----------------------------FUNCTIONS------------------------------//
-enum adc_status adc_init_pins(adc_pin pins[], uint8_t num_pins, 
-    uint16_t buffer[], void (*callback)(void)) {
-        return ADC_FAILURE;
+//--------------------------LOCAL_FUNCTIONS---------------------------//
+static void adc_irq_handler(void) {
+    /* copy captured values into buffer */
+
+    /* call the callback */
+    adc_callback();
+}
+
+
+//-------------------------EXTERNAL_FUNCTIONS-------------------------//
+enum adc_status adc_init_pins(adc_pin *pins, uint8_t num_pins, 
+    uint16_t *buffer, void (*callback)(void)) {
+        adc_assert(status == PRE_INIT);
+        adc_assert(num_pins < 9);
+        adc_assert(pins != NULL);
+        adc_assert(buffer != NULL);
+        adc_assert(callback != NULL);
+
+        /* initialise ADC module */
+
+        /* initialise GPIO module(s) */
+
+        /* initialise ADC/GPIO pins */
+
+        /* register interrupt handler */
+
+        /* setup ADC sample sequencer */
+
+        /* ready for capture */
+        status = POST_INIT;
+        return ADC_SUCCESS;
 }
 
 enum adc_status adc_start_capture() {
-    return ADC_FAILURE;
+    adc_assert(status == POST_INIT);
+
+    /* triggre capture */
+
+    return ADC_SUCCESS;
 }
 
