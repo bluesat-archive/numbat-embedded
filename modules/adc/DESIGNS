@@ -1,7 +1,3 @@
-Continuous sampling
-    - Add desired inputs to the sample sequencer and buffer the output
-    - Function to retrieve value from buffer for specific input
-
 Initialisation:
     1. Enable ADC clock if not enabled
     2. Enable GPIO clock if not enabled
@@ -12,15 +8,5 @@ Initialisation:
     7. Append new source to sequencer via ADCSSCTLn
     8. Enable sample sequencer via ASENn in ADCACTSS
 
-Questions:
-    Sample sequence trigger?
-        Run off spare PWM module?
-    Interrupt configuration/interrupts at all?
-    Hardware/software averaging based on sampling frequency?
-    Sampling frequency?
-
-Should all be doable with the tiva libraries.
-
 Notes
     - ADC should use PIOSC for clock at 1 divider for clock
-    -
