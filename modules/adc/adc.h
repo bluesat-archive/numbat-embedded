@@ -23,7 +23,6 @@ enum adc_pin {
     AIN5,
     AIN6,
     AIN7,
-    AIN20
 };
 
 /* Possible return values for the ADC functions. */
