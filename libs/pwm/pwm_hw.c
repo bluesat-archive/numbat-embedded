@@ -25,7 +25,7 @@ const struct pwm_out_struct pwm_out[PC] = {
     {PWM_OUT_6, PWM_OUT_6_BIT}, {PWM_OUT_7, PWM_OUT_7_BIT}}; 
 
 
-#ifdef PWMLIB_TEST_BOARD
+#ifdef PART_TM4C123GH6PM
 const struct gpio_pin_struct gpio_pin[PC] = {
     {SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE, GPIO_PIN_6, GPIO_PB6_M0PWM0},
     {SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE, GPIO_PIN_7, GPIO_PB7_M0PWM1},
@@ -35,8 +35,8 @@ const struct gpio_pin_struct gpio_pin[PC] = {
     {SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE, GPIO_PIN_5, GPIO_PE5_M0PWM5},
     {SYSCTL_PERIPH_GPIOC, GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_PC4_M0PWM6},
     {SYSCTL_PERIPH_GPIOC, GPIO_PORTC_BASE, GPIO_PIN_5, GPIO_PC5_M0PWM7}};
-#else
-// Generic PCB constants
+#endif
+#ifdef PART_TM4C123GH6PGE
 const struct gpio_pin_struct gpio_pin[PC] = {
     {SYSCTL_PERIPH_GPIOH, GPIO_PORTH_BASE, GPIO_PIN_0, GPIO_PH0_M0PWM0},
     {SYSCTL_PERIPH_GPIOH, GPIO_PORTH_BASE, GPIO_PIN_1, GPIO_PH1_M0PWM1},

@@ -11,10 +11,6 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/debug.h"
 
-
-// comment out this define for generic pcb pin mapping
-#define PWMLIB_TEST_BOARD
-
 // pwm prescaler, indexed via pwm_prescale_values enumeration
 #define NUM_DIV 7
 struct pwm_prescale_struct {
