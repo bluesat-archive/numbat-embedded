@@ -12,8 +12,7 @@
 
 //------------------------------ENUMS---------------------------------//
 /* ADC Pins, using ADC Pin names. See ./PIN_MAPPING for the other names
- * for these pins.
- */
+ * for these pins. */
 enum adc_pin {
     AIN0,
     AIN1,
@@ -26,36 +25,51 @@ enum adc_pin {
 };
 
 /* Possible return values for the ADC functions. */
-enum adc_status {
+enum adc_return {
     ADC_SUCCESS,
     ADC_FAILURE
 };
 
+/* Used as a return status indicating whether an ADC capture has
+ * completed. */
+enum adc_status {
+    ADC_COMPLETE,
+    ADC_BUSY
+};
+
 //----------------------------FUNCTIONS-------------------------------//
-/* Initialises the given pins, registers the data buffer, and registers
- * the callback that is called when an ADC capture occurs.
- *
- * The buffer and pins list must have num_pins number of entries.
- *
- * The buffer will be automatically updated on an adc capture. The
- * callback is provided as a way to create a signal of some sort for a 
- * task that will handle the ADC output.
+/* INITIALISATION */
+/* Initialises the ADC module, configures the needed GPIO pins, and
+ * configures and enables the needed ADC pins.
  *
  * This function should ONLY BE RUN ONCE during I/O setup.
  *
  * The maximum number of pins currently supported is 8. This function
- * should fail if num_pins > 8.
- */
+ * should fail if num_pins > 8. */
 extern enum adc_status adc_init_pins(adc_pin pins[], uint8_t num_pins, 
     uint16_t buffer[], void (*callback)(void));
 
-/* Sets the hardware flags that start an ADC capture. 
- *
- * This library currently only supports manual single-shot captures that
- * are started by this function. However, the hardware does support 
- * continuous capture, capture triggered by a PWM module, and capture
- * triggered by an external source.
- */
-extern enum adc_status adc_start_capture();
+/* INTERRUPT CAPTURE INTERFACE */
+/* Sets up an ADC capture using its hardware capture interrupt. That is,
+ * it registers the buffer and callback such that when the capture 
+ * completes, an interrupt occurs, the capture data is copied to the
+ * buffer, and the callback is called. */
+enum adc_return adc_capture_interrupt(uint16_t *buffer, 
+    void (*callback)(void));
 
+/* POLLING CAPTURE INTERFACE */
+/* Sets up the ADC capture without enabling the interrupt. A capture
+ * will occur without creating any signals, so the status must be 
+ * probed with adc_capture_status(). */
+enum adc_return adc_capture_polling();
+
+/* Checks the adc capture status. Will return ADC_COMPLETE if the ADC
+ * is not currently busy, but does not guarentee that new data is 
+ * available. */
+enum adc_status adc_capture_status();
+
+/* Transfers ADC capture data from the sequence registers to the given
+ * buffer. Must be called between captures, else new data will be
+ * dropped. */
+enum adc_status adc_get_capture(uint16_t *buffer);
 #endif

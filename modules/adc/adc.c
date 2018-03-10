@@ -82,6 +82,10 @@ static void (*adc_callback)(void) = NULL;
 
 //--------------------------LOCAL_FUNCTIONS---------------------------//
 static void adc_irq_handler(void) {
+    /* Clears and disables interrupt to allow for polling based usage */
+    ADCIntClear(ADC0_BASE, sequence_num);
+    ADCIntDisable(ADC0_BASE, sequence_num);
+
     /* copy captured values into buffer */
     ADCSequenceGetData(ADC0_BASE, sequence_num, adc_buffer);
 
@@ -89,6 +93,8 @@ static void adc_irq_handler(void) {
     adc_callback();
 }
 
+/* If a module is not already enabled: enables it, then waits until it
+ * is responding as ready. */
 static void init_module(uint32_t sysctl_module) {
     if (SysCtlPeripheralReady(sysctl_module) == false) {
         SysCtlPeripheralEnable(sysctl_module)
@@ -98,16 +104,11 @@ static void init_module(uint32_t sysctl_module) {
 
 
 //-------------------------EXTERNAL_FUNCTIONS-------------------------//
-enum adc_status adc_init_pins(adc_pin *pins, uint8_t num_pins, 
-    uint16_t *buffer, void (*callback)(void)) {
+enum adc_return adc_init_pins(adc_pin *pins, uint8_t num_pins) {
         adc_assert(status == PRE_INIT);
         adc_assert(num_pins < 9);
         adc_assert(pins != NULL);
-        adc_assert(buffer != NULL);
-        adc_assert(callback != NULL);
 
-        adc_buffer = buffer;
-        adc_callback = callback;
         active_pins = num_pins;
 
         /* initialise ADC module */
@@ -137,16 +138,45 @@ enum adc_status adc_init_pins(adc_pin *pins, uint8_t num_pins,
         /* ready for capture */
         status = POST_INIT;
         ADCSequenceEnable(ADC0_BASE, sequence_num);
-        ADCIntEnable(ADC0_BASE, sequence_num);
 
         return ADC_SUCCESS;
 }
 
-enum adc_status adc_start_capture() {
+enum adc_return adc_capture_interrupt(uint16_t *buffer, void (*callback)(void)) {
     adc_assert(status == POST_INIT);
+    adc_assert(buffer != NULL);
+    adc_assert(callback != NULL);
 
+    adc_buffer = buffer;
+    adc_callback = callback;
+
+    ADCIntEnable(ADC0_BASE, sequence_num);
     ADCProcessorTrigger(ADC0_BASE, sequence_num);
 
     return ADC_SUCCESS;
 }
 
+enum adc_return adc_capture_polling() {
+    adc_assert(status == POST_INIT);
+
+    ADCProcessorTrigger(ADC0_BASE, sequence_num);
+    
+    return ADC_SUCCESS;
+}
+
+enum adc_status adc_capture_status() {
+    adc_assert(status == POST_INIT);
+
+    if (ADCBusy(ADC0_BASE)) return ADC_BUSY;
+    else return ADC_COMPLETE;
+}
+
+enum adc_status adc_get_capture(uint16_t *buffer) {
+    adc_assert(status == POST_INIT);
+    adc_assert(!ADCBusy(ADC0_BASE));
+
+    /* copy captured values into buffer */
+    ADCSequenceGetData(ADC0_BASE, sequence_num, buffer);
+
+    return ADC_SUCCESS;
+}
