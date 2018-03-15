@@ -12,6 +12,7 @@
 #include "include/Publisher.hpp"
 #include "include/Subscriber.hpp"
 #include "include/can_impl.hpp"
+#include <atomic>
 
 
 using namespace ros_echronos;
@@ -57,6 +58,7 @@ uint8_t NodeHandle::get_node_id() {
 }
 
 void NodeHandle::run_handle_message_loop() {
+
     using namespace ros_echronos::can;
     ros_echronos::ROS_INFO("Waiting for NodeHandle to init\n");
     while(!has_init) {
@@ -64,6 +66,7 @@ void NodeHandle::run_handle_message_loop() {
     }
     ros_echronos::ROS_INFO("NodeHandle init done\n");
     int start_counter, end_counter;
+    CAN_ROS_Message * msg_ptr;
     CAN_ROS_Message msg;
     while(true) {
         rtos_signal_wait(can_receive_signal);
@@ -72,7 +75,9 @@ void NodeHandle::run_handle_message_loop() {
 
         //TODO: check the queue is not empty, although if we get here it shouldn't be
         if(msg_queue.front()) {
-            msg = *(msg_queue.front());
+            msg_ptr = msg_queue.front();
+            msg = *msg_ptr;
+            //msg = *(msg_queue.front());
             msg_queue.pop();
             /*start_counter = input_buffer.start_counter;
             msg = input_buffer.buffer;

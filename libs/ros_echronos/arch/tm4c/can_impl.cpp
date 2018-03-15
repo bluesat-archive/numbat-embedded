@@ -103,7 +103,7 @@ extern "C" void ros_can_interupt_handler(void) {
         can_msg.head.bits = msg.ui32MsgID;
         can_msg.body_bytes = msg.ui32MsgLen;
         memcpy(can_msg.body, msg.pui8MsgData, msg.ui32MsgLen);
-        if(msg_queue.try_emplace(can_msg)) {
+        if(msg_queue.try_push(can_msg)) {
 
             /*ros_echronos::can::input_buffer.start_counter++;
             ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;

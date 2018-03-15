@@ -66,7 +66,7 @@ namespace ros_echronos {
             CAN_Header head;
             uint8_t body[CAN_MESSAGE_MAX_LEN];
             uint8_t body_bytes;
-        } CAN_ROS_Message;
+        } CAN_ROS_Message __attribute__((aligned(4)));
 
 
         /**
