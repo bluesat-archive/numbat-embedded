@@ -103,22 +103,37 @@ extern "C" void ros_can_interupt_handler(void) {
         can_msg.head.bits = msg.ui32MsgID;
         can_msg.body_bytes = msg.ui32MsgLen;
         memcpy(can_msg.body, msg.pui8MsgData, msg.ui32MsgLen);
-        if(msg_queue.try_push(can_msg)) {
-
-            /*ros_echronos::can::input_buffer.start_counter++;
-            ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
-            ros_echronos::can::input_buffer.buffer.body_bytes = msg.ui32MsgLen;
-            memcpy(ros_echronos::can::input_buffer.buffer.body, msg.pui8MsgData, msg.ui32MsgLen);
-            ros_echronos::can::input_buffer.end_counter++;*/
-            if (ros_echronos::can::node_handle_ready) {
-                //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
-                // raise the event
-                rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
-            }
+        if(ros_echronos::can::node_handle_ready) {
+            ros_echronos::can::incoming_msg_buffer->put_locked(can_msg);
+            rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
         }
+//        if(msg_queue.try_push(can_msg)) {
+//
+//            /*ros_echronos::can::input_buffer.start_counter++;
+//            ros_echronos::can::input_buffer.buffer.head.bits = msg.ui32MsgID;
+//            ros_echronos::can::input_buffer.buffer.body_bytes = msg.ui32MsgLen;
+//            memcpy(ros_echronos::can::input_buffer.buffer.body, msg.pui8MsgData, msg.ui32MsgLen);
+//            ros_echronos::can::input_buffer.end_counter++;*/
+//            if (ros_echronos::can::node_handle_ready) {
+//                //UARTprintf("nh ready %d\n", ros_echronos::can::can_interupt_event);
+//                // raise the event
+//                rtos_interrupt_event_raise(ros_echronos::can::can_interupt_event);
+//            }
+//        }
 
     } else {
         UARTprintf("No Interupt!\n");
     }
 
+}
+
+
+void ros_echronos::can::can_receive_unlock() {
+    // TODO: use the CAN_DEVICE_BASE flag here
+    IntEnable(INT_CAN0);
+}
+
+void ros_echronos::can::can_receive_lock() {
+    // TODO: use the CAN_DEVICE_BASE flag here
+    IntDisable(INT_CAN0);
 }

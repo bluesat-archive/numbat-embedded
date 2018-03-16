@@ -25,6 +25,7 @@ namespace ros_echronos {
     class NodeHandle {
 
         public:
+
             /**
              * Registers the ros node with the controller, setsup any CAN handlers required
              * @param node_name
@@ -69,6 +70,11 @@ namespace ros_echronos {
              * Signal for incoming can messages
              */
             RtosSignalId can_receive_signal;
+
+            /**
+             * The message buffer
+             */
+            _Incoming_Message_Buffer in_buff;
 
     };
 }

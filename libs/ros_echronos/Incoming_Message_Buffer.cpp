@@ -2,37 +2,38 @@
  * @date: 13/12/17
  * @author: (original author) Harry J.E Day <harry@dayfamilyweb.com>
  * @authors: (editors) 
- * @details: 
+ * @details: Implements a buffer that works with the CAN interupt
  * @copydetails: This code is released under the LGPLv3 and newer License and the BSD License
  * @copyright: Copyright BLUEsat UNSW 2017
  */
 #include "include/Message_Buffer.hpp"
+#include "include/can_impl.hpp"
 
 //because templates
 #include "Message_Buffer.cpp"
 
 ros_echronos::can::input_buffer_t ros_echronos::can::input_buffer;
-rigtorp::SPSCQueue<ros_echronos::can::CAN_ROS_Message, 5> ros_echronos::can::msg_queue;
+_Incoming_Message_Buffer * ros_echronos::can::incoming_msg_buffer;
+//rigtorp::SPSCQueue<ros_echronos::can::CAN_ROS_Message, 5> ros_echronos::can::msg_queue;
 
 RtosInterruptEventId ros_echronos::can::can_interupt_event;
 
-Incoming_Message_Buffer::Incoming_Message_Buffer(RtosMutexId mutex) :
-        Message_Buffer(buffer, ROS_CAN_INPUT_BUFFER_SIZE),
-        mutex(mutex) {
-
+_Incoming_Message_Buffer::_Incoming_Message_Buffer() :
+        Message_Buffer(buffer, ROS_CAN_INPUT_BUFFER_SIZE) {
 
 }
 
-ros_echronos::can::can_ros_message Incoming_Message_Buffer::pop_locked() {
+ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked() {
     ros_echronos::can::can_ros_message msg;
-    rtos_mutex_lock(mutex);
+    ros_echronos::can::can_receive_lock();
     msg = pop();
-    rtos_mutex_unlock(mutex);
+    ros_echronos::can::can_receive_unlock();
+
     return msg;
 }
 
-void Incoming_Message_Buffer::put_locked(ros_echronos::can::can_ros_message &msg) {
-    rtos_mutex_lock(mutex);
+void _Incoming_Message_Buffer::put_locked(ros_echronos::can::can_ros_message &msg) {
+    // note the assumption is this is called inside the can interupt and cannot be
+    // interupted by any tasks that may edit the buffer
     put(&msg);
-    rtos_mutex_unlock(mutex);
 }

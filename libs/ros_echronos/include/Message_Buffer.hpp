@@ -63,7 +63,7 @@ class Message_Buffer {
 /**
  * Provides a thread safe buffer for incoming can messages
  */
-class Incoming_Message_Buffer : Message_Buffer<ros_echronos::can::can_ros_message> {
+class _Incoming_Message_Buffer : public Message_Buffer<ros_echronos::can::can_ros_message> {
      public:
         ros_echronos::can::can_ros_message buffer[ROS_CAN_INPUT_BUFFER_SIZE];
 
@@ -71,7 +71,7 @@ class Incoming_Message_Buffer : Message_Buffer<ros_echronos::can::can_ros_messag
          * Constructs a new fixed size buffer with the given mutex
          * @param mutex the mutex to use when modifying the buffer
          */
-        Incoming_Message_Buffer(RtosMutexId mutex);
+        _Incoming_Message_Buffer();
 
         /**
          * Removes the next message in the queue
@@ -91,6 +91,7 @@ class Incoming_Message_Buffer : Message_Buffer<ros_echronos::can::can_ros_messag
 
 
 };
+
 
 template <class T> Message_Buffer<T>::Message_Buffer(T *const buffer, const uint8_t size) :
         buffer_start(buffer), buffer_end(buffer + size), buffer_head(buffer_end-1), buffer_tail(buffer_head)  {

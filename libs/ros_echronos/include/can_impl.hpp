@@ -7,6 +7,7 @@
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 #include "ros.hpp"
+#include "Message_Buffer.hpp"
 
 #ifndef NUMBAT_EMBEDDED_CAN_IMPL_H
 #define NUMBAT_EMBEDDED_CAN_IMPL_H
@@ -39,6 +40,22 @@ namespace ros_echronos {
          */
          void unsubscribe_can(can_sub_id id);
 
+        /**
+         * Implementation specific lock that guarentees the code will not be
+         * interupted by an incoming CAN packet
+         */
+        void can_receive_lock();
+
+        /**
+         * Unlocks the can lock from can_receive lock. Note that this lock will unlock fully
+         * even if can_receive_lock was called twice
+         */
+        void can_receive_unlock();
+
+        /**
+         * Incoming can msg buffer
+         */
+        extern _Incoming_Message_Buffer * incoming_msg_buffer;
 
     }
 }

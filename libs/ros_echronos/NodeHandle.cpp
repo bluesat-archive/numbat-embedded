@@ -18,11 +18,14 @@
 using namespace ros_echronos;
 
 volatile bool can::node_handle_ready = false;
+
+
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
                       RtosSignalId can_interupt_signal) {
     ros_echronos::ROS_INFO("can interupt event %d\n", can_interupt_event);
     can::can_interupt_event = can_interupt_event;
     can_receive_signal = can_interupt_signal;
+    can::incoming_msg_buffer = &in_buff;
     has_init = true;
     can::node_handle_ready = true;
 }
@@ -74,11 +77,11 @@ void NodeHandle::run_handle_message_loop() {
         //ROS_INFO("start %d", input_buffer.start_counter);
 
         //TODO: check the queue is not empty, although if we get here it shouldn't be
-        if(msg_queue.front()) {
-            msg_ptr = msg_queue.front();
-            msg = *msg_ptr;
-            //msg = *(msg_queue.front());
-            msg_queue.pop();
+//        if(msg_queue.front()) {
+//            msg_ptr = msg_queue.front();
+//            msg = *msg_ptr;
+//            //msg = *(msg_queue.front());
+//            msg_queue.pop();
             /*start_counter = input_buffer.start_counter;
             msg = input_buffer.buffer;
             end_counter = input_buffer.start_counter;*/
@@ -89,6 +92,7 @@ void NodeHandle::run_handle_message_loop() {
                 ROS_INFO("Thread error\n");
                 continue;
             }*/
+        msg = in_buff.pop_locked();
             _Subscriber *current;
             for (current = subscribers; current; current = (_Subscriber *) current->next) {
                 if (msg.head.fields.topic == current->topic_id) {
@@ -96,6 +100,7 @@ void NodeHandle::run_handle_message_loop() {
                     break;
                 }
             }
-        }
+
+//        }
     }
 }
