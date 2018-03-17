@@ -4,7 +4,7 @@
 #define c_assert(e)    ((e) ? (true) : (tst_debugging("%s,%d: assertion '%s' failed\n", __FILE__, __LINE__, #e), false)) 
 #define pwm_assert(e)    if (c_assert(e) == false) return PWM_FAILURE
 
-void tst_debugging(char *frmt_str, char *file, char *line, char *err) {
+void tst_debugging(char *frmt_str, char *file, int line, char *err) {
     UARTprintf(frmt_str, file, line, err);
 }
 
@@ -32,6 +32,8 @@ enum pwm_prescale_values get_pre(void) {
         case SYSCTL_PWMDIV_32 : return DIV32;
         case SYSCTL_PWMDIV_64 : return DIV64;
     };
+
+    pwm_assert(false); // should never reach here
 }
 
 /* Input: abstract PWM pin
