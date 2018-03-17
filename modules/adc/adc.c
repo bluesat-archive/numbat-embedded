@@ -25,12 +25,6 @@ static enum {
     POST_INIT;
 };
 
-static enum gpio_port {
-    GPIOE,
-    GPIOD
-}; /* GPIO ports used by ADC */
-
-
 //------------------------------STRUCTS-------------------------------//
 static struct gpio_port {
     uint32_t sysctl;
@@ -49,13 +43,16 @@ static const uint32_t adc_clock_div = 1;
 static const uint32_t adc_clock_config = 
     ADC_CLOCK_SRC_PIOSC | ADC_CLOCK_RATE_FULL;
 static const uint32_t sequence_num = 0;
+static const uint32_t adc_sc_module = SYSCTL_PERIPH_ADC0;
 
 
 //----------------------BOARD_SPECIFIC_CONSTANTS----------------------//
-#define ADC_TEST_BOARD
+#ifdef PART_TM4C123GH6PM
+static enum {
+    GPIOE,
+    GPIOB
+};
 
-#ifdef ADC_TEST_BOARD /* TEST BOARD */
-static const uint32_t adc_sc_module = SYSCTL_PERIPH_ADC0;
 static const uint32_t adc_reference = ADC_REF_INT;
 
 static const struct gpio_port gpio_flags[GPIO_PORT_COUNT] = {
@@ -67,8 +64,24 @@ static const struct gpio_pin gpio_lut[PC] = {
     {gpio_flags[GPIOE], GPIO_PIN_1}, {gpio_flags[GPIOE], GPIO_PIN_0},
     {gpio_flags[GPIOB], GPIO_PIN_7}, {gpio_flags[GPIOB], GPIO_PIN_6},
     {gpio_flags[GPIOB], GPIO_PIN_5}, {gpio_flags[GPIOB], GPIO_PIN_4}};
+#endif
+#ifdef PART_TM4C123GH6PGE
+static enum {
+    GPIOE
+    GPIOD
+};
 
-#else /* GENERIC PCB */
+static const uint32_t adc_reference = ADC_REF_EXT_3V;
+
+static const struct gpio_port gpio_flags[GPIO_PORT_COUNT] = {
+    {.sysctl = SYSCTL_PERIPH_GPIOE, .base = GPIO_PORTE_BASE}, 
+    {.sysctl = SYSCTL_PERIPH_GPIOD, .base = GPIO_PORTD_BASE}};
+    
+static const struct gpio_pin gpio_lut[PC] = {
+    {gpio_flags[GPIOE], GPIO_PIN_3}, {gpio_flags[GPIOE], GPIO_PIN_2}, 
+    {gpio_flags[GPIOE], GPIO_PIN_1}, {gpio_flags[GPIOE], GPIO_PIN_0},
+    {gpio_flags[GPIOD], GPIO_PIN_7}, {gpio_flags[GPIOD], GPIO_PIN_6},
+    {gpio_flags[GPIOD], GPIO_PIN_5}, {gpio_flags[GPIOD], GPIO_PIN_4}};
 
 #endif
 
