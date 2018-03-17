@@ -10,6 +10,16 @@
 #ifndef ADC_H
 #define ADC_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "driverlib/adc.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/gpio.h"
+#include "inc/hw_memmap.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/debug.h"
+
 //------------------------------ENUMS---------------------------------//
 /* ADC Pins, using ADC Pin names. See ./PIN_MAPPING for the other names
  * for these pins. */
@@ -46,15 +56,14 @@ enum adc_status {
  *
  * The maximum number of pins currently supported is 8. This function
  * should fail if num_pins > 8. */
-extern enum adc_status adc_init_pins(adc_pin pins[], uint8_t num_pins, 
-    uint16_t buffer[], void (*callback)(void));
+extern enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins);
 
 /* INTERRUPT CAPTURE INTERFACE */
 /* Sets up an ADC capture using its hardware capture interrupt. That is,
  * it registers the buffer and callback such that when the capture 
  * completes, an interrupt occurs, the capture data is copied to the
  * buffer, and the callback is called. */
-enum adc_return adc_capture_interrupt(uint16_t *buffer, 
+enum adc_return adc_capture_interrupt(uint32_t *buffer, 
     void (*callback)(void));
 
 /* POLLING CAPTURE INTERFACE */
@@ -71,5 +80,5 @@ enum adc_status adc_capture_status();
 /* Transfers ADC capture data from the sequence registers to the given
  * buffer. Must be called between captures, else new data will be
  * dropped. */
-enum adc_status adc_get_capture(uint16_t *buffer);
+enum adc_status adc_get_capture(uint32_t *buffer);
 #endif

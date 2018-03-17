@@ -1,17 +1,16 @@
 //------------------------------INCLUDES------------------------------//
 #include "adc.h"
 
-#include <stdbool.h>
-#include <stdint.h>
-
-
 //---------------------------ERROR_HANDLING---------------------------//
 #define c_assert(e)    ((e) ? (true) : (tst_debugging(\
     "%s,%d: assertion '%s' failed\n", __FILE__, __LINE__, #e), false)) 
 #define adc_assert(e)    if (c_assert(e) == false) return ADC_FAILURE
 
-void tst_debugging(char *frmt_str, char *file, char *line, char *err) {
+void tst_debugging(char *frmt_str, char *file, int line, char *err) {
+#ifdef DEBUG
+#include "utils/uartstdio.h"
     UARTprintf(frmt_str, file, line, err);
+#endif
 }
 
 //---------------------------SIZE_CONSTANTS---------------------------//
@@ -20,21 +19,21 @@ void tst_debugging(char *frmt_str, char *file, char *line, char *err) {
 
 
 //-------------------------------ENUMS--------------------------------//
-static enum {
-    PRE_INIT;
-    POST_INIT;
+enum {
+    PRE_INIT,
+    POST_INIT
 };
 
 //------------------------------STRUCTS-------------------------------//
-static struct gpio_port {
-    uint32_t sysctl;
-    uint32_t base;
+struct gpio_port {
+    const uint32_t sysctl;
+    const uint32_t base;
 }; /* struct for data required for manipulating GPIO ports */
 
-static struct gpio_pin {
-    struct gpio_port port;
-    uint8_t pin;
-}
+struct gpio_pin {
+    const struct gpio_port port;
+    const uint8_t pin;
+};
 
 
 //---------------------SHARED_HARDWARE_CONSTANTS----------------------//
@@ -48,49 +47,38 @@ static const uint32_t adc_sc_module = SYSCTL_PERIPH_ADC0;
 
 //----------------------BOARD_SPECIFIC_CONSTANTS----------------------//
 #ifdef PART_TM4C123GH6PM
-static enum {
-    GPIOE,
-    GPIOB
-};
-
 static const uint32_t adc_reference = ADC_REF_INT;
-
-static const struct gpio_port gpio_flags[GPIO_PORT_COUNT] = {
-    {.sysctl = SYSCTL_PERIPH_GPIOE, .base = GPIO_PORTE_BASE}, 
-    {.sysctl = SYSCTL_PERIPH_GPIOB, .base = GPIO_PORTB_BASE}};
     
 static const struct gpio_pin gpio_lut[PC] = {
-    {gpio_flags[GPIOE], GPIO_PIN_3}, {gpio_flags[GPIOE], GPIO_PIN_2}, 
-    {gpio_flags[GPIOE], GPIO_PIN_1}, {gpio_flags[GPIOE], GPIO_PIN_0},
-    {gpio_flags[GPIOB], GPIO_PIN_7}, {gpio_flags[GPIOB], GPIO_PIN_6},
-    {gpio_flags[GPIOB], GPIO_PIN_5}, {gpio_flags[GPIOB], GPIO_PIN_4}};
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_3}, 
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_2}, 
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_1}, 
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_0},
+    {{SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE}, GPIO_PIN_7}, 
+    {{SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE}, GPIO_PIN_6},
+    {{SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE}, GPIO_PIN_5}, 
+    {{SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE}, GPIO_PIN_4}};
 #endif
 #ifdef PART_TM4C123GH6PGE
-static enum {
-    GPIOE
-    GPIOD
-};
-
 static const uint32_t adc_reference = ADC_REF_EXT_3V;
 
-static const struct gpio_port gpio_flags[GPIO_PORT_COUNT] = {
-    {.sysctl = SYSCTL_PERIPH_GPIOE, .base = GPIO_PORTE_BASE}, 
-    {.sysctl = SYSCTL_PERIPH_GPIOD, .base = GPIO_PORTD_BASE}};
-    
 static const struct gpio_pin gpio_lut[PC] = {
-    {gpio_flags[GPIOE], GPIO_PIN_3}, {gpio_flags[GPIOE], GPIO_PIN_2}, 
-    {gpio_flags[GPIOE], GPIO_PIN_1}, {gpio_flags[GPIOE], GPIO_PIN_0},
-    {gpio_flags[GPIOD], GPIO_PIN_7}, {gpio_flags[GPIOD], GPIO_PIN_6},
-    {gpio_flags[GPIOD], GPIO_PIN_5}, {gpio_flags[GPIOD], GPIO_PIN_4}};
-
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_3}, 
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_2}, 
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_1}, 
+    {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_0},
+    {{SYSCTL_PERIPH_GPIOD, GPIO_PORTD_BASE}, GPIO_PIN_7}, 
+    {{SYSCTL_PERIPH_GPIOD, GPIO_PORTD_BASE}, GPIO_PIN_6},
+    {{SYSCTL_PERIPH_GPIOD, GPIO_PORTD_BASE}, GPIO_PIN_5}, 
+    {{SYSCTL_PERIPH_GPIOD, GPIO_PORTD_BASE}, GPIO_PIN_4}};
 #endif
 
 
 //------------------------------GLOBALS-------------------------------//
 static int status = PRE_INIT;
 static uint8_t active_pins = 0;
-static uint16_t *adc_buffer = NULL;
-static void (*adc_callback)(void) = NULL;
+static uint32_t *adc_buffer = (void *)0;
+static void (*adc_callback)(void) = (void *)0;
 
 
 //--------------------------LOCAL_FUNCTIONS---------------------------//
@@ -100,7 +88,7 @@ static void adc_irq_handler(void) {
     ADCIntDisable(ADC0_BASE, sequence_num);
 
     /* copy captured values into buffer */
-    ADCSequenceGetData(ADC0_BASE, sequence_num, adc_buffer);
+    ADCSequenceDataGet(ADC0_BASE, sequence_num, adc_buffer);
 
     /* call the callback */
     adc_callback();
@@ -110,17 +98,18 @@ static void adc_irq_handler(void) {
  * is responding as ready. */
 static void init_module(uint32_t sysctl_module) {
     if (SysCtlPeripheralReady(sysctl_module) == false) {
-        SysCtlPeripheralEnable(sysctl_module)
-        while (SysCtlPeripheralReady == false)
+        SysCtlPeripheralEnable(sysctl_module);
+        while (SysCtlPeripheralReady(sysctl_module) == false)
             ;
+    }
 }
 
 
 //-------------------------EXTERNAL_FUNCTIONS-------------------------//
-enum adc_return adc_init_pins(adc_pin *pins, uint8_t num_pins) {
+enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins) {
         adc_assert(status == PRE_INIT);
         adc_assert(num_pins < 9);
-        adc_assert(pins != NULL);
+        adc_assert(pins != (void *)0);
 
         active_pins = num_pins;
 
@@ -135,11 +124,12 @@ enum adc_return adc_init_pins(adc_pin *pins, uint8_t num_pins) {
         /* pin initialisation and configuration */
         for (int i = 0; i < num_pins; i++) {
             /* initialise GPIO module */
-            init_module(gpio_lut[pins[i]].sysctl);
+            init_module(gpio_lut[pins[i]].port.sysctl);
 
             /* configure ADC/GPIO pins */
             GPIOPinTypeADC(gpio_lut[pins[i]].port.base, 
                 gpio_lut[pins[i]].pin);
+        }
 
         /* register interrupt handler */
         ADCIntRegister(ADC0_BASE, sequence_num, adc_irq_handler);
@@ -155,10 +145,10 @@ enum adc_return adc_init_pins(adc_pin *pins, uint8_t num_pins) {
         return ADC_SUCCESS;
 }
 
-enum adc_return adc_capture_interrupt(uint16_t *buffer, void (*callback)(void)) {
+enum adc_return adc_capture_interrupt(uint32_t *buffer, void (*callback)(void)) {
     adc_assert(status == POST_INIT);
-    adc_assert(buffer != NULL);
-    adc_assert(callback != NULL);
+    adc_assert(buffer != (void *)0);
+    adc_assert(callback !=(void *)0);
 
     adc_buffer = buffer;
     adc_callback = callback;
@@ -184,12 +174,12 @@ enum adc_status adc_capture_status() {
     else return ADC_COMPLETE;
 }
 
-enum adc_status adc_get_capture(uint16_t *buffer) {
+enum adc_status adc_get_capture(uint32_t *buffer) {
     adc_assert(status == POST_INIT);
     adc_assert(!ADCBusy(ADC0_BASE));
 
     /* copy captured values into buffer */
-    ADCSequenceGetData(ADC0_BASE, sequence_num, buffer);
+    ADCSequenceDataGet(ADC0_BASE, sequence_num, buffer);
 
     return ADC_SUCCESS;
 }

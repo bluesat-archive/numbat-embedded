@@ -1,4 +1,5 @@
 LIB_BUILD = libs/build
+LIBS_DIR = libs
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
@@ -19,6 +20,12 @@ include .numbat_makedefs
 # ****************
 
 $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
+
+# ***********
+# ADC LIBRARY
+# ***********
+
+$(BUILD_DIR)/adc.o: $(LIBS_DIR)/adc/adc.c
 
 # *************
 # BLINKY MODULE
@@ -83,7 +90,8 @@ $(BUILD_DIR)/adc_test.o: $(MODULE_DIR)/adc_test.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/adc_test.o \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+        $(BUILD_DIR)/adc.o
 
 # **********************
 # WHAT TO ACTUALLY BUILD
