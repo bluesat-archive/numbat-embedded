@@ -5,7 +5,10 @@
 #define pwm_assert(e)    if (c_assert(e) == false) return PWM_FAILURE
 
 void tst_debugging(char *frmt_str, char *file, int line, char *err) {
+#ifdef DEBUG
+#include "utils/uartstdio.h"
     UARTprintf(frmt_str, file, line, err);
+#endif 
 }
 
 bool pwm_valid(enum pwm_pin val) {

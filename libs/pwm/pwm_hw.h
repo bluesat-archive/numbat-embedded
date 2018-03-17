@@ -10,7 +10,6 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/debug.h"
-#include "utils/uartstudio.h"
 
 // pwm prescaler, indexed via pwm_prescale_values enumeration
 #define NUM_DIV 7
