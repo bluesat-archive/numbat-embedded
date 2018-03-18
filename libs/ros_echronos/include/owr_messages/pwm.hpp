@@ -89,8 +89,6 @@ typedef  ::owr_messages::pwm const pwmConstPtr;
   } // generate_block
 
   ros_echronos::Message_Descriptor * owr_messages::pwm_::generate_descriptor() {
-      void * field_ptrs[6];
-      size_t field_sizes[6];
       void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<6>));
       ros_echronos::Message_Descriptor_Fixed<6> * descriptor =
               new (desc) ros_echronos::Message_Descriptor_Fixed<6>();

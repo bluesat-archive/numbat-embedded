@@ -159,6 +159,7 @@ def write_generic_includes(s):
     """
     s.write('#include "ros.hpp"\n')
     s.write('#include "Message.hpp"\n')
+    s.write('#include "<new>"\n')
     #s.write('#include "ros/serialization.h"\n')
     #s.write('#include "ros/builtin_message_traits.h"\n')
     #s.write('#include "ros/message_operations.h"\n')
@@ -206,7 +207,6 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     declare_deconstructor(s, spec, cpp_name_prefix)
     declare_virtual_functions(s, spec, cpp_name_prefix)
     write_members(s, spec)
-    write_constant_declarations(s, spec)
 
     #rospack = RosPack()
     #gendeps_dict = roslib.gentools.get_dependencies(spec, spec.package, compute_files=False, rospack=rospack)
@@ -346,26 +346,11 @@ def write_constructors(s, spec, cpp_name_prefix):
     write_fixed_length_assigns(s, spec, False, cpp_name_prefix)
     s.write('  }\n\n')
 
-    # Copy Constructor
-    s.write('  %s%s_::%s_(const %s%s_& copy) : \n' % (cpp_name_prefix,msg, msg, cpp_name_prefix, msg))
-    # write copys for all none array variables
-    initalisers =[]
-    for field in spec.parsed_fields():
-        if field.type != "string":
-            initalisers.append('  %s(copy.%s)' % (field.name, field.name))
-    s.write(",".join(initalisers))
-    s.write('\n  {\n')
-    for field in  spec.parsed_fields():
-        if field.type == "string":
-            s.write('      memcpy(%s, copy.%s, ROS_STR_LEN);\n' % (field.name, field.name))
-
-    s.write('  } // copy constructor\n\n')
-    
 
 def write_deconstructor(s, spec, cpp_name_prefix):
     """
     Writes any necessary deconstructors for the message
-    
+
     @param s: The stream to write to
     @type s: stream
     @param spec: The message spec
@@ -378,8 +363,8 @@ def write_deconstructor(s, spec, cpp_name_prefix):
 
     # Default deconstructor
     s.write('  %s%s_::~%s_() {\n'%(cpp_name_prefix, msg, msg))
-    s.write('      if (block) { alloc::free(block); }\n')
     s.write("  } //deconstructor\n\n")
+    # TODO(hjed): work out if we need to kill the Message Descriptor here
 
 def declare_constructors(s, spec, cpp_name_prefix):
     """
@@ -397,9 +382,6 @@ def declare_constructors(s, spec, cpp_name_prefix):
 
     # Default constructor
     s.write('  %s_();\n'%(msg))
-
-    # Copy Constructor
-    s.write('  %s_(const %s%s_& copy); \n' % ( msg, cpp_name_prefix, msg))
 
 
 def declare_deconstructor(s, spec, cpp_name_prefix):
@@ -433,8 +415,9 @@ def declare_virtual_functions(s, spec, cpp_name_prefix):
 
     msg = spec.short_name
 
-    # Default deconstructor
+    # Default functions
     s.write('  virtual void generate_block();\n')
+    s.write('  virtual ros_echronos::Message_Descriptor * generate_descriptor();\n')
 
 def write_member(s, field):
     """
@@ -461,6 +444,9 @@ def write_members(s, spec):
     @type spec: roslib.msgs.MsgSpec
     """
     [write_member(s, field) for field in spec.parsed_fields()]
+
+    # write descriptor pointer
+    s.write('  ros_echronos::Message_Descriptor * desc = NULL;\n')
 
 
 def write_deserialiser(s, spec, cpp_name_prefix):
@@ -554,7 +540,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
 
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
         if is_array:
-            sizes.append("%s.bytes" % field.name)
+            sizes.append("%s.bytes+2" % field.name)
             output+='      memcpy(block+offset, sizeof(short), %s.size);\n' % (field.name)
             output+='      memcpy(block+offset+sizeof(short), %s.values, %s.bytes);\n' % (field.name, field.name)
             output+='      offset+=%s.bytes+sizeof(short);\n' % (field.name)
@@ -568,6 +554,21 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     s.write(output);
     s.write('  } // generate_block\n')
 
+    num_fields = len(spec.parsed_fields())
+    s.write('  ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {')
+    s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));' % num_fields)
+    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>()' % (num_fields, num_fields))
+    i = 0
+    for field in spec.parsed_fields():
+        (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+        s.write('    descriptor->fixed_field_ptrs[%d] = &%s' % (i, field.name))
+        if is_array:
+            s.write('    descriptor->fixed_field_sizes[%d] = 0' % (i))
+        else:
+            s.write('    descriptor->fixed_field_sizes[%d] = sizeof(%s)' % (i, field.name))
+        i+=1
+    s.write('    return descriptor;')
+    s.write('  }')
 
 def escape_string(str):
     str = str.replace('\\', '\\\\')
@@ -590,34 +591,6 @@ def write_constant_declaration(s, constant):
     else:
         s.write('  static const %s %s;\n'%(msg_type_to_cpp(constant.type), constant.name))
 
-def write_constant_declarations(s, spec):
-    """
-    Write all the constants from a spec as static members
-    
-    @param s: The stream to write to
-    @type s: stream
-    @param spec: The message spec
-    @type spec: roslib.msgs.MsgSpec
-    """
-    [write_constant_declaration(s, constant) for constant in spec.constants]
-    s.write('\n')
-    
-def write_constant_definition(s, spec, constant):
-    """
-    Write a constant value as a static member
-    
-    @param s: The stream to write to
-    @type s: stream
-    @param constant: The constant
-    @type constant: roslib.msgs.Constant
-    """
-    
-    # integral types do not need a definition, since they've been defined where they are declared
-    if (constant.type not in ['byte', 'int8', 'int16', 'int32', 'int64', 'char', 'uint8', 'uint16', 'uint32', 'uint64', 'string']):
-        s.write('template<typename ContainerAllocator> const %s %s_<ContainerAllocator>::%s = %s;\n'%(msg_type_to_cpp(constant.type), spec.short_name, constant.name, constant.val))
-    elif (constant.type == 'string'):
-        s.write('template<typename ContainerAllocator> const %s %s_<ContainerAllocator>::%s = "%s";\n'%(msg_type_to_cpp(constant.type), spec.short_name, constant.name, escape_string(constant.val)))
-        
 def write_constant_definitions(s, spec):
     """
     Write all the constants from a spec as static members
