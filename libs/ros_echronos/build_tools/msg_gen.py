@@ -555,20 +555,20 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     s.write('  } // generate_block\n')
 
     num_fields = len(spec.parsed_fields())
-    s.write('  ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {')
-    s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));' % num_fields)
-    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>()' % (num_fields, num_fields))
+    s.write('  ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {\n' % (cpp_name_prefix, msg))
+    s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));\n' % num_fields)
+    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>()\n' % (num_fields, num_fields))
     i = 0
     for field in spec.parsed_fields():
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
-        s.write('    descriptor->fixed_field_ptrs[%d] = &%s' % (i, field.name))
+        s.write('    descriptor->fixed_field_ptrs[%d] = &%s;\n' % (i, field.name))
         if is_array:
-            s.write('    descriptor->fixed_field_sizes[%d] = 0' % (i))
+            s.write('    descriptor->fixed_field_sizes[%d] = 0;\n' % (i))
         else:
-            s.write('    descriptor->fixed_field_sizes[%d] = sizeof(%s)' % (i, field.name))
+            s.write('    descriptor->fixed_field_sizes[%d] = sizeof(%s);\n' % (i, field.name))
         i+=1
-    s.write('    return descriptor;')
-    s.write('  }')
+    s.write('    return descriptor;\n')
+    s.write('  }\n')
 
 def escape_string(str):
     str = str.replace('\\', '\\\\')
@@ -698,163 +698,35 @@ def is_hex_string(str):
         
     return True
 
-def write_trait_char_class(s, class_name, cpp_msg_with_alloc, value, write_static_hex_value = False):
-    """
-    Writes a class trait for traits which have static value() members that return const char*
-    
-    e.g. write_trait_char_class(s, "MD5Sum", "std_msgs::String_<ContainerAllocator>", "hello") yields:
-    template<class ContainerAllocator>
-    struct MD5Sum<std_msgs::String_<ContainerAllocator> > 
-    {
-        static const char* value() { return "hello"; }
-        static const char* value(const std_msgs::String_<ContainerAllocator>&) { return value(); }
-    };
-    
-    @param s: The stream to write to
-    @type s: stream
-    @param class_name: The name of the trait class to write
-    @type class_name: str
-    @param cpp_msg_with_alloc: The C++ declaration of the message, including the allocator template
-    @type cpp_msg_with_alloc: str
-    @param value: The value to return in the string
-    @type value: str
-    @param write_static_hex_value: Whether or not to write a set of compile-time-checkable static values.  Useful for,
-        for example, MD5Sum.  Writes static const uint64_t static_value1... static_valueN
-    @type write_static_hex_value: bool
-    @raise ValueError if write_static_hex_value is True but value contains characters invalid in a hex value
-    """
-    s.write('template<class ContainerAllocator>\nstruct %s<%s> {\n'%(class_name, cpp_msg_with_alloc))
-    s.write('  static const char* value() \n  {\n    return "%s";\n  }\n\n'%(value))
-    s.write('  static const char* value(const %s&) { return value(); } \n'%(cpp_msg_with_alloc))
-    if (write_static_hex_value):
-        if (not is_hex_string(value)):
-            raise ValueError('%s is not a hex value'%(value))
-        
-        iter_count = len(value) / 16
-        for i in range(0, int(iter_count)):
-            start = i*16
-            s.write('  static const uint64_t static_value%s = 0x%sULL;\n'%((i+1), value[start:start+16]))
-    s.write('};\n\n')
-    
-def write_trait_true_class(s, class_name, cpp_msg_with_alloc):
-    """
-    Writes a true/false trait class
-    
-    @param s: stream to write to
-    @type s: stream
-    @param class_name: Name of the trait class
-    @type class_name: str
-    @param cpp_msg_with_alloc: The C++ declaration of the message, including the allocator template
-    @type cpp_msg_with_alloc: str
-    """
-    s.write('template<class ContainerAllocator> struct %s<%s> : public TrueType {};\n'%(class_name, cpp_msg_with_alloc))
 
-def write_traits(s, spec, cpp_name_prefix, datatype = None, rospack=None):
+def write_template_includes(s, spec, cpp_prefix):
     """
-    Writes all the traits classes for a message
-    
-    @param s: The stream to write to
-    @type s: stream
-    @param spec: The message spec
-    @type spec: roslib.msgs.MsgSpec
-    @param cpp_name_prefix: The C++ prefix to prepend to a message to refer to it (e.g. "std_msgs::")
-    @type cpp_name_prefix: str
-    @param datatype: The string to write as the datatype of the message.  If None (default), pkg/msg is used.
-    @type datatype: str
+    Writes the includes and template definitions for the message
+    @param s: the output stream
+    @param spec: the message spec
+    @param cpp_prefix: the package cpp prefix
     """
-    # generate dependencies dictionary
-    gendeps_dict = roslib.gentools.get_dependencies(spec, spec.package, compute_files=False, rospack=rospack)
-    md5sum = roslib.gentools.compute_md5(gendeps_dict, rospack=rospack)
-    full_text = compute_full_text_escaped(gendeps_dict)
-    
-    if (datatype is None):
-        datatype = '%s'%(spec.full_name)
-    
-    (cpp_msg_unqualified, cpp_msg_with_alloc, _) = cpp_message_declarations(cpp_name_prefix, spec.short_name)
-    s.write('namespace ros\n{\n')
-    s.write('namespace message_traits\n{\n')
+    s.write('#include "ros_echronos/Publisher.cpp"\n')
+    s.write('#include "ros_echronos/Subscriber.cpp"\n')
 
-    write_trait_true_class(s, 'IsMessage', cpp_msg_with_alloc)
-    write_trait_true_class(s, 'IsMessage', cpp_msg_with_alloc + " const")
+    s.write('template class ros_echronos::Publisher<%s%s>;\n' % (cpp_prefix, spec.short_name))
+    s.write('template class ros_echronos::Subscriber<%s%s>;\n' % (cpp_prefix, spec.short_name))
 
-    write_trait_char_class(s, 'MD5Sum', cpp_msg_with_alloc, md5sum, True)
-    write_trait_char_class(s, 'DataType', cpp_msg_with_alloc, datatype)
-    write_trait_char_class(s, 'Definition', cpp_msg_with_alloc, full_text)
-    
-    if (spec.has_header()):
-        write_trait_true_class(s, 'HasHeader', cpp_msg_with_alloc)
-        write_trait_true_class(s, 'HasHeader', ' const' + cpp_msg_with_alloc)
+def write_cpp_body(s, spec, cpp_prefix):
+    """
+    Writes the cpp body file we need to generate all our templates
 
-    if (is_fixed_length(spec)):
-        write_trait_true_class(s, 'IsFixedSize', cpp_msg_with_alloc)
-        
-    s.write('} // namespace message_traits\n')
-    s.write('} // namespace ros\n\n')
-    
-def write_operations(s, spec, cpp_name_prefix):
-    (cpp_msg_unqualified, cpp_msg_with_alloc, _) = cpp_message_declarations(cpp_name_prefix, spec.short_name)
-    s.write('namespace ros\n{\n')
-    s.write('namespace message_operations\n{\n')
-    
-    # Write the Printer operation
-    s.write('\ntemplate<class ContainerAllocator>\nstruct Printer<%s>\n{\n'%(cpp_msg_with_alloc))
-    s.write('  template<typename Stream> static void stream(Stream& s, const std::string& indent, const %s& v) \n  {\n'%cpp_msg_with_alloc)
-    for field in spec.parsed_fields():
-        cpp_type = msg_type_to_cpp(field.base_type)
-        if (field.is_array):
-            s.write('    s << indent << "%s[]" << std::endl;\n'%(field.name))
-            s.write('    for (size_t i = 0; i < v.%s.size(); ++i)\n    {\n'%(field.name))
-            s.write('      s << indent << "  %s[" << i << "]: ";\n'%field.name)
-            indent_increment = '  '
-            if (not field.is_builtin):
-                s.write('      s << std::endl;\n')
-                s.write('      s << indent;\n')
-                indent_increment = '    ';
-            s.write('      Printer<%s>::stream(s, indent + "%s", v.%s[i]);\n'%(cpp_type, indent_increment, field.name))
-            s.write('    }\n')
-        else:
-            s.write('    s << indent << "%s: ";\n'%field.name)
-            indent_increment = '  '
-            if (not field.is_builtin or field.is_array):
-                s.write('s << std::endl;\n')
-            s.write('    Printer<%s>::stream(s, indent + "%s", v.%s);\n'%(cpp_type, indent_increment, field.name))
-    s.write('  }\n')
-    s.write('};\n\n')
-        
-    s.write('\n')
-        
-    s.write('} // namespace message_operations\n')
-    s.write('} // namespace ros\n\n')
-    
-def write_serialization(s, spec, cpp_name_prefix):
+    @param s (StringIO): the feed to write to
+    @param spec: the message spec
+    @param cpp_prefix: the cpp prefix
     """
-    Writes the Serializer class for a message
-    
-    @param s: Stream to write to
-    @type s: stream
-    @param spec: The message spec
-    @type spec: roslib.msgs.MsgSpec
-    @param cpp_name_prefix: The C++ prefix to prepend to a message to refer to it (e.g. "std_msgs::")
-    @type cpp_name_prefix: str
-    """
-    (cpp_msg_unqualified, cpp_msg_with_alloc, _) = cpp_message_declarations(cpp_name_prefix, spec.short_name)
-    
-    s.write('namespace ros\n{\n')
-    s.write('namespace serialization\n{\n\n')
-    
-    s.write('template<class ContainerAllocator> struct Serializer<%s>\n{\n'%(cpp_msg_with_alloc))
-    
-    s.write('  template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)\n  {\n')
-    for field in spec.parsed_fields():
-        s.write('    stream.next(m.%s);\n'%(field.name))
-    s.write('  }\n\n')
-    
-    s.write('  ROS_DECLARE_ALLINONE_SERIALIZER\n')
-    
-    s.write('}; // struct %s_\n'%(spec.short_name))
-        
-    s.write('} // namespace serialization\n')
-    s.write('} // namespace ros\n\n')
+
+    # headers
+    s.write('#include "%s/%s.hpp"\n' % (spec.package, spec.short_name))
+
+    write_virtual_functions(s, spec, cpp_prefix)
+    write_template_includes(s, spec, cpp_prefix)
+
 
 def generate(msg_path):
     """
@@ -869,32 +741,21 @@ def generate(msg_path):
 
     (_, spec) = roslib.msgs.load_from_file(msg_path, package)
     
-    s = StringIO()
-    write_begin(s, spec, msg_path)
-    write_generic_includes(s)
-    write_includes(s, spec)
+    header = StringIO()
+    write_begin(header, spec, msg_path)
+    write_generic_includes(header)
+    write_includes(header, spec)
     
     cpp_prefix = '%s::'%(package)
     
-    s.write('namespace %s\n{\n'%(package))
-    write_struct(s, spec, cpp_prefix)
-    write_constant_definitions(s, spec)
-    s.write('} // namespace %s\n\n'%(package))
-    
-    rospack = RosPack()
-    write_traits(s, spec, cpp_prefix, rospack=rospack)
-    write_serialization(s, spec, cpp_prefix)
-    write_operations(s, spec, cpp_prefix)
-    
-    # HACK HACK HACK.  The moving of roslib/Header causes many problems.  We end up having to make roslib/Header act exactly
-    # like std_msgs/Header (as in, constructor that takes it, as well as operator std_msgs::Header()), and it needs to be
-    # available wherever std_msgs/Header.h has been included
-    if (package == "std_msgs" and spec.short_name == "Header"):
-        s.write("#define STD_MSGS_INCLUDING_HEADER_DEPRECATED_DEF 1\n")
-        s.write("#include <std_msgs/header_deprecated_def.h>\n")
-        s.write("#undef STD_MSGS_INCLUDING_HEADER_DEPRECATED_DEF\n\n") 
-    
-    write_end(s, spec)
+    header.write('namespace %s\n{\n'%(package))
+    write_struct(header, spec, cpp_prefix)
+    write_constant_definitions(header, spec)
+    header.write('} // namespace %s\n\n'%(package))
+    write_end(header, spec)
+
+    cpp = StringIO()
+    write_cpp_body(cpp, spec, cpp_prefix)
     
     output_dir = '%s/msg_gen/cpp/include/%s'%(package_dir, package)
     if (not os.path.exists(output_dir)):
@@ -906,9 +767,12 @@ def generate(msg_path):
             pass
          
     f = open('%s/%s.hpp'%(output_dir, spec.short_name), 'w')
-    f.write(s.getvalue() + "\n")
+    f.write(header.getvalue() + "\n")
+
+    with open("%s/msg_gen/cpp/%s.cpp" % (package_dir, spec.short_name), 'w') as f:
+        f.write(cpp.getvalue() + "\n")
     
-    s.close()
+    header.close()
 
 def generate_messages(argv):
     for arg in argv[1:]:
