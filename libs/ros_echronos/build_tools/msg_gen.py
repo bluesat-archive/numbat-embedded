@@ -769,7 +769,16 @@ def generate(msg_path):
     f = open('%s/%s.hpp'%(output_dir, spec.short_name), 'w')
     f.write(header.getvalue() + "\n")
 
-    with open("%s/msg_gen/cpp/%s.cpp" % (package_dir, spec.short_name), 'w') as f:
+    cpp_output_dir = "%s/msg_gen/cpp/%s" % (package_dir, package)
+    if (not os.path.exists(cpp_output_dir)):
+        # if we're being run concurrently, the above test can report false but os.makedirs can still fail if
+        # another copy just created the directory
+        try:
+            os.makedirs(cpp_output_dir)
+        except OSError as e:
+            pass
+
+    with open("%s/%s.cpp" % (cpp_output_dir, spec.short_name), 'w') as f:
         f.write(cpp.getvalue() + "\n")
     
     header.close()
