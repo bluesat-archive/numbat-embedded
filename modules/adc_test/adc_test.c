@@ -1,20 +1,28 @@
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 
-#include "driverlib/adc.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "inc/hw_memmap.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
+#include "adc/adc.h"
+    
+#define NUM_PINS 8
+
+uint32_t out[NUM_PINS] = {0};
+
+void adc_callback(void) {
+    for (int i = 0; i < NUM_PINS; i++) {
+        UARTprintf("%d ", out[i]);
+    }
+    UARTprintf("\n");
+}
 
 void task_adc_test_fn(void) {
-
     UARTprintf("Entered ADC Test task. Initializing...\n");
 
+    enum adc_pin pins[NUM_PINS] = {AIN0, AIN1, AIN2, AIN3, AIN4, AIN5, AIN6, AIN7};
+    adc_init_pins(pins, NUM_PINS);
 
-
+    while(1) {
+        adc_capture_interrupt(out, adc_callback);
+    }
 }
 
 int main(void) {
