@@ -1,4 +1,5 @@
 LIB_BUILD = libs/build
+LIBS_DIR = libs
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
@@ -23,13 +24,14 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 # ***********
 # PWM LIBRARY
 # ***********
-$(BUILD_DIR)/pwmlib.o: $(MODULES_DIR)/pwmlib/pwmlib.c
+$(BUILD_DIR)/pwm.o: $(LIBS_DIR)/pwm/pwm.c
+$(BUILD_DIR)/pwm_hw.o: $(LIBS_DIR)/pwm/pwm_hw.c
 
-# ***********
-# PWM LIBRARY
-# ***********
+# *************
+# SERVO LIBRARY
+# *************
 
-$(BUILD_DIR)/servo.o: $(MODULES_DIR)/servo/servo.c
+$(BUILD_DIR)/servo.o: $(LIBS_DIR)/servo/servo.c $(LIBS_DIR)/pwm/pwm.h $(LIBS_DIR)/pwm/pwm_hw.h
 
 
 # *************
@@ -85,21 +87,6 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 # ***************
-# PWM TEST MODULE
-# ***************
-
-MODULE_NAME=pwm_test
-include .construct_numbat_module
-
-$(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs
-$(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/pwm_test.o \
-	$(BUILD_DIR)/boilerplate.o \
-        $(BUILD_DIR)/pwmlib.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
-
-
-# ***************
 # 102017 SERVO TEST MODULE
 # ***************
 
@@ -110,7 +97,7 @@ $(BUILD_DIR)/servo_test.o: $(MODULE_DIR)/servo_test.c $(MODULE_ECHRONOS) ti_libs
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/servo_test.o \
 	$(BUILD_DIR)/boilerplate.o \
-        $(BUILD_DIR)/pwmlib.o \
+        $(BUILD_DIR)/pwm.o \
         $(BUILD_DIR)/servo.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
@@ -119,7 +106,6 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 # **********************
 
 TARGETS=\
-	$(BUILD_DIR)/pwm_test.elf \
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \

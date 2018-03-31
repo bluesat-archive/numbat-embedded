@@ -1,0 +1,16 @@
+This PWM library is intended to make development of code using the pwm
+peripheral faster for simple uses by people who already have an 
+undestanding of the PWM module architecture.
+
+The PWM module consists of 4 generators each with two PWM signal
+outputs. 
+
+The clock is set on a module level from the system clock with 
+a divider. This divider allows for signal periods up to about 80 ms.
+
+The PWM signal period is set on a generator level, which means that
+pairs of outputs will share periods. 
+
+The PWM duty can be set on a per output basis.
+
+For usage details see the pwm.h file.

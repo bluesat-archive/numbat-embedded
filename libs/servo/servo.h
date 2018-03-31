@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "pwmlib.h"
+#include "pwm.h"
 
 typedef double servo_deg;
 

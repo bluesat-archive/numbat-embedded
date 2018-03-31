@@ -9,8 +9,8 @@ CFLAGSgcc=-DTARGET_IS_TM4C123_RB1
 include .ti_makedefs
 IPATH=$(TI_LIBS)
 IPATH+=$(MODULES_DIR)/boilerplate
-IPATH+=$(MODULES_DIR)/pwmlib
-IPATH+=$(MODULES_DIR)/servo
+IPATH+=$(LIBS_DIR)/pwm
+IPATH+=$(LIBS_DIR)/servo
 
 $(BUILD_DIR)/%.o: $(wildcard $(MODULES_DIR)/*/%.c)
 	$(BUILD_PRINT)

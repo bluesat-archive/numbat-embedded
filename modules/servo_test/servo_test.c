@@ -53,7 +53,7 @@ void task_pwm_test_fn(void) {
 
     UARTprintf("Entered Servo Test task. Initializing...\n");
 
-    servo_init(HS_785HB, PWM_0);
+    servo_init(HS_785HB, PWM0);
 
     while(true) {
         UARTprintf("Enter degrees > "); 
@@ -61,12 +61,9 @@ void task_pwm_test_fn(void) {
         UARTgets(dutyc, 8);
         float duty = atof(dutyc); 
 
-        servo_write(HS_785HB, PWM_0, duty);
+        servo_write(HS_785HB, PWM0, duty);
     }
 
-    UARTprintf("PWM initialisation complete...\n");
-    
-    while (1);                           
 }
 
 int main(void) {
