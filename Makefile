@@ -24,14 +24,14 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 # ***********
 # PWM LIBRARY
 # ***********
-$(BUILD_DIR)/pwm.o: $(LIBS_DIR)/pwm/pwm.c
+$(BUILD_DIR)/pwm.o: $(LIBS_DIR)/pwm/pwm.c 
 $(BUILD_DIR)/pwm_hw.o: $(LIBS_DIR)/pwm/pwm_hw.c
 
 # *************
 # SERVO LIBRARY
 # *************
 
-$(BUILD_DIR)/servo.o: $(LIBS_DIR)/servo/servo.c $(LIBS_DIR)/pwm/pwm.h $(LIBS_DIR)/pwm/pwm_hw.h
+$(BUILD_DIR)/servo.o: $(LIBS_DIR)/servo/servo.c
 
 
 # *************
@@ -98,6 +98,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/servo_test.o \
 	$(BUILD_DIR)/boilerplate.o \
         $(BUILD_DIR)/pwm.o \
+        $(BUILD_DIR)/pwm_hw.o \
         $(BUILD_DIR)/servo.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
