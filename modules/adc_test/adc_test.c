@@ -1,17 +1,20 @@
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 
-#include "adc/adc.h"
+#include "adc.h"
     
 #define NUM_PINS 8
 
 uint32_t out[NUM_PINS] = {0};
+bool capture = true;
 
 void adc_callback(void) {
     for (int i = 0; i < NUM_PINS; i++) {
         UARTprintf("%d ", out[i]);
     }
     UARTprintf("\n");
+
+    capture = true;
 }
 
 void task_adc_test_fn(void) {
@@ -21,7 +24,10 @@ void task_adc_test_fn(void) {
     adc_init_pins(pins, NUM_PINS);
 
     while(1) {
-        adc_capture_interrupt(out, adc_callback);
+        if (capture) {
+            capture = false;
+            adc_capture_interrupt(out, adc_callback);
+        }
     }
 }
 
