@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+    <modules>
+        <module name="machine-tm4c.build" />
+        <module name="armv7m.ctxt-switch-preempt" />
+        <module name="armv7m.exception-preempt">
+            <trampolines>
+                <trampoline>
+                    <name>systick</name>
+                    <handler>tick_irq</handler>
+                </trampoline>
+            </trampolines>
+        </module>
+        <module name="armv7m.vectable">
+            <flash_load_addr>0x0000000</flash_load_addr>
+            <nmi>nmi</nmi>
+            <hardfault>hardfault</hardfault>
+            <memmanage>memmanage</memmanage>
+            <usagefault>usagefault</usagefault>
+            <busfault>busfault</busfault>
+            <preemption>true</preemption>
+            <systick>exception_preempt_trampoline_systick</systick>
+        </module>
+        <module name="armv7m.semihost-debug" />
+        <module name="generic.debug" />
+
+        <module name="armv7m.rtos-kochab">
+            <api_asserts>true</api_asserts>
+            <internal_asserts>true</internal_asserts>
+            <fatal_error>fatal</fatal_error>
+            <prefix>rtos</prefix>
+            <taskid_size>8</taskid_size>
+            <signalset_size>8</signalset_size>
+            <svcall_priority>192</svcall_priority>
+            <pendsv_priority>224</pendsv_priority>
+            <tasks>
+                <task>
+                    <name>task_left_locomotion</name>
+                    <function>task_left_locomotion_fn</function>
+                    <priority>30</priority>
+                    <stack_size>512</stack_size>
+                </task>
+            </tasks>
+
+
+ 
+            </mutex>
+            <!-- ignore this, just makes the headers generate correctly -->
+            <interrupt_events>
+                <interrupt_event>
+                    <name>can_receive_event</name>
+                    <task>task_blink</task>
+                    <sig_set>blink_delay</sig_set>
+                </interrupt_event>
+            </interrupt_events>
+        </module>
+    </modules>
+</system>

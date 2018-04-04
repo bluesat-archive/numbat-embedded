@@ -1,5 +1,9 @@
 LIB_BUILD = libs/build
+<<<<<<< HEAD
 LIB_DIR = libs
+=======
+LIBS_DIR = libs
+>>>>>>> OWRS-343-pwmlib
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
@@ -35,6 +39,12 @@ $(BUILD_DIR)/crti.opp: $(MODULES_DIR)/boilerplate/crti.cpp
 # ****************
 # ROS LIB
 # ****************
+
+# ***********
+# PWM LIBRARY
+# ***********
+$(BUILD_DIR)/pwm.o: $(LIBS_DIR)/pwm/pwm.c
+$(BUILD_DIR)/pwm_hw.o: $(LIBS_DIR)/pwm/pwm_hw.c
 
 # *************
 # BLINKY MODULE
@@ -122,11 +132,28 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
+# ***************
+# PWM TEST MODULE
+# ***************
+
+MODULE_NAME=pwm_test
+include .construct_numbat_module
+
+$(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/pwm_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+        $(BUILD_DIR)/pwm.o \
+        $(BUILD_DIR)/pwm_hw.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
+
 # **********************
 # WHAT TO ACTUALLY BUILD
 # **********************
 
 TARGETS=\
+	$(BUILD_DIR)/pwm_test.elf \
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \

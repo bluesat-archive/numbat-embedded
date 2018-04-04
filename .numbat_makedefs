@@ -10,6 +10,7 @@ include .ti_makedefs
 IPATH=$(TI_LIBS)
 IPATH+=libs/SPSCQueue
 IPATH+=$(MODULES_DIR)/boilerplate
+IPATH+=$(LIBS_DIR)/pwm
 
 # See  http://wiki.osdev.org/Calling_Global_Constructors this is needed to make C++ work
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
