@@ -4,6 +4,16 @@
 
 
 int main(void) {
+  
+    // Create the subscribers
+    std_msgs::float64 front_left_drive_buffer_in[5];
+    Subscriber<std_msgs::float64> frontLeftDriveSub("topic name", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
+    std_msgs::float64 front_left_rotate_buffer_in[5];
+    Subscriber<std_msgs::float64> frontLeftRotateSub("topic name", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
+    std_msgs::float64 back_left_drive_buffer_in[5];
+    Subscriber<std_msgs::float64> backLeftDriveSub("topic name", back_left_drive_buffer_in, 5, backLeftDriveCallback);
+    std_msgs::float64 back_left_rotate_buffer_in[5];
+    Subscriber<std_msgs::float64> backLeftRotateSub("topic name", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
 
     // Initialize the floating-point unit.
     InitializeFPU();
