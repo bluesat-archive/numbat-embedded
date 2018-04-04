@@ -42,6 +42,7 @@ extern "C" void task_ros_sub_test_fn(void) {
 
     ros_echronos::ROS_INFO("sub init\n");
     ros_echronos::Subscriber<owr_messages::pwm> sub("aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
+    ros_echronos::Subscriber<std_msgs::Float64> sub("aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
     sub.init(nh);
     ros_echronos::ROS_INFO("starting the main loop\n");
     owr_messages::pwm msg;

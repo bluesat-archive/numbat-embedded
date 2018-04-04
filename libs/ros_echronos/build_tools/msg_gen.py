@@ -159,7 +159,7 @@ def write_generic_includes(s):
     """
     s.write('#include "ros.hpp"\n')
     s.write('#include "Message.hpp"\n')
-    s.write('#include "<new>"\n')
+    s.write('#include <new>\n')
     #s.write('#include "ros/serialization.h"\n')
     #s.write('#include "ros/builtin_message_traits.h"\n')
     #s.write('#include "ros/message_operations.h"\n')
@@ -225,10 +225,6 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     s.write('typedef %s %sPtr;\n'%(cpp_msg_base, msg))
     s.write('typedef %s const %sConstPtr;\n\n'%(cpp_msg_base, msg))
 
-    # due to compiler problems these need to be decleared externally
-    write_constructors(s, spec, cpp_name_prefix)
-    write_deconstructor(s, spec, cpp_name_prefix)
-    write_virtual_functions(s, spec, cpp_name_prefix)
 
 def default_value(type):
     """
@@ -416,7 +412,7 @@ def declare_virtual_functions(s, spec, cpp_name_prefix):
     msg = spec.short_name
 
     # Default functions
-    s.write('  virtual void generate_block();\n')
+    s.write('  virtual void generate_block_impl();\n')
     s.write('  virtual ros_echronos::Message_Descriptor * generate_descriptor();\n')
 
 def write_member(s, field):
@@ -533,7 +529,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     """
 
     msg = spec.short_name
-    s.write('  void %s%s_::generate_block() {\n' % (cpp_name_prefix, msg))
+    s.write('  void %s%s_::generate_block_impl() {\n' % (cpp_name_prefix, msg))
     output = ""
     sizes=[]
     for field in spec.parsed_fields():
@@ -557,7 +553,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     num_fields = len(spec.parsed_fields())
     s.write('  ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {\n' % (cpp_name_prefix, msg))
     s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));\n' % num_fields)
-    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>()\n' % (num_fields, num_fields))
+    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>();\n' % (num_fields, num_fields))
     i = 0
     for field in spec.parsed_fields():
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
@@ -724,6 +720,9 @@ def write_cpp_body(s, spec, cpp_prefix):
     # headers
     s.write('#include "%s/%s.hpp"\n' % (spec.package, spec.short_name))
 
+    # due to compiler problems these need to be decleared externally
+    write_constructors(s, spec, cpp_prefix)
+    write_deconstructor(s, spec, cpp_prefix)
     write_virtual_functions(s, spec, cpp_prefix)
     write_template_includes(s, spec, cpp_prefix)
 

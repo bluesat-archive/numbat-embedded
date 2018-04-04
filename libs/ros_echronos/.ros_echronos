@@ -28,6 +28,7 @@ $(ROS_BUILD_DIR)/%.opp: $(ROS_ARCH_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHRONOS
 
 $(ROS_BUILD_DIR)/ros.opp: $(ROS_ECHRONOS_DIR)/ros.cpp
 $(ROS_BUILD_DIR)/NodeHandle.opp: $(ROS_ECHRONOS_DIR)/NodeHandle.cpp
+$(ROS_BUILD_DIR)/Float64.opp: $(ROS_ECHRONOS_DIR)/Float64.cpp
 $(ROS_BUILD_DIR)/Subscriber.opp: $(ROS_ECHRONOS_DIR)/Subscriber.cpp
 $(ROS_BUILD_DIR)/Publisher.opp: $(ROS_ECHRONOS_DIR)/Publisher.cpp
 $(ROS_BUILD_DIR)/Message_Buffer.opp: $(ROS_ECHRONOS_DIR)/Message_Buffer.cpp
@@ -37,4 +38,4 @@ $(ROS_BUILD_DIR)/alloc.opp: $(ROS_ECHRONOS_DIR)/alloc.cpp
 $(ROS_BUILD_DIR)/can_impl.opp: $(ROS_ARCH_DIR)/can_impl.cpp
 $(ROS_BUILD_DIR)/Message_Descriptor.opp: $(ROS_ECHRONOS_DIR)/Message_Descriptor.cpp
 
-ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/alloc.opp $(ROS_BUILD_DIR)/can_impl.opp $(ROS_BUILD_DIR)/Message_Descriptor.opp $(ROS_BUILD_DIR)/Incoming_Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp
+ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/alloc.opp $(ROS_BUILD_DIR)/can_impl.opp $(ROS_BUILD_DIR)/Message_Descriptor.opp $(ROS_BUILD_DIR)/Incoming_Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/Float64.opp
