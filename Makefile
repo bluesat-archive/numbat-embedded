@@ -132,22 +132,22 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 # PWM TEST MODULE
 # ***************
 
-MODULE_NAME=pwm_test
-include .construct_numbat_module
+#MODULE_NAME=pwm_test
+#include .construct_numbat_module
 
-$(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs
-$(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/pwm_test.o \
-	$(BUILD_DIR)/boilerplate.o \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+#$(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs
+#$(BUILD_DIR)/$(MODULE_NAME).elf: \
+#	$(BUILD_DIR)/pwm_test.o \
+#	$(BUILD_DIR)/boilerplate.o \
+#        $(BUILD_DIR)/pwm.o \
+#        $(BUILD_DIR)/pwm_hw.o \
+#	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 	
 # **********************
 # LEFT LOCOMOTION MODULE
 # **********************
 
-MODULE_NAME=mod_left_locomotion
+MODULE_NAME=left_locomotion
 include .construct_numbat_module
 
 $(BUILD_DIR)/mod_left_locomotion.o: $(MODULE_DIR)/mod_left_locomotion.c $(MODULE_ECHRONOS) ti_libs
@@ -166,7 +166,6 @@ $(BUILD DIR)/$(MODULE_NAME).elf: \
 # **********************
 
 TARGETS=\
-	$(BUILD_DIR)/pwm_test.elf \
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
