@@ -1,9 +1,5 @@
 LIB_BUILD = libs/build
-<<<<<<< HEAD
-LIB_DIR = libs
-=======
 LIBS_DIR = libs
->>>>>>> OWRS-343-pwmlib
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
@@ -146,6 +142,20 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
         $(BUILD_DIR)/pwm.o \
         $(BUILD_DIR)/pwm_hw.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	
+# **********************
+# LEFT LOCOMOTION MODULE
+# **********************
+
+MODULE_NAME=mod_left_locomotion
+include .construct_numbat_module
+
+$(BUILD_DIR)/mod_left_locomotion.o: $(MODULE_DIR)/mod_left_locomotion.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/mod_left_locomotion.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(BUILD_DIR)/pwm.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 
 # **********************
@@ -159,7 +169,8 @@ TARGETS=\
 	$(BUILD_DIR)/can_test.elf \
 	$(BUILD_DIR)/echronos_test.elf \
 	$(BUILD_DIR)/ros_test.elf \
-	$(BUILD_DIR)/ros_sub_test.elf
+	$(BUILD_DIR)/ros_sub_test.elf \
+	$(BUILD_DIR)/mod_left_locomotion.elf \
 
 # NUMBAT MODULE SOURCES END HERE
 
