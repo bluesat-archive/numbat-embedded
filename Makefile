@@ -1,5 +1,5 @@
 LIB_BUILD = libs/build
-LIBS_DIR = libs
+LIB_DIR = libs
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
@@ -39,8 +39,8 @@ $(BUILD_DIR)/crti.opp: $(MODULES_DIR)/boilerplate/crti.cpp
 # ***********
 # PWM LIBRARY
 # ***********
-$(BUILD_DIR)/pwm.o: $(LIBS_DIR)/pwm/pwm.c
-$(BUILD_DIR)/pwm_hw.o: $(LIBS_DIR)/pwm/pwm_hw.c
+$(BUILD_DIR)/pwm.o: $(LIB_DIR)/pwm/pwm.c
+$(BUILD_DIR)/pwm_hw.o: $(LIB_DIR)/pwm/pwm_hw.c
 
 # *************
 # BLINKY MODULE
@@ -151,11 +151,14 @@ MODULE_NAME=mod_left_locomotion
 include .construct_numbat_module
 
 $(BUILD_DIR)/mod_left_locomotion.o: $(MODULE_DIR)/mod_left_locomotion.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/mod_left_locomotion.o \
+	$(BUILD_DIR)/can_wait_task.opp \
 	$(BUILD_DIR)/boilerplate.o \
 	$(BUILD_DIR)/pwm.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
 
 
 # **********************
