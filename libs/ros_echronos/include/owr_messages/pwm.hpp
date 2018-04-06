@@ -209,8 +209,8 @@ struct Printer< ::owr_messages::pwm_ >
 } // namespace ros
 */
 
-#include "/home/hjed/Projects/bluesat/numbat-embedded/libs/ros_echronos/Publisher.cpp"
-#include "/home/hjed/Projects/bluesat/numbat-embedded/libs/ros_echronos/Subscriber.cpp"
+#include "/home/wmpmiles/bluesat/numbat-embedded/libs/ros_echronos/Publisher.cpp"
+#include "/home/wmpmiles/bluesat/numbat-embedded/libs/ros_echronos/Subscriber.cpp"
 //#include "/media/spare/numbat-embedded/libs/ros_echronos/Publisher.cpp"
 template class ros_echronos::Publisher<owr_messages::pwm_>;
 template class ros_echronos::Subscriber<owr_messages::pwm_>;
