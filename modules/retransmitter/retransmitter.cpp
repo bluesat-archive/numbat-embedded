@@ -107,7 +107,13 @@ extern "C" void task_retransmitter_fn(void) {
 
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
 
+
     UARTprintf("publisher init\n");
+
+    for (int i = 0; i < NUM_MSG; i++) {
+        ros_echronos::Publisher<std_msgs::Float64> _pub(topics[i], (std_msgs::Float64*)msg_buf, BUF_SIZE, false);
+        publishers[i] = &_pub;
+    }
 
     for (size_t i = 0; i < NUM_MSG; i++) {
         publishers[i]->init(nh);
@@ -157,11 +163,6 @@ int main(void) {
 
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
-
-    for (int i = 0; i < NUM_MSG; i++) {
-        ros_echronos::Publisher<std_msgs::Float64> _pub(topics[i], (std_msgs::Float64*)msg_buf, BUF_SIZE, false);
-        publishers[i] = &_pub;
-    }
 
     init_can();
 
