@@ -188,21 +188,25 @@ void init_can(void) {
 void frontLeftDriveCallback(const std_msgs::Float64 & msg) {
   float duty = (msg.data/maxSpeed)*2;
   pwm_set_duty(frontLeftDrivePin,duty);
+  UARTprintf("Front left drive received.\n");
 }
   
 
 void frontLeftRotateCallback(const std_msgs::Float64 & msg) {
   float duty = ((msg.data+PI)/2*PI)*1.8 + 0.6;
   pwm_set_duty(frontLeftRotatePin,duty);
+  UARTprintf("Front left swerve received.\n");
 }
     
     
 void backLeftDriveCallback(const std_msgs::Float64 & msg) {
   float duty = (msg.data/maxSpeed)*2;
   pwm_set_duty(backLeftDrivePin,duty);
+  UARTprintf("Back left drive received.\n");
 }
     
 void backLeftRotateCallback(const std_msgs::Float64 & msg) {
   float duty = ((msg.data+PI)/2*PI)*1.8 + 0.6;
   pwm_set_duty(backLeftRotatePin,duty);
+  UARTprintf("Back left swerve received.\n");
 }
