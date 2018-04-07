@@ -42,7 +42,7 @@
             <tasks>
                 <task>
                     <name>task_mod_left_locomotion</name>
-                    <function>task_mod_left_locomotion_fn/function>
+                    <function>task_mod_left_locomotion_fn</function>
                     <priority>30</priority>
                     <stack_size>512</stack_size>
                 </task>
@@ -68,7 +68,7 @@
                     <name>can_delay_timer</name>
                     <enabled>true</enabled>
                     <reload>100</reload>
-                    <task>task_ros_sub_test</task>
+                    <task>task_mod_left_locomotion</task>
                     <sig_set>can_delay</sig_set>
                 </timer>
             </timers>

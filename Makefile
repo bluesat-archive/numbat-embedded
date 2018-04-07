@@ -150,7 +150,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=left_locomotion
 include .construct_numbat_module
 
-$(BUILD_DIR)/mod_left_locomotion.o: $(MODULE_DIR)/mod_left_locomotion.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs tlsf ros_echronos
 $(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/mod_left_locomotion.o \
