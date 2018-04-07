@@ -99,16 +99,9 @@ static void wait_for_msg() {
 }
 extern "C" void task_retransmitter_fn(void) {
 
-    UARTprintf("Entered retransmit task. Initializing...\n");
-
     ros_echronos::NodeHandle nh;
 
-    UARTprintf("Done init\n");
-
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
-
-
-    UARTprintf("publisher init\n");
 
     for (int i = 0; i < NUM_MSG; i++) {
         ros_echronos::Publisher<std_msgs::Float64> _pub(topics[i], (std_msgs::Float64*)msg_buf, BUF_SIZE, false);
@@ -122,8 +115,6 @@ extern "C" void task_retransmitter_fn(void) {
     std_msgs::Float64 msg;
     struct messageAdapter serial;
     while(true) {
-        UARTprintf("Attempting to read serial...\n");
-        
         wait_for_msg();
 
         for (size_t i = 0; i < sizeof(struct message); i++) {
@@ -134,16 +125,14 @@ extern "C" void task_retransmitter_fn(void) {
             continue;
         }
 
-        UARTprintf("Message received; retransmitting...");
-        
+        UARTwrite((const char*)startMagic, 4);
+
         for (size_t i = 0; i < NUM_MSG; i++) {
             msg.data = serial.data.msg.data[i];
             publishers[i]->publish(msg);
         }
 
         nh.spin();
-
-        UARTprintf("Messages published.");
     }
 }
 
