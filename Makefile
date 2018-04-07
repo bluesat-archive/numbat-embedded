@@ -150,10 +150,10 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=left_locomotion
 include .construct_numbat_module
 
-$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs tlsf ros_echronos
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
 $(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/mod_left_locomotion.o \
+	$(BUILD_DIR)/left_locomotion.opp \
 	$(BUILD_DIR)/can_wait_task.opp \
 	$(BUILD_DIR)/boilerplate.o \
 	$(BUILD_DIR)/pwm.o \
@@ -172,7 +172,7 @@ TARGETS=\
 	$(BUILD_DIR)/echronos_test.elf \
 	$(BUILD_DIR)/ros_test.elf \
 	$(BUILD_DIR)/ros_sub_test.elf \
-	$(BUILD_DIR)/mod_left_locomotion.elf \
+	$(BUILD_DIR)/left_locomotion.elf \
 
 # NUMBAT MODULE SOURCES END HERE
 

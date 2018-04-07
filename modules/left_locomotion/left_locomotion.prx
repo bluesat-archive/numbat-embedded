@@ -41,8 +41,8 @@
             <pendsv_priority>224</pendsv_priority>
             <tasks>
                 <task>
-                    <name>task_mod_left_locomotion</name>
-                    <function>task_mod_left_locomotion_fn</function>
+                    <name>task_left_locomotion</name>
+                    <function>task_left_locomotion_fn</function>
                     <priority>30</priority>
                     <stack_size>512</stack_size>
                 </task>
@@ -68,7 +68,7 @@
                     <name>can_delay_timer</name>
                     <enabled>true</enabled>
                     <reload>100</reload>
-                    <task>task_mod_left_locomotion</task>
+                    <task>task_left_locomotion</task>
                     <sig_set>can_delay</sig_set>
                 </timer>
             </timers>
