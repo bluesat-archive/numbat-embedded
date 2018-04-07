@@ -72,5 +72,5 @@ void InitializeUARTStdio(void) {
 }
 
 void uart0_int_handler(void) {
-    UARTStdioIntHandler();
+    //UARTStdioIntHandler();
 }

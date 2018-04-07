@@ -39,7 +39,7 @@ extern "C" void ros_can_int_handler(void) {
         sent_message = false;*/
     }
 
-    UARTprintf("A Error Code %x\n", can_status);
+    //UARTprintf("A Error Code %x\n", can_status);
 }
 
 

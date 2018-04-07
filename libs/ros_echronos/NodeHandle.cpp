@@ -57,7 +57,7 @@ void NodeHandle::spin() {
 
 uint8_t NodeHandle::get_node_id() {
     //TODO
-    return 1;
+    return 2;
 }
 
 void NodeHandle::run_handle_message_loop() {

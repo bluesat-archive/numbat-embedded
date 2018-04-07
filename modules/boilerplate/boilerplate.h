@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+//#define UART_BUFFERED
 #include "inc/hw_can.h"
 #include "inc/hw_ints.h"
 #include "inc/hw_nvic.h"

@@ -117,6 +117,7 @@ extern "C" void task_retransmitter_fn(void) {
     
     std_msgs::Float64 msg;
     struct messageAdapter serial;
+    int counter = 0;
     while(true) {
         wait_for_msg();
 
@@ -124,18 +125,21 @@ extern "C" void task_retransmitter_fn(void) {
             serial.data.structBytes[i] = (uint8_t)UARTgetc();
         }
 
-        if (serial.data.msg.endMagic != endMagic) {
+        /*if (serial.data.msg.endMagic != endMagic) {
             continue;
-        }
+        }*/
 
-        UARTwrite((const char*)startMagic, 4);
 
         for (size_t i = 0; i < NUM_MSG; i++) {
             msg.data = serial.data.msg.data[i];
             publishers[i]->publish(msg);
         }
-
+        UARTwrite((const char*)startMagic, 4);
+#ifdef UART_BUFFERED
+        UARTFlushTx(false);
+#endif
         nh.spin();
+        counter++;
     }
 }
 
