@@ -17,6 +17,7 @@
 #define backLeftRotatePin PWM3
 
 #define maxSpeed 3 // max speed in m/s
+#define PI 3.14159265359
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
@@ -30,7 +31,10 @@ static uint8_t can_input_buffer[CAN_MSG_LEN];
 
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
-void callback(const owr_messages::pwm & msg);
+void frontLeftDriveCallback(const std_msgs::Float64 & msg);
+void frontLeftRotateCallback(const std_msgs::Float64 & msg);
+void backLeftDriveCallback(const std_msgs::Float64 & msg);
+void backLeftRotateCallback(const std_msgs::Float64 & msg);
 
 extern "C" bool tick_irq(void) {
     rtos_timer_tick();
@@ -43,8 +47,6 @@ static uint32_t error_flag;
 
 
 extern "C" void task_left_locomotion_fn(void) {
-    owr_messages::pwm pwm_buffer[5];
-
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
     nh.init("left_locomotion_fn", "left_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
@@ -67,16 +69,15 @@ extern "C" void task_left_locomotion_fn(void) {
     backLeftRotateSub.init(nh);
     
     pwm_init(frontLeftDrivePin);
-    pwm_init(fronLeftRotatePin);
+    pwm_init(frontLeftRotatePin);
     pwm_init(backLeftDrivePin);
     pwm_init(backLeftRotatePin);
     pwm_set_prescaler(DIV64);
-    pwm_set_period(PWM_PAIR0,20)	
+    pwm_set_period(PWM_PAIR0,20);	
     pwm_set_period(PWM_PAIR1,20);
     
     
     ros_echronos::ROS_INFO("starting the main loop\n");
-    owr_messages::pwm msg;
     while(true) {
         nh.spin();
     }
