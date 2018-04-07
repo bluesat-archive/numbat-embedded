@@ -1,17 +1,15 @@
 // Module for left locomotion of the NUMBAT rover
 // Author: Elliott Smith
 // Date: 2/4/18
-#include <rtos-kochab.h>
 #include "boilerplate.h"
-#include "rtos-kochab.h"
 #include "ros.hpp"
 #include "owr_messages/pwm.hpp"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
 #include "NodeHandle.hpp"
 #include "pwm.h"
-#include "std_msgs::Float64.h"
-
+#include "std_msgs/Float64.h"
+aaaa
 #define frontLeftDrivePin PWM0
 #define frontLeftRotatePin PWM1
 #define backLeftDrivePin PWM2
