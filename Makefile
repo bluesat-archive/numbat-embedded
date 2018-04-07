@@ -91,9 +91,9 @@ $(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/left_locomotion.opp \
 	$(BUILD_DIR)/can_wait_task.opp \
-	$(BUILD_DIR)/boilerplate.o \
         $(BUILD_DIR)/pwm.o \
         $(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 

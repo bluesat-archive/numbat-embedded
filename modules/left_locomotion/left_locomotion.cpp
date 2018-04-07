@@ -186,23 +186,23 @@ void init_can(void) {
 
 
 void frontLeftDriveCallback(const std_msgs::Float64 & msg) {
-  float duty = (msg/maxSpeed)*2;
+  float duty = (msg.data/maxSpeed)*2;
   pwm_set_duty(frontLeftDrivePin,duty);
 }
   
 
 void frontLeftRotateCallback(const std_msgs::Float64 & msg) {
-  float duty = ((msg+PI)/2*PI)*1.8 + 0.6;
+  float duty = ((msg.data+PI)/2*PI)*1.8 + 0.6;
   pwm_set_duty(frontLeftRotatePin,duty);
 }
     
     
 void backLeftDriveCallback(const std_msgs::Float64 & msg) {
-  float duty = (msg/maxSpeed)*2;
+  float duty = (msg.data/maxSpeed)*2;
   pwm_set_duty(backLeftDrivePin,duty);
 }
     
 void backLeftRotateCallback(const std_msgs::Float64 & msg) {
-  float duty = ((msg+PI)/2*PI)*1.8 + 0.6;
+  float duty = ((msg.data+PI)/2*PI)*1.8 + 0.6;
   pwm_set_duty(backLeftRotatePin,duty);
 }

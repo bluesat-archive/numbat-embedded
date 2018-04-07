@@ -2,6 +2,10 @@
 #define PWMLIB_H
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // explicit types for input values
 typedef double period_ms;
 typedef double duty_pct;
@@ -88,5 +92,8 @@ extern enum pwm_status pwm_enable(enum pwm_pin pwm);
  * PWM_FAILURE */
 extern enum pwm_status pwm_disable(enum pwm_pin pwm);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

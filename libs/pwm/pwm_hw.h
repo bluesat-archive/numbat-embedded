@@ -17,7 +17,7 @@ struct pwm_prescale_struct {
     uint32_t flag;
     double value;
 };
-const struct pwm_prescale_struct pwm_prescale[NUM_DIV];
+extern const struct pwm_prescale_struct pwm_prescale[NUM_DIV];
 
 extern const uint32_t sysctl_module;
 extern const uint32_t pwm_module;
