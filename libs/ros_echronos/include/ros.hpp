@@ -191,7 +191,7 @@ namespace ros_echronos {
             rtos_mutex_lock(write_mutex);
         }
 
-        UARTvprintf(pcString, args);
+        //UARTvprintf(pcString, args);
 
         if(write_mutex_set) {
             rtos_mutex_unlock(write_mutex);

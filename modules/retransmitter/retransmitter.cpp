@@ -70,7 +70,6 @@ extern "C" void can0_int_handler(void) {
         // if we haven't just sent a message read.
         if(!sent_message) {
             CANMessageGet(CAN0_BASE, can_status, &rx_object, 0);
-            UARTprintf("Received: %c\n", can_input_buffer);
         }
         sent_message = false;
     }
@@ -80,9 +79,13 @@ extern "C" void can0_int_handler(void) {
 
 static void wait_for_msg() {
     while (true) {
-        while (UARTgetc() != startMagic[0]) {
-            ;
-        }
+        //while (UARTgetc() != startMagic[0]) {
+        //    ;
+        //}
+        volatile unsigned char inv;
+        do {
+            inv = UARTgetc();
+        } while(inv != startMagic[0]);
 
         bool retry = false;
         for (int i = 1; i <= 3; i++) {
@@ -158,7 +161,6 @@ int main(void) {
     alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
 
     // Actually start the RTOS
-    UARTprintf("Starting RTOS...\n");
     rtos_start();
 
     /* Should never reach here, but if we do, an infinite loop is

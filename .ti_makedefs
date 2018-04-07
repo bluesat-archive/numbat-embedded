@@ -20,6 +20,9 @@ CFLAGS=-mthumb             \
        -Wall               \
        -pedantic           \
        -DPART_${PART}      \
+       -DUART_BUFFERED     \
+       -DINT_UART0=21      \
+       -DINT_UART1=22      \
        -std=c99            \
        -c
 

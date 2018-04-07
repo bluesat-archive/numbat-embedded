@@ -26,7 +26,8 @@ struct messageAdapter {
     } data;
 };
 
-const uint8_t startMagic[4] = {0xFE, 0xED, 0xBE, 0xEF};
+//const unsigned char startMagic[4] = {0xFE, 0xED, 0xBE, 0xEF};
+const unsigned char startMagic[4] = {0xEF, 0xBE, 0xED, 0xFE};
 const uint32_t endMagic = 0xDEADBEEF;
 
 #endif

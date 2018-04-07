@@ -70,3 +70,7 @@ void InitializeUARTStdio(void) {
     // Initialize the UART for console I/O.
     UARTStdioConfig(0, 115200, 16000000);
 }
+
+void uart0_int_handler(void) {
+    UARTStdioIntHandler();
+}
