@@ -31,6 +31,9 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 $(BUILD_DIR)/crtn.opp: $(MODULES_DIR)/boilerplate/crtn.cpp
 $(BUILD_DIR)/crti.opp: $(MODULES_DIR)/boilerplate/crti.cpp
 
+$(BUILD_DIR)/pwm.o: $(LIB_DIR)/pwm/pwm.c
+$(BUILD_DIR)/pwm_hw.o: $(LIB_DIR)/pwm/pwm_hw.c
+
 
 # ****************
 # ROS LIB
@@ -77,6 +80,20 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/ros_sub_test.opp \
 	$(BUILD_DIR)/can_wait_task.opp \
 	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+MODULE_NAME=left_locomotion
+include .construct_numbat_module
+
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/left_locomotion.opp \
+	$(BUILD_DIR)/can_wait_task.opp \
+	$(BUILD_DIR)/boilerplate.o \
+        $(BUILD_DIR)/pwm.o \
+        $(BUILD_DIR)/pwm_hw.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
@@ -132,7 +149,8 @@ TARGETS=\
 	$(BUILD_DIR)/can_test.elf \
 	$(BUILD_DIR)/echronos_test.elf \
 	$(BUILD_DIR)/ros_test.elf \
-	$(BUILD_DIR)/ros_sub_test.elf
+	$(BUILD_DIR)/ros_sub_test.elf \
+        $(BUILD_DIR)/left_locomotion.elf
 
 # NUMBAT MODULE SOURCES END HERE
 
