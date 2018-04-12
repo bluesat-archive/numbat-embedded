@@ -88,15 +88,16 @@ static void wait_for_msg() {
         } while(inv != startMagic[0]);
 
         bool retry = false;
-        for (int i = 1; i <= 3; i++) {
-            if (UARTgetc() != startMagic[i]) {
+        for (int i = 1; i <= 2; i++) {
+            inv = UARTgetc();
+            if (inv != startMagic[i]) {
                 retry = true;
                 break;
             }
         }
 
-        if (retry) {
-            continue;
+        if (!retry) {
+            break;
         }
     }
 }

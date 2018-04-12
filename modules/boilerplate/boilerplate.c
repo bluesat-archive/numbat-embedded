@@ -69,8 +69,13 @@ void InitializeUARTStdio(void) {
 
     // Initialize the UART for console I/O.
     UARTStdioConfig(0, 115200, 16000000);
+#ifdef UART_BUFFERED
+    UARTEchoSet(false);
+#endif
 }
 
 void uart0_int_handler(void) {
-    //UARTStdioIntHandler();
+#ifdef UART_BUFFERED
+    UARTStdioIntHandler();
+#endif
 }

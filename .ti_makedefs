@@ -21,8 +21,8 @@ CFLAGS=-mthumb             \
        -pedantic           \
        -DPART_${PART}      \
        -std=c99            \
+       -DUART_BUFFERED     \
        -c
-#       -DUART_BUFFERED     \
 
 CPPFLAGS=-mthumb           \
        ${CPU}              \
