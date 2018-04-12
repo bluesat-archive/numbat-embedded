@@ -9,7 +9,6 @@
 
 #define BUF_SIZE 8
 
-std_msgs::Float64 msg_buf[BUF_SIZE];
 
 char *topics[NUM_MSG] = {
     "/front_left_wheel_axel_controller/command",
@@ -22,7 +21,6 @@ char *topics[NUM_MSG] = {
     "/back_right_wheel_swerve_controller/command"
 };
 
-ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -106,11 +104,34 @@ extern "C" void task_retransmitter_fn(void) {
     ros_echronos::NodeHandle nh;
 
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
+    ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
-    for (int i = 0; i < NUM_MSG; i++) {
-        ros_echronos::Publisher<std_msgs::Float64> _pub(topics[i], (std_msgs::Float64*)msg_buf, BUF_SIZE, false);
-        publishers[i] = &_pub;
-    }
+    // you would have to use the new operator to initialise these in a loop and we can't do that
+    std_msgs::Float64 msg_buf_front_left_a[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> front_left_a(topics[0], (std_msgs::Float64*)msg_buf_front_left_a, BUF_SIZE, false);
+    publishers[0] = &front_left_a;
+    std_msgs::Float64 msg_buf_front_right_a[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> front_right_a(topics[0], (std_msgs::Float64*)msg_buf_front_right_a, BUF_SIZE, false);
+    publishers[1] = &front_right_a;
+    std_msgs::Float64 msg_buf_back_left_a[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> back_left_a(topics[0], (std_msgs::Float64*)msg_buf_back_left_a, BUF_SIZE, false);
+    publishers[2] = &back_left_a;
+    std_msgs::Float64 msg_buf_back_right_a[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> back_right_a(topics[0], (std_msgs::Float64*)msg_buf_back_right_a, BUF_SIZE, false);
+    publishers[3] = &back_right_a;
+    std_msgs::Float64 msg_buf_front_left_s[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> front_left_s(topics[0], (std_msgs::Float64*)msg_buf_front_left_s, BUF_SIZE, false);
+    publishers[4] = &front_left_s;
+    std_msgs::Float64 msg_buf_front_right_s[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> front_right_s(topics[0], (std_msgs::Float64*)msg_buf_front_right_s, BUF_SIZE, false);
+    publishers[5] = &front_right_s;
+    std_msgs::Float64 msg_buf_back_left_s[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> back_left_s(topics[0], (std_msgs::Float64*)msg_buf_back_left_s, BUF_SIZE, false);
+    publishers[6] = &back_left_s;
+    std_msgs::Float64 msg_buf_back_right_s[BUF_SIZE];
+    ros_echronos::Publisher<std_msgs::Float64> back_right_s(topics[0], (std_msgs::Float64*)msg_buf_back_right_s, BUF_SIZE, false);
+    publishers[7] = &back_right_s;
+
 
     for (size_t i = 0; i < NUM_MSG; i++) {
         publishers[i]->init(nh);
