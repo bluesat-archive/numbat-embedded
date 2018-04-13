@@ -31,9 +31,18 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 $(BUILD_DIR)/crtn.opp: $(MODULES_DIR)/boilerplate/crtn.cpp
 $(BUILD_DIR)/crti.opp: $(MODULES_DIR)/boilerplate/crti.cpp
 
+# ***********
+# PWM LIBRARY
+# ***********
+
 $(BUILD_DIR)/pwm.o: $(LIB_DIR)/pwm/pwm.c
 $(BUILD_DIR)/pwm_hw.o: $(LIB_DIR)/pwm/pwm_hw.c
 
+# *************
+# SERVO LIBRARY
+# *************
+
+$(BUILD_DIR)/servo.o: $(LIBS_DIR)/servo/servo.c
 
 # ****************
 # ROS LIB
@@ -161,6 +170,22 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
+# ***************
+# 102017 SERVO TEST MODULE
+# ***************
+
+MODULE_NAME=servo_test
+include .construct_numbat_module
+
+$(BUILD_DIR)/servo_test.o: $(MODULE_DIR)/servo_test.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/servo_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+        $(BUILD_DIR)/pwm.o \
+        $(BUILD_DIR)/pwm_hw.o \
+        $(BUILD_DIR)/servo.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+
 # **********************
 # WHAT TO ACTUALLY BUILD
 # **********************
@@ -173,7 +198,8 @@ TARGETS=\
 	$(BUILD_DIR)/ros_test.elf \
 	$(BUILD_DIR)/ros_sub_test.elf \
         $(BUILD_DIR)/left_locomotion.elf \
-        $(BUILD_DIR)/right_locomotion.elf
+        $(BUILD_DIR)/right_locomotion.elf \
+	$(BUILD_DIR)/servo_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
 

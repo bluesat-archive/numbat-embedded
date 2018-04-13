@@ -10,6 +10,8 @@ include .ti_makedefs
 IPATH=$(TI_LIBS)
 IPATH+=libs/SPSCQueue
 IPATH+=$(MODULES_DIR)/boilerplate
+IPATH+=$(LIB_DIR)/pwm
+IPATH+=$(LIB_DIR)/servo
 IPATH+=libs/pwm
 IPATH+=libs # This probably shouldn't be here once the build system is sorted
 
