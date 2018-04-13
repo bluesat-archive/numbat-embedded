@@ -111,25 +111,25 @@ extern "C" void task_retransmitter_fn(void) {
     ros_echronos::Publisher<std_msgs::Float64> front_left_a(topics[0], (std_msgs::Float64*)msg_buf_front_left_a, BUF_SIZE, false);
     publishers[0] = &front_left_a;
     std_msgs::Float64 msg_buf_front_right_a[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> front_right_a(topics[0], (std_msgs::Float64*)msg_buf_front_right_a, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> front_right_a(topics[1], (std_msgs::Float64*)msg_buf_front_right_a, BUF_SIZE, false);
     publishers[1] = &front_right_a;
     std_msgs::Float64 msg_buf_back_left_a[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> back_left_a(topics[0], (std_msgs::Float64*)msg_buf_back_left_a, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> back_left_a(topics[2], (std_msgs::Float64*)msg_buf_back_left_a, BUF_SIZE, false);
     publishers[2] = &back_left_a;
     std_msgs::Float64 msg_buf_back_right_a[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> back_right_a(topics[0], (std_msgs::Float64*)msg_buf_back_right_a, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> back_right_a(topics[3], (std_msgs::Float64*)msg_buf_back_right_a, BUF_SIZE, false);
     publishers[3] = &back_right_a;
     std_msgs::Float64 msg_buf_front_left_s[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> front_left_s(topics[0], (std_msgs::Float64*)msg_buf_front_left_s, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> front_left_s(topics[3], (std_msgs::Float64*)msg_buf_front_left_s, BUF_SIZE, false);
     publishers[4] = &front_left_s;
     std_msgs::Float64 msg_buf_front_right_s[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> front_right_s(topics[0], (std_msgs::Float64*)msg_buf_front_right_s, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> front_right_s(topics[4], (std_msgs::Float64*)msg_buf_front_right_s, BUF_SIZE, false);
     publishers[5] = &front_right_s;
     std_msgs::Float64 msg_buf_back_left_s[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> back_left_s(topics[0], (std_msgs::Float64*)msg_buf_back_left_s, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> back_left_s(topics[5], (std_msgs::Float64*)msg_buf_back_left_s, BUF_SIZE, false);
     publishers[6] = &back_left_s;
     std_msgs::Float64 msg_buf_back_right_s[BUF_SIZE];
-    ros_echronos::Publisher<std_msgs::Float64> back_right_s(topics[0], (std_msgs::Float64*)msg_buf_back_right_s, BUF_SIZE, false);
+    ros_echronos::Publisher<std_msgs::Float64> back_right_s(topics[6], (std_msgs::Float64*)msg_buf_back_right_s, BUF_SIZE, false);
     publishers[7] = &back_right_s;
 
 
