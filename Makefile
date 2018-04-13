@@ -75,50 +75,14 @@ MODULE_NAME=ros_sub_test
 include .construct_numbat_module
 
 $(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
-$(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/ros_sub_test.opp \
-	$(BUILD_DIR)/can_wait_task.opp \
+	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 	
-# **********************
-# LEFT LOCOMOTION MODULE
-# **********************
-
-MODULE_NAME=left_locomotion
-include .construct_numbat_module
-
-$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
-$(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
-$(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/left_locomotion.opp \
-	$(BUILD_DIR)/can_wait_task.opp \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
-	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
-	$(BUILD_DIR)/tlsf.o
-	
-	
-# ***********************
-# RIGHT LOCOMOTION MODULE
-# ***********************
-	
-MODULE_NAME=right_locomotion
-include .construct_numbat_module
-
-$(BUILD_DIR)/right_locomotion.opp: $(MODULE_DIR)/right_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
-$(BUILD_DIR)/can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
-$(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/right_locomotion.opp \
-	$(BUILD_DIR)/can_wait_task.opp \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
-	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
-	$(BUILD_DIR)/tlsf.o
 
 # *****************
 # TIMER TEST MODULE
@@ -158,6 +122,43 @@ include .construct_numbat_module
 $(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS) ti_libs tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/echronos_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# **********************
+# LEFT LOCOMOTION MODULE
+# **********************
+
+MODULE_NAME=left_locomotion
+include .construct_numbat_module
+
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/left_locomotion.opp \
+	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
+        $(BUILD_DIR)/pwm.o \
+        $(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+	
+	
+# ***********************
+# RIGHT LOCOMOTION MODULE
+# ***********************
+	
+MODULE_NAME=right_locomotion
+include .construct_numbat_module
+
+$(BUILD_DIR)/right_locomotion.opp: $(MODULE_DIR)/right_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/right_locomotion.opp \
+	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
+        $(BUILD_DIR)/pwm.o \
+        $(BUILD_DIR)/pwm_hw.o \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o

@@ -11,6 +11,7 @@ IPATH=$(TI_LIBS)
 IPATH+=libs/SPSCQueue
 IPATH+=$(MODULES_DIR)/boilerplate
 IPATH+=libs/pwm
+IPATH+=libs # This probably shouldn't be here once the build system is sorted
 
 # See  http://wiki.osdev.org/Calling_Global_Constructors this is needed to make C++ work
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)

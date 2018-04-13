@@ -63,7 +63,7 @@ extern "C" void task_right_locomotion_fn(void) {
     ros_echronos::Subscriber<std_msgs::Float64> backRightDriveSub("back_right_wheel_axel_controller/command", back_right_drive_buffer_in, 5, backRightDriveCallback);
     std_msgs::Float64 back_right_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backRightRotateSub("back_right_swerve_controller/command", back_right_rotate_buffer_in, 5, backRightRotateCallback);
-    fronRightDriveSub.init(nh);
+    frontRightDriveSub.init(nh);
     frontRightRotateSub.init(nh);
     backRightDriveSub.init(nh);
     backRightRotateSub.init(nh);
