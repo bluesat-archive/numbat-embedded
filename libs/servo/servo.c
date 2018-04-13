@@ -13,7 +13,12 @@ void servo_init(enum servos servo, enum pwm_pin pin) {
     pwm_enable(pin);
 }
 
-// set servo to position in degrees from neutral
+/**
+ * @param servo: the servo to use
+ * @param pin the pin to use
+ * @param servo_deg the position in degrees
+ * set servo to position in degrees from neutral
+ */
 void servo_write(enum servos servo, enum pwm_pin pin, servo_deg position) {
     period_ms duty = neutral[servo] + (position / conversion[servo]);
     pwm_set_duty(pin, duty);

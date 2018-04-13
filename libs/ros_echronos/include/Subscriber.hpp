@@ -79,6 +79,8 @@ namespace ros_echronos {
             void unsubscribe();
             virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg);
             virtual void call_callback();
+            // TODO: remove this
+            void set_topic_id(int id);
 
         private:
             ros_echronos::can::can_sub_id sub_id;

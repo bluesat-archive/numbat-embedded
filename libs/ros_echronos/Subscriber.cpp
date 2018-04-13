@@ -16,9 +16,6 @@
 
 using namespace ros_echronos;
 
-static int new_topic_index = 0;
-const int array[4] = {1,5,3,7};
-
 
 template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
         : incoming_msgs(read_buffer), message_construction_buff_size(buffer_size/2), ready_msgs(incoming_msgs + message_construction_buff_size, buffer_size-message_construction_buff_size), callback(callback) {
@@ -28,12 +25,12 @@ template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buf
 template <class T> Subscriber<T>::~Subscriber() {
 
 }
+template <class T> void Subscriber<T>::set_topic_id(int id) {
+    topic_id = id;
+}
 
 template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
     can::can_ros_message msg;
-    // TODO: replace with allocation negotiation
-    topic_id = array[new_topic_index];
-    new_topic_index++;
 
     msg.head.fields.message_length = 0;
     msg.head.fields.message_num = 0;

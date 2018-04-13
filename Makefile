@@ -42,7 +42,8 @@ $(BUILD_DIR)/pwm_hw.o: $(LIB_DIR)/pwm/pwm_hw.c
 # SERVO LIBRARY
 # *************
 
-$(BUILD_DIR)/servo.o: $(LIBS_DIR)/servo/servo.c
+$(BUILD_DIR)/servo.o: $(LIB_DIR)/servo/servo.c
+servolib: $(BUILD_DIR)/servo.o
 
 # ****************
 # ROS LIB
@@ -141,16 +142,18 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=left_locomotion
 include .construct_numbat_module
 
-$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf servolib
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/left_locomotion.opp \
 	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
 	$(BUILD_DIR)/pwm.o \
 	$(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/servo.o \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
-	$(BUILD_DIR)/tlsf.o
+	$(BUILD_DIR)/tlsf.o \
+	$(BUILD_DIR)/servo.o
 
 # ***********************
 # RIGHT LOCOMOTION MODULE
@@ -167,6 +170,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/pwm.o \
 	$(BUILD_DIR)/pwm_hw.o \
 	$(BUILD_DIR)/boilerplate.o \
+	$(BUILD_DIR)/servo.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 

@@ -10,14 +10,14 @@
 #include "NodeHandle.hpp"
 #include "pwm.h"
 #include "std_msgs/Float64.hpp"
+#include "servo.h"
 
-#define frontLeftDrivePin PWM0
-#define frontLeftRotatePin PWM1
-#define backLeftDrivePin PWM2
-#define backLeftRotatePin PWM3
+#define FRONT_LEFT_DRIVE_PIN PWM0
+#define BACK_LEFT_DRIVE_PIN PWM1
+#define FRONT_LEFT_ROTATE_PIN PWM2
+#define BACK_LEFT_ROTATE_PIN PWM3
 
 #define maxSpeed 3 // max speed in m/s
-#define PI 3.14159265359
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
@@ -57,25 +57,30 @@ extern "C" void task_left_locomotion_fn(void) {
     // Create the subscribers
     std_msgs::Float64 front_left_drive_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("front_left_wheel_axel_controller/command", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
+    frontLeftDriveSub.set_topic_id(0);
     std_msgs::Float64 front_left_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("front_left_swerve_controller/command", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
+    frontLeftRotateSub.set_topic_id(4);
     std_msgs::Float64 back_left_drive_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("back_left_wheel_axel_controller/command", back_left_drive_buffer_in, 5, backLeftDriveCallback);
+    backLeftDriveSub.set_topic_id(2);
     std_msgs::Float64 back_left_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("back_left_swerve_controller/command", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
+    backLeftRotateSub.set_topic_id(6);
     frontLeftDriveSub.init(nh);
     frontLeftRotateSub.init(nh);
     backLeftDriveSub.init(nh);
     backLeftRotateSub.init(nh);
-    
-    pwm_init(frontLeftDrivePin);
-    pwm_init(frontLeftRotatePin);
-    pwm_init(backLeftDrivePin);
-    pwm_init(backLeftRotatePin);
-    pwm_set_prescaler(DIV64);
-    pwm_set_period(PWM_PAIR0,20);	
-    pwm_set_period(PWM_PAIR1,20);
-    
+
+    servo_init(HS_785HB, FRONT_LEFT_ROTATE_PIN);
+    servo_init(HS_785HB, BACK_LEFT_ROTATE_PIN);
+
+    pwm_init(FRONT_LEFT_DRIVE_PIN);
+    pwm_init(BACK_LEFT_DRIVE_PIN);
+    pwm_set_period(PWM_PAIR0, 10);
+    pwm_enable(FRONT_LEFT_DRIVE_PIN);
+    pwm_enable(BACK_LEFT_DRIVE_PIN);
+
     
     ros_echronos::ROS_INFO("starting the main loop\n");
     while(true) {
@@ -182,31 +187,26 @@ void init_can(void) {
 
 }
 
-
-
-
 void frontLeftDriveCallback(const std_msgs::Float64 & msg) {
-  float duty = (msg.data/maxSpeed)*2;
-  pwm_set_duty(frontLeftDrivePin,duty);
-  UARTprintf("Front left drive received.\n");
+    float duty = (msg.data/maxSpeed)*2;
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, duty);
+    UARTprintf("Front left drive received.\n");
 }
   
 
 void frontLeftRotateCallback(const std_msgs::Float64 & msg) {
-  float duty = ((msg.data+PI)/2*PI)*1.8 + 0.6;
-  pwm_set_duty(frontLeftRotatePin,duty);
-  UARTprintf("Front left swerve received.\n");
+    servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, msg.data);
+    UARTprintf("Front left swerve received. %lf\n", msg.data);
 }
     
     
 void backLeftDriveCallback(const std_msgs::Float64 & msg) {
-  float duty = (msg.data/maxSpeed)*2;
-  pwm_set_duty(backLeftDrivePin,duty);
-  UARTprintf("Back left drive received.\n");
+    float duty = (msg.data/maxSpeed)*2;
+    pwm_set_duty(BACK_LEFT_DRIVE_PIN,duty);
+    UARTprintf("Back left drive received. %lf\n", msg.data);
 }
     
 void backLeftRotateCallback(const std_msgs::Float64 & msg) {
-  float duty = ((msg.data+PI)/2*PI)*1.8 + 0.6;
-  pwm_set_duty(backLeftRotatePin,duty);
-  UARTprintf("Back left swerve received.\n");
+    servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, msg.data);
+    UARTprintf("Back left swerve received.\n");
 }
