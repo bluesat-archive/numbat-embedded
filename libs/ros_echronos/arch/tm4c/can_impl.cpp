@@ -35,7 +35,7 @@ void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
     //wait for the buffer to be empty before starting
     ROS_INFO("Waiting for CAN bus to have no pending sends\n");
     while(CANStatusGet(CAN_DEVICE_BASE, CAN_STS_TXREQUEST)) {
-        //rtos_sleep(1);
+        rtos_sleep(1);
     }
 
     tCANMsgObject can_tx_message;
