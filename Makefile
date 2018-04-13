@@ -146,8 +146,8 @@ $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/left_locomotion.opp \
 	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
@@ -164,8 +164,8 @@ $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/right_locomotion.opp \
 	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
@@ -174,17 +174,17 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 # 102017 SERVO TEST MODULE
 # ***************
 
-MODULE_NAME=servo_test
-include .construct_numbat_module
-
-$(BUILD_DIR)/servo_test.o: $(MODULE_DIR)/servo_test.c $(MODULE_ECHRONOS) ti_libs
-$(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/servo_test.o \
-	$(BUILD_DIR)/boilerplate.o \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
-        $(BUILD_DIR)/servo.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+#MODULE_NAME=servo_test
+#include .construct_numbat_module
+#
+#$(BUILD_DIR)/servo_test.o: $(MODULE_DIR)/servo_test.c $(MODULE_ECHRONOS) ti_libs
+#$(BUILD_DIR)/$(MODULE_NAME).elf: \
+#	$(BUILD_DIR)/servo_test.o \
+#	$(BUILD_DIR)/boilerplate.o \
+#        $(BUILD_DIR)/pwm.o \
+#        $(BUILD_DIR)/pwm_hw.o \
+#        $(BUILD_DIR)/servo.o \
+#	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
 
 # **********************
 # WHAT TO ACTUALLY BUILD
@@ -197,9 +197,9 @@ TARGETS=\
 	$(BUILD_DIR)/echronos_test.elf \
 	$(BUILD_DIR)/ros_test.elf \
 	$(BUILD_DIR)/ros_sub_test.elf \
-        $(BUILD_DIR)/left_locomotion.elf \
-        $(BUILD_DIR)/right_locomotion.elf \
-	$(BUILD_DIR)/servo_test.elf
+	$(BUILD_DIR)/left_locomotion.elf \
+	$(BUILD_DIR)/right_locomotion.elf
+#	$(BUILD_DIR)/servo_test.elf
 
 # NUMBAT MODULE SOURCES END HERE
 
