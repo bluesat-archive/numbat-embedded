@@ -82,7 +82,6 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
-	
 
 # *****************
 # TIMER TEST MODULE
@@ -143,12 +142,11 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
-	
-	
+
 # ***********************
 # RIGHT LOCOMOTION MODULE
 # ***********************
-	
+
 MODULE_NAME=right_locomotion
 include .construct_numbat_module
 
