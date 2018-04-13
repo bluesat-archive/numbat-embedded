@@ -93,8 +93,8 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
     }
     //ros_echronos::ROS_INFO("Decoding\n");
     desc->decode_msg(msg);
-    done = decode_index == size;
     decode_index++;
+    done = decode_index == size;
     //ros_echronos::ROS_INFO("Decoding Done %d/%d seq %d\n", decode_index, size, msg.head.fields.seq_num);
     if(done) {
         ros_echronos::ROS_INFO("Done! %d\n", is_done());

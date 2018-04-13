@@ -192,6 +192,7 @@ namespace ros_echronos {
         }
 
         UARTvprintf(pcString, args);
+        UARTprintf("\n\r");
 
         if(write_mutex_set) {
             rtos_mutex_unlock(write_mutex);

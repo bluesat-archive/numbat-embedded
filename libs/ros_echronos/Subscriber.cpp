@@ -38,7 +38,7 @@ template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handl
     msg.head.fields.message_length = 0;
     msg.head.fields.message_num = 0;
     msg.head.fields.mode = 1;
-    msg.head.fields.node_id = 0;
+    msg.head.fields.node_id = nh->get_node_id();
     msg.head.fields.priority = 0;
     msg.head.fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
     msg.head.fields.seq_num = 0;
@@ -53,7 +53,7 @@ template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handl
     }
     //ros_echronos::ROS_INFO("not null\n");
     nh->subscribers = this;
-    ros_echronos::ROS_INFO("done init\n");
+    ros_echronos::ROS_INFO("Sub %d done init. Got sub id %d\n", topic_id, sub_id);
 }
 
 template <class T> void Subscriber<T>::unsubscribe() {
@@ -67,7 +67,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     T * msg_ptr = NULL;
 
     // Step 1: Check if it is a new or existing message
-    //ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
+//    ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
     if (msg.head.fields.seq_num == 0) {
         msg_ptr = new (next_construction_msg()) T();
     } else {
@@ -104,6 +104,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     }
     if(msg_ptr) {
         msg_ptr->fill(msg);
+        ros_echronos::ROS_INFO("Fill done");
         if (msg_ptr->is_done()) {
             T * a = ready_msgs.put(msg_ptr);
             ros_echronos::ROS_INFO("Done %d\n", a->is_done());

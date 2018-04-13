@@ -93,13 +93,16 @@ void NodeHandle::run_handle_message_loop() {
                 continue;
             }*/
         msg = in_buff.pop_locked();
-            _Subscriber *current;
-            for (current = subscribers; current; current = (_Subscriber *) current->next) {
-                if (msg.head.fields.topic == current->topic_id) {
-                    current->receive_message(msg);
-                    break;
-                }
+        _Subscriber *current;
+        for (current = subscribers; current; current = (_Subscriber *) current->next) {
+            if (msg.head.fields.topic == current->topic_id) {
+                current->receive_message(msg);
+                ROS_INFO("Found a match!\n");
+                break;
+            } else {
+                //ROS_INFO("No match for topic %d w/ %d", msg.head.fields.topic, current->topic_id);
             }
+        }
 
 //        }
     }
