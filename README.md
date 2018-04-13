@@ -84,6 +84,8 @@ For information as to how to use this file, see the 'Configuration Reference' se
 
 # Adding new modules
 
+WARNING: Do not leave empty lines with tabs in the Makefile. They are counted as empty recipes and can lead to unexpected and hard to debug issues.
+
 Adding new numbat modules involves creating a new folder in the `modules` directory with at least one `.c` and `.prx` file, as well as modifying the top-level makefile.
 
 To add a new module to the Makefile, open it up and copy one of the existing modules. You will need to change the `MODULE_NAME`, as well as the compilation steps. For each source file in your module, you will want to:
