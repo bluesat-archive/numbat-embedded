@@ -17,7 +17,7 @@ enum messages {
 struct message {
     double data[NUM_MSG];
     uint32_t endMagic;
-};
+} __attribute__((packed)) ; 
 
 struct messageAdapter {
     union _data {

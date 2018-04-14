@@ -68,7 +68,8 @@ void InitializeUARTStdio(void) {
     UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
 
     // Initialize the UART for console I/O.
-    UARTStdioConfig(0, 115200, 16000000);
+    //UARTStdioConfig(0, 115200, 16000000);
+    UARTStdioConfig(0, 57600, 16000000);
 #ifdef UART_BUFFERED
     UARTEchoSet(false);
 #endif
