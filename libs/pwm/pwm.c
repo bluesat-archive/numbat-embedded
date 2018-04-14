@@ -111,7 +111,7 @@ enum pwm_status pwm_set_period(enum pwm_pin_pair pwm_pair, period_ms period) {
     uint32_t period_counts = (uint32_t)(period / 1000.0 * f_pwm);
 
     pwm_assert(period_counts < 65536); // period counter is 16-bits
-    
+
     PWMGenPeriodSet(pwm_module, pwm_pair_gen[pwm_pair], period_counts);
 
     return PWM_SUCCESS;
@@ -138,6 +138,8 @@ enum pwm_status pwm_set_duty(enum pwm_pin pwm, duty_pct duty) {
 
     uint32_t period_counts = PWMGenPeriodGet(pwm_module, pwm_gen[pwm]);
     uint32_t duty_period = (uint32_t)(period_counts * duty / 100.0);
+
+    tst_debugging("%s %d %s\n", "", duty_period, "");
 
     // 100% duty requires that the output be set to to 0% and inverted
     if (duty_period >= period_counts) {

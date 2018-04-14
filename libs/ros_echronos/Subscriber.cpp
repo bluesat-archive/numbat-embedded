@@ -101,10 +101,10 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     }
     if(msg_ptr) {
         msg_ptr->fill(msg);
-        ros_echronos::ROS_INFO("Fill done");
+        //ros_echronos::ROS_INFO("Fill done");
         if (msg_ptr->is_done()) {
             T * a = ready_msgs.put(msg_ptr);
-            ros_echronos::ROS_INFO("Done %d\n", a->is_done());
+            //ros_echronos::ROS_INFO("Done %d\n", a->is_done());
             clear_slot(msg_ptr);
         }
     }

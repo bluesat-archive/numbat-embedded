@@ -32,7 +32,7 @@ void servo_write(enum servos servo, enum pwm_pin pin, servo_deg position);
  * set servo to position in radians from neutral
  */
 inline void servo_write_rads(enum servos servo, enum pwm_pin pin, servo_rad position) {
-    servo_write(servo, pin, position* (PI/180));
+    servo_write(servo, pin, position * 180.0 / PI);
 }
 
 #ifdef __cplusplus
