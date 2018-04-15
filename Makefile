@@ -5,6 +5,7 @@ BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
 
 ROS_NODE_ID = 0
+ROS_INFO_SERIAL = 1
 
 include .compiler_makedefs
 include .utility_makedefs
@@ -57,6 +58,8 @@ servolib: $(BUILD_DIR)/servo.o
 
 MODULE_NAME=blinky
 include .construct_numbat_module
+blinky_ROS_NODE_ID = 0
+blinky_ROS_INFO_SERIAL = 1
 
 $(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
@@ -71,20 +74,25 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=retransmitter
 include .construct_numbat_module
+retransmitter_ROS_NODE_ID = 1
+retransmitter_ROS_INFO_SERIAL = 0
 
-$(BUILD_DIR)/retransmitter.opp: $(MODULE_DIR)/retransmitter.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/retransmitter.opp: $(MODULE_DIR)/retransmitter.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/retransmitter.opp \
 	$(BUILD_DIR)/boilerplate.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
+ROS_INFO_SERIAL = 1
 # *************
 # ROS_TEST MODULE
 # *************
 
 MODULE_NAME=ros_test
 include .construct_numbat_module
+ros_test_ROS_NODE_ID = 0
+ros_test_ROS_INFO_SERIAL = 1
 
 $(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
@@ -99,6 +107,8 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=ros_sub_test
 include .construct_numbat_module
+ros_sub_test_ROS_NODE_ID = 0
+ros_sub_test_ROS_INFO_SERIAL = 1
 
 $(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
@@ -115,8 +125,10 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=timer_test
 include .construct_numbat_module
+timer_test_ROS_NODE_ID = 0
+timer_test_ROS_INFO_SERIAL = 1
 
-$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS) ti_libs tlsf
+$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS) ti_libs tlsf $(MODULE_NAME)_ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/timer_test.o \
 	$(BUILD_DIR)/boilerplate.o \
@@ -129,8 +141,10 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=can_test
 include .construct_numbat_module
+can_test_ROS_NODE_ID = 0
+can_test_ROS_INFO_SERIAL = 1
 
-$(BUILD_DIR)/can_test.o: $(MODULE_DIR)/can_test.c $(MODULE_ECHRONOS) ti_libs tlsf
+$(BUILD_DIR)/can_test.o: $(MODULE_DIR)/can_test.c $(MODULE_ECHRONOS) ti_libs tlsf $(MODULE_NAME)_ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/can_test.o \
 	$(BUILD_DIR)/boilerplate.o \
@@ -143,8 +157,10 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=echronos_test
 include .construct_numbat_module
+echronos_test_ROS_NODE_ID = 0
+echronos_test_ROS_INFO_SERIAL = 1
 
-$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS) ti_libs tlsf
+$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS) ti_libs tlsf $(MODULE_NAME)_ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/echronos_test.o \
 	$(BUILD_DIR)/boilerplate.o \
@@ -159,6 +175,8 @@ ROS_NODE_ID = 2
 
 MODULE_NAME=left_locomotion
 include .construct_numbat_module
+left_locomotion_ROS_NODE_ID = 2
+left_locomotion_ROS_INFO_SERIAL = 1
 
 $(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf servolib
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
@@ -181,6 +199,8 @@ ROS_NODE_ID = 3
 
 MODULE_NAME=right_locomotion
 include .construct_numbat_module
+right_locomotion_ROS_NODE_ID = 3
+right_locomotion_ROS_INFO_SERIAL = 1
 
 $(BUILD_DIR)/right_locomotion.opp: $(MODULE_DIR)/right_locomotion.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
@@ -223,7 +243,7 @@ TARGETS=\
 	$(BUILD_DIR)/ros_sub_test.elf \
 	$(BUILD_DIR)/left_locomotion.elf \
 	$(BUILD_DIR)/right_locomotion.elf \
-        $(BUILD_DIR)/retransmitter.elf
+	$(BUILD_DIR)/retransmitter.elf
 
 # NUMBAT MODULE SOURCES END HERE
 

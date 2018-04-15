@@ -187,6 +187,7 @@ namespace ros_echronos {
     inline void ROS_INFO(const char *pcString, ...) {
         va_list args;
         va_start(args, pcString);
+#if ROS_INFO_SERIAL
         if(write_mutex_set) {
             rtos_mutex_lock(write_mutex);
         }
@@ -197,6 +198,7 @@ namespace ros_echronos {
         if(write_mutex_set) {
             rtos_mutex_unlock(write_mutex);
         }
+#endif
     }
 }
 //NOTE: this is too slow with this on

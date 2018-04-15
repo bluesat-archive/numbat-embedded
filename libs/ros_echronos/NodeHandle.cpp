@@ -104,6 +104,6 @@ void NodeHandle::run_handle_message_loop() {
                 //ROS_INFO("No match for topic %d w/ %d", msg.head.fields.topic, current->topic_id);
             }
 
-//        }
+        }
     }
 }

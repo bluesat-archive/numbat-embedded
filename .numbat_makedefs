@@ -63,7 +63,7 @@ $(BUILD_DIR)/%.elf:
 		 -DPART_${PART}		\
 		  $(MODULES_DIR)/boilerplate/crtn.cpp \
 		  ${^} 								    \
-		  $(ROS_BUILD_DIR)/*.opp \
+		  $(ECHRONOS_BUILD)/$(*F)-echronos/lib/ros_echronos/*.opp \
 		  $(LIB_BUILD)/libusb.a                 \
 		  $(LIB_BUILD)/libutil.a                \
 		  $(LIB_BUILD)/libdriver.a				\
