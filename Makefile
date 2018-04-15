@@ -66,6 +66,20 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/tlsf.o
 
 # *************
+# RETRANSMITTER MODULE
+# *************
+
+MODULE_NAME=retransmitter
+include .construct_numbat_module
+
+$(BUILD_DIR)/retransmitter.opp: $(MODULE_DIR)/retransmitter.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/retransmitter.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# *************
 # ROS_TEST MODULE
 # *************
 
@@ -208,8 +222,8 @@ TARGETS=\
 	$(BUILD_DIR)/ros_test.elf \
 	$(BUILD_DIR)/ros_sub_test.elf \
 	$(BUILD_DIR)/left_locomotion.elf \
-	$(BUILD_DIR)/right_locomotion.elf
-#	$(BUILD_DIR)/servo_test.elf
+	$(BUILD_DIR)/right_locomotion.elf \
+        $(BUILD_DIR)/retransmitter.elf
 
 # NUMBAT MODULE SOURCES END HERE
 

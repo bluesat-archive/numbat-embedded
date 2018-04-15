@@ -41,6 +41,8 @@ template <class T> Publisher<T>::~Publisher() {
     }
 }
 
+static uint8_t topic_counter = 0;
+
 template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handle) {
     nh = &node_handle;
     prev = NULL;
@@ -55,7 +57,7 @@ template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handl
     header.fields.not_in_range = 0;
 
     // TODO: topic registration
-    header.fields.topic = 1;
+    header.fields.topic = topic_counter++;
 }
 
 template <class T> void Publisher<T>::publish(T & message, uint8_t priority) {
