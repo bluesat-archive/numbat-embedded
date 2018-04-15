@@ -56,8 +56,9 @@ void NodeHandle::spin() {
 }
 
 uint8_t NodeHandle::get_node_id() {
-    //TODO
-    return 1;
+    //TODO implement properly
+    //NOTE: ROS_NODE_ID should be defined as a compile time -D flag
+    return ROS_NODE_ID;
 }
 
 void NodeHandle::run_handle_message_loop() {

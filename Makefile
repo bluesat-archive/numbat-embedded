@@ -4,6 +4,8 @@ MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
 
+ROS_NODE_ID = 0
+
 include .compiler_makedefs
 include .utility_makedefs
 include .echronos_makedefs
@@ -56,7 +58,7 @@ servolib: $(BUILD_DIR)/servo.o
 MODULE_NAME=blinky
 include .construct_numbat_module
 
-$(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/blinky.opp \
 	$(BUILD_DIR)/boilerplate.o \
@@ -70,7 +72,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=ros_test
 include .construct_numbat_module
 
-$(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/ros_test.opp \
 	$(BUILD_DIR)/boilerplate.o \
@@ -84,7 +86,7 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 MODULE_NAME=ros_sub_test
 include .construct_numbat_module
 
-$(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/ros_sub_test.opp \
@@ -139,10 +141,12 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 # LEFT LOCOMOTION MODULE
 # **********************
 
+ROS_NODE_ID = 2
+
 MODULE_NAME=left_locomotion
 include .construct_numbat_module
 
-$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf servolib
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf servolib
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/left_locomotion.opp \
@@ -159,10 +163,12 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 # RIGHT LOCOMOTION MODULE
 # ***********************
 
+ROS_NODE_ID = 3
+
 MODULE_NAME=right_locomotion
 include .construct_numbat_module
 
-$(BUILD_DIR)/right_locomotion.opp: $(MODULE_DIR)/right_locomotion.cpp $(MODULE_ECHRONOS) ti_libs ros_echronos tlsf
+$(BUILD_DIR)/right_locomotion.opp: $(MODULE_DIR)/right_locomotion.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/right_locomotion.opp \
