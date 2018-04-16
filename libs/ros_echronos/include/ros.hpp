@@ -194,6 +194,9 @@ namespace ros_echronos {
 
         UARTvprintf(pcString, args);
         UARTprintf("\n\r");
+#ifdef UART_BUFFERED
+        UARTFlushTx(false);
+#endif
 
         if(write_mutex_set) {
             rtos_mutex_unlock(write_mutex);
