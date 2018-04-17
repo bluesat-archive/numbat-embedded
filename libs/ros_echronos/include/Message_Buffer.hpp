@@ -57,6 +57,8 @@ class Message_Buffer {
          * @return the pointer to the item in the buffer specified by the index
          */
         T *operator[](int index);
+    private:
+        bool is_full = false;
 
 };
 
@@ -104,6 +106,8 @@ template <class T> T Message_Buffer<T>::pop() {
         if(buffer_head < buffer_start) {
             buffer_head = buffer_end-1;
         }
+        // faster then doing a check
+        is_full = false;
         //note as we assume isEmpty is false, we don't need to check the case where we decrement past the tail
         return msg;
 }
@@ -116,20 +120,31 @@ T * Message_Buffer<T>::put(T * msg) {
         if(buffer_tail < buffer_start) {
             buffer_tail = buffer_end-1;
         }
+        if(buffer_tail == buffer_head) {
+             is_full = true;
+        }
+        // if we're full we need to step back the tail one
+        if(is_full) {
+             is_full = false;
+             --buffer_head;
+        }
         //TODO: override first item if full
 
         return output;
 }
 
-template <class T> bool Message_Buffer<T>::is_empty() {
-        return buffer_head == buffer_tail;
+template <class T> inline bool Message_Buffer<T>::is_empty() {
+        return buffer_head == buffer_tail && !is_full;
 }
 
 template <class T> size_t Message_Buffer<T>::length() {
-        if(buffer_head > buffer_tail) {
-                return buffer_head - buffer_tail;
+        // the calc is wrong for this special case
+        if(is_full) {
+             return buffer_end - buffer_start;
+        } else if(buffer_head > buffer_tail) {
+            return buffer_head - buffer_tail;
         } else {
-                return (buffer_end - buffer_tail) + (buffer_head - buffer_start);
+            return (buffer_end - buffer_tail) + (buffer_head - buffer_start);
         }
 }
 
