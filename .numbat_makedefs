@@ -4,7 +4,7 @@
 # work. eChronos is compiled with its own set of cflags, as are the
 # TI libraries.
 
-PART=TM4C123GH6PM
+PART=TM4C123GH6PGE
 CFLAGSgcc=-DTARGET_IS_TM4C123_RB1
 include .ti_makedefs
 IPATH=$(TI_LIBS)
