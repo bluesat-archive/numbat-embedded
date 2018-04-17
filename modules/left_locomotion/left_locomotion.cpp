@@ -83,6 +83,8 @@ extern "C" void task_left_locomotion_fn(void) {
     pwm_init(FRONT_LEFT_DRIVE_PIN);
     pwm_init(BACK_LEFT_DRIVE_PIN);
     pwm_set_period(PWM_PAIR0, DRIVE_PWM_PERIOD);
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN,15);
+    pwm_set_duty(BACK_LEFT_DRIVE_PIN,15);
     pwm_enable(FRONT_LEFT_DRIVE_PIN);
     pwm_enable(BACK_LEFT_DRIVE_PIN);
 

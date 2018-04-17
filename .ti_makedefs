@@ -21,8 +21,8 @@ CFLAGS=-mthumb             \
        -pedantic           \
        -DPART_${PART}      \
        -std=c99            \
-       -DUART_BUFFERED     \
        -c
+#       -DUART_BUFFERED     \
 
 CPPFLAGS=-mthumb           \
        ${CPU}              \
@@ -41,7 +41,9 @@ CPPFLAGS=-mthumb           \
        -mtpcs-frame \
        -mtpcs-leaf-frame \
        -flto \
+       $($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
        -c
+#       -DUART_BUFFERED     \
 
 
 # The flags passed to the linker.

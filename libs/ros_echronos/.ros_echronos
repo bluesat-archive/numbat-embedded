@@ -17,7 +17,7 @@ $(ROS_BUILD_DIR)/%.opp: $(ROS_ECHRONOS_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHR
 		-I$(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g') \
 		-I$(<D) \
 		-DROS_NODE_ID=$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_NODE_ID) \
-		-DROS_INFO_SERIAL=$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
+		$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
 		-D${COMPILER} -o ${@} ${<}
 
 $(ROS_BUILD_DIR)/%.opp: $(ROS_ARCH_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHRONOS)
@@ -26,7 +26,7 @@ $(ROS_BUILD_DIR)/%.opp: $(ROS_ARCH_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHRONOS
 		-I$(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g') \
 		-I$(<D) \
 		-DROS_NODE_ID=$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_NODE_ID) \
-		-DROS_INFO_SERIAL=$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
+		$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
 		-D${COMPILER} -o ${@} ${<}
 
 
