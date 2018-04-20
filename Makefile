@@ -224,13 +224,13 @@ include .construct_numbat_module
 servo_test_ROS_NODE_ID = 3
 servo_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
 
-#$(BUILD_DIR)/servo_test.o: $(MODULE_DIR)/servo_test.c $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
-#$(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/servo_test.o \
+$(BUILD_DIR)/servo_test.opp: $(MODULE_DIR)/servo_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/servo_test.opp \
 	$(BUILD_DIR)/boilerplate.o \
-        $(BUILD_DIR)/pwm.o \
-        $(BUILD_DIR)/pwm_hw.o \
-        $(BUILD_DIR)/servo.o \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/servo.o \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
@@ -247,6 +247,7 @@ TARGETS=\
 	$(BUILD_DIR)/ros_sub_test.elf \
 	$(BUILD_DIR)/left_locomotion.elf \
 	$(BUILD_DIR)/right_locomotion.elf \
+	$(BUILD_DIR)/servo_test.elf \
 	$(BUILD_DIR)/retransmitter.elf
 
 # NUMBAT MODULE SOURCES END HERE

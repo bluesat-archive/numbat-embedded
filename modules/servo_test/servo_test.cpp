@@ -1,7 +1,11 @@
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 #include "servo.h"
-  
+
+extern "C" bool tick_irq(void) {
+    rtos_timer_tick();
+    return true;
+}
 
 double atof(char* num)
  {
@@ -49,7 +53,7 @@ double atof(char* num)
      return (integerPart + fractionPart/divisorForFraction);
  }
 
-void task_pwm_test_fn(void) {
+extern "C" void task_pwm_test_fn(void) {
 
     UARTprintf("Entered Servo Test task. Initializing...\n");
 
