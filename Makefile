@@ -234,6 +234,24 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
 	$(BUILD_DIR)/tlsf.o
 
+# ***************
+# 102017 SERVO TEST MODULE
+# ***************
+
+MODULE_NAME=pwm_test
+include .construct_numbat_module
+pwm_test_ROS_NODE_ID = 3
+pwm_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/pwm_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
 # **********************
 # WHAT TO ACTUALLY BUILD
 # **********************
@@ -248,6 +266,7 @@ TARGETS=\
 	$(BUILD_DIR)/left_locomotion.elf \
 	$(BUILD_DIR)/right_locomotion.elf \
 	$(BUILD_DIR)/servo_test.elf \
+	$(BUILD_DIR)/pwm_test.elf \
 	$(BUILD_DIR)/retransmitter.elf
 
 # NUMBAT MODULE SOURCES END HERE
