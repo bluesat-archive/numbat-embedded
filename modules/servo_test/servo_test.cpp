@@ -11,6 +11,8 @@ double atof(char* num)
  {
      if (!num || !*num)
          return 0; 
+
+     bool neg = false;
      double integerPart = 0;
      double fractionPart = 0;
      int divisorForFraction = 1;
@@ -31,6 +33,10 @@ double atof(char* num)
                  integerPart = integerPart*10 + (*num - '0');
              }
          }
+         else if (*num == '-')
+         {
+            neg = true;
+         }
          else if (*num == '.')
          {
              if (inFraction) {
@@ -50,7 +56,13 @@ double atof(char* num)
      }
 
      UARTprintf("%d %d %d\n", (int)(*(double*)(&integerPart)), (int)(*(double*)(&fractionPart)), (int)(*(double*)(&divisorForFraction)));
-     return (integerPart + fractionPart/divisorForFraction);
+
+     double ret = integerPart + fractionPart/divisorForFraction;
+
+     if (neg)
+        return -1.0 * ret;
+     else
+        return ret;
  }
 
 extern "C" void task_pwm_test_fn(void) {

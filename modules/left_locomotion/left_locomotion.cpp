@@ -20,7 +20,6 @@
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define DRIVE_PWM_PERIOD 10.0
-#define DRIVE_DUTY_MAX 20.0
 
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
 
@@ -83,8 +82,8 @@ extern "C" void task_left_locomotion_fn(void) {
     pwm_init(FRONT_LEFT_DRIVE_PIN);
     pwm_init(BACK_LEFT_DRIVE_PIN);
     pwm_set_period(PWM_PAIR0, DRIVE_PWM_PERIOD);
-    pwm_set_duty(FRONT_LEFT_DRIVE_PIN,15);
-    pwm_set_duty(BACK_LEFT_DRIVE_PIN,15);
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN,15.0);
+    pwm_set_duty(BACK_LEFT_DRIVE_PIN,15.0);
     pwm_enable(FRONT_LEFT_DRIVE_PIN);
     pwm_enable(BACK_LEFT_DRIVE_PIN);
 
@@ -195,11 +194,7 @@ void init_can(void) {
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = speed / DRIVE_PWM_PERIOD * 100.0;
-
-    if (duty > DRIVE_DUTY_MAX) {
-        duty = DRIVE_DUTY_MAX;
-    }
+    duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
 
     return duty;
 }
