@@ -220,6 +220,6 @@ void backRightDriveCallback(const std_msgs::Float64 & msg) {
 }
 
 void backRightRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, FRONT_RIGHT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+    servo_write_rads(HS_785HB, BACK_RIGHT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Back right swerve received.\n");
 }
