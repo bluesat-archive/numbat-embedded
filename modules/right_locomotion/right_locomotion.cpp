@@ -193,14 +193,11 @@ void init_can(void) {
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = speed / DRIVE_PWM_PERIOD;
-
-    if (duty > DRIVE_DUTY_MAX) {
-        duty = DRIVE_DUTY_MAX;
-    }
+    duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
 
     return duty;
 }
+
 
 static double wheel_to_servo_angle(double wheel_angle) {
     return wheel_angle * SERVO_ANGLE_CONVERSION_FACTOR;
