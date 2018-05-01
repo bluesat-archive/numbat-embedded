@@ -11,7 +11,6 @@
 #define NUMBAT_EMBEDDED_ROS_HPP
 
 #include <cstdarg>
-#include "SPSCQueue.h"
 #include "boilerplate.h"
 #include "alloc.hpp"
 

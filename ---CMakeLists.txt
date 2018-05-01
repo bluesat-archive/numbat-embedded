@@ -2,6 +2,12 @@
 cmake_minimum_required(VERSION 3.6)
 project(numbat_embedded)
 
+set(MODULES_DIR modules)
+set(BUILD_DIR echronos/build)
+
+add_library(tlsf libs/tlsf/tlsf.c libs/tlsf/tlsf.h)
+
+
 # PLATFORM (ARM)
 set(CMAKE_SYSTEM_NAME  Generic)
 set(COMPILER_PREFIX arm-none-eabi)
@@ -364,18 +370,18 @@ set(SOURCE_FILES
         Makefile
         README.md)
 include_directories(
-        ${TI_LIBS}
+        ${TI_LIBS}/inc
         modules/boilerplate
-        echronos/build/can_test-echronos
-        libs/ros_echronos/include
+        echronos/build/can_test-echronos 1libs/ros_echronos/include
         libs/tlsf
         libs/SPSCQueue
 )
 
 FILE(GLOB ros_files libs/ros_echronos/*.cpp libs/ros_echronos/include/*.hpp libs/ros_echronos/arch/tm4c/)
 add_library(ros_echronos ${ros_files} libs/ros_echronos/Message_Descriptor.cpp libs/ros_echronos/include/Message_Descriptor.hpp)
+FILE(GLOB ti_files libs/ti/*/*.c)
 
-add_library(tlsf libs/tlsf/tlsf.c libs/tlsf/tlsf.h)
+add_library(ti ${ti_files})
 add_library(boilerplate modules/boilerplate/boilerplate.c libs/ros_echronos/NodeHandle.cpp libs/ros_echronos/include/NodeHandle.hpp libs/ros_echronos/Publisher.cpp libs/ros_echronos/Subscriber.cpp libs/ros_echronos/Message_Buffer.cpp libs/ros_echronos/ListNode.cpp libs/ros_echronos/include/ListNode.hpp libs/ros_echronos/Message.cpp libs/ros_echronos/include/Message.hpp libs/ros_echronos/include/alloc.hpp libs/ros_echronos/alloc.cpp libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp modules/boilerplate/crtn.cpp modules/boilerplate/crti.cpp libs/ros_echronos/Incoming_Message_Buffer.cpp)
 add_custom_target(can_test-echronos can_test/can_test.prx)
 add_executable(can_test.elf modules/can_test/can_test.c libs/ros_echronos/arch/tm4c/can_impl.cpp libs/ros_echronos/include/can_impl.hpp)

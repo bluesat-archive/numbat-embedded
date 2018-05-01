@@ -1,6 +1,5 @@
 #include <rtos-kochab.h>
 #include "boilerplate.h"
-#include "rtos-kochab.h"
 #include "ros.hpp"
 #include "owr_messages/pwm.hpp"
 #include "Subscriber.hpp"

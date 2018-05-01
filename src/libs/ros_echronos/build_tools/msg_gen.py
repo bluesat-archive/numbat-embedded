@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Modified version of ros's message generation tool to be used for generating messages compatible with our
-echronos system.
+bin system.
 
 The code is dual licensed under the BSD License and AGPLv3 license.
 Copyright of code written after 13/05/2017 is BLUEsat UNSW, 2017.
