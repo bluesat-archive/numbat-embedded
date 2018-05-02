@@ -19,6 +19,8 @@ set(CMAKE_C_FLAGS
 )
 # -std=c99?
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS
         "-mthumb \
         ${CPU} \
@@ -37,6 +39,7 @@ set(CMAKE_CXX_FLAGS
         -mtpcs-frame \
         -mtpcs-leaf-frame \
         -flto \
+        --std=c++11 \
         -Dgcc"
 )
 # -std=c++11
@@ -68,4 +71,10 @@ set(CMAKE_EXE_LINKER_FLAGS
 )
 #        "--gc-sections")
 
-set(LIBGCC ``)
+set_property(GLOBAL PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
+separate_arguments(SPLIT_C_FLAGS UNIX_COMMAND ${CMAKE_C_FLAGS})
+execute_process(COMMAND ${CMAKE_C_COMPILER} ${SPLIT_C_FLAGS} -print-libgcc-file-name OUTPUT_VARIABLE LIBGCC)
+string(STRIP ${LIBGCC} LIBGCC)
+execute_process(COMMAND ${CMAKE_C_COMPILER} ${SPLIT_C_FLAGS} -print-file-name=libc_nano.a OUTPUT_VARIABLE LIBC)
+string(STRIP ${LIBC} LIBC)
+message(STATUS "FLAGS ${CMAKE_C_FLAGS}")

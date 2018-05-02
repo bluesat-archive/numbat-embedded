@@ -1,6 +1,7 @@
 #cmake_minimum_required(VERSION 3.6)
 #project(ros_echronos)
 
+set(CMAKE_VERBOSE_MAKEFILE 1)
 
 #add_definitions(-DPART=TM4C123GH6PM)
 #add_definitions(-DTARGET_IS_TM4C123_RB1)
@@ -21,7 +22,7 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
             OUTPUT ${ROS_BUILD_DIR}
             COMMAND mkdir -p ${ROS_BUILD_DIR}
     )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dgcc -DROS_NODE_ID=${node_id} -DROS_INFO_SERIAL=${serial_on}")
+#    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Dgcc -DROS_NODE_ID=${node_id} -DROS_INFO_SERIAL=${serial_on}")
     message(STATUS "ROS FILES ${ros_files}")
     add_library(ros_echronos_${module_name} STATIC ${ros_files})
     target_include_directories(
@@ -31,6 +32,7 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
             ${echronos_build_dir}
             ${CMAKE_INCLUDE_PATH}
     )
+    set_target_properties(ros_echronos_${module_name} PROPERTIES COMPILE_FLAGS "-DROS_NODE_ID=${node_id} -DROS_INFO_SERIAL=${serial_on}")
     add_dependencies(ros_echronos_${module_name} ${echronos_target})
 #    add_dependencies(ros_echronos_${module_name} ${ROS_BUILD_DIR})
 endfunction()

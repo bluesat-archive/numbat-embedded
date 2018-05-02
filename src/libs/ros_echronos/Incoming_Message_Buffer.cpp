@@ -37,3 +37,4 @@ void _Incoming_Message_Buffer::put_locked(ros_echronos::can::can_ros_message &ms
     // interupted by any tasks that may edit the buffer
     put(&msg);
 }
+template class Message_Buffer<ros_echronos::can::can_ros_message>;

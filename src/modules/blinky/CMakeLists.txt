@@ -2,12 +2,12 @@ project(blinky)
 cmake_minimum_required(VERSION 3.6)
 
 find_package(catkin REQUIRED
-        COMPONENTS ti)
+        COMPONENTS ti tlsf)
 
 catkin_package(
         INCLUDE_DIRS ./
         LIBRARIES blinky
-        CATKIN_DEPENDS ti
+        CATKIN_DEPENDS ti tlsf
 )
 
 include_directories(

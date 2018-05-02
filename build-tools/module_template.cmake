@@ -5,9 +5,9 @@ include(${BUILD_TOOLS_DIR}/echronos.cmake)
 set(BOILERPLATE_DIR ../boilerplate)
 
 set(MODULE_DEP_FILES
-        ${BOILERPLATE_DIR}/boilerplate.c
-        ${BOILERPLATE_DIR}/crti.cpp
-        ${BOILERPLATE_DIR}/crtn.cpp
+    ${BOILERPLATE_DIR}/boilerplate.c
+    ${BOILERPLATE_DIR}/crti.cpp
+    ${BOILERPLATE_DIR}/crtn.cpp
 )
 
 
@@ -18,6 +18,9 @@ function(add_module module_name files)
     construct_numbat_module(./ ${module_name})
     add_executable(${module_name} ${files} ${MODULE_DEP_FILES})
     target_link_libraries(${module_name} driverlib utils ros_echronos_${module_name} tlsf ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-echronos.a)
+    target_link_libraries(${module_name} ${LIBGCC})
+    target_link_libraries(${module_name} ${LIBC})
+#    target_link_libraries(${module_name} m)
     add_custom_target(
             ${module_name}.elf ALL
             DEPENDS ${module_name}
