@@ -6,18 +6,20 @@ set(BOILERPLATE_DIR ../boilerplate)
 
 set(MODULE_DEP_FILES
     ${BOILERPLATE_DIR}/boilerplate.c
-    ${BOILERPLATE_DIR}/crti.cpp
-    ${BOILERPLATE_DIR}/crtn.cpp
 )
+# NOTE: we don't include crtn or crti in the above because order is important
 
 
 function(add_module module_name files)
     include_directories(
             ../boilerplate
+            ${ROS_ECHRONOS_DIR}/include
     )
     construct_numbat_module(./ ${module_name})
-    add_executable(${module_name} ${files} ${MODULE_DEP_FILES})
-    target_link_libraries(${module_name} driverlib utils ros_echronos_${module_name} tlsf ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-echronos.a)
+    add_executable(${module_name} ${BOILERPLATE_DIR}/crtn.cpp ${files} ${MODULE_DEP_FILES} ${BOILERPLATE_DIR}/crti.cpp ${ros_files})
+    set_target_properties(${module_name} PROPERTIES COMPILE_FLAGS "-DROS_NODE_ID=1 -DROS_INFO_SERIAL=${serial_on}")
+#    target_link_libraries(${module_name} driverlib utils ros_echronos_${module_name} tlsf ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-echronos.a)
+    target_link_libraries(${module_name} driverlib utils tlsf ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-echronos.a)
     target_link_libraries(${module_name} ${LIBGCC})
     target_link_libraries(${module_name} ${LIBC})
 #    target_link_libraries(${module_name} m)

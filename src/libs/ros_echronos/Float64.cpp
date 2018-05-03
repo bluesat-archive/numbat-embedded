@@ -21,9 +21,9 @@ ros_echronos::Message_Descriptor * std_msgs::Float64_::generate_descriptor() {
     descriptor->fixed_field_sizes[0] = sizeof(data);
     return descriptor;
 }
-#include "Publisher.cpp"
-#include "Subscriber.cpp"
-template class ros_echronos::Publisher<std_msgs::Float64>;
+#include "templates/Publisher.cpp"
+#include "templates/Subscriber.cpp"
 template class ros_echronos::Subscriber<std_msgs::Float64>;
+template class ros_echronos::Publisher<std_msgs::Float64>;
 template class ros_echronos::Message_Descriptor_Fixed<1>;
 template class Message_Buffer<std_msgs::Float64>;

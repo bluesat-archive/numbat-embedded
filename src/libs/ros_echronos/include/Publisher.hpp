@@ -3,7 +3,7 @@
  * @author: (original author) Harry J.E Day <harry@dayfamilyweb.com>
  * @authors: (Editors)
  * @details: Implements a class for managing publishing ros messages
- * @copydetails: This code is released under the AGPLv3 License.
+ * @copydetails: This code is released under the AGPLv3 License and the BSB License
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
@@ -32,6 +32,7 @@ namespace ros_echronos {
              * @return the next can message
              */
             virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool & has_next, bool &empty) = 0;
+
 
         protected:
             /**
@@ -80,7 +81,7 @@ namespace ros_echronos {
              */
             void publish(T & message, uint8_t priority = 0);
 
-            virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool &has_next, bool &empty)  __attribute__((used));
+            virtual ros_echronos::can::CAN_ROS_Message get_next_message(bool &has_next, bool &empty);
 
 
 

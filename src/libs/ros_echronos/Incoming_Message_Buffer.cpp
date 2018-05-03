@@ -10,7 +10,7 @@
 #include "include/can_impl.hpp"
 
 //because templates
-#include "Message_Buffer.cpp"
+#include "templates/Message_Buffer.cpp"
 
 ros_echronos::can::input_buffer_t ros_echronos::can::input_buffer;
 _Incoming_Message_Buffer * ros_echronos::can::incoming_msg_buffer;
