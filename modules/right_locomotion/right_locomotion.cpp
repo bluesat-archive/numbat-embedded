@@ -62,16 +62,16 @@ extern "C" void task_right_locomotion_fn(void) {
     // Create the subscribers
     std_msgs::Float64 front_right_drive_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> frontRightDriveSub("front_right_wheel_axel_controller/command", front_right_drive_buffer_in, 5, frontRightDriveCallback);
-    frontRightDriveSub.set_topic_id(0);
+    frontRightDriveSub.set_topic_id(1);
     std_msgs::Float64 front_right_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> frontRightRotateSub("front_right_swerve_controller/command", front_right_rotate_buffer_in, 5, frontRightRotateCallback);
-    frontRightRotateSub.set_topic_id(4);
+    frontRightRotateSub.set_topic_id(5);
     std_msgs::Float64 back_right_drive_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backRightDriveSub("back_right_wheel_axel_controller/command", back_right_drive_buffer_in, 5, backRightDriveCallback);
-    backRightDriveSub.set_topic_id(2);
+    backRightDriveSub.set_topic_id(3);
     std_msgs::Float64 back_right_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backRightRotateSub("back_right_swerve_controller/command", back_right_rotate_buffer_in, 5, backRightRotateCallback);
-    backRightRotateSub.set_topic_id(6);
+    backRightRotateSub.set_topic_id(7);
     frontRightDriveSub.init(nh);
     frontRightRotateSub.init(nh);
     backRightDriveSub.init(nh);
