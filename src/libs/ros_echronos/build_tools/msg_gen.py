@@ -702,8 +702,8 @@ def write_template_includes(s, spec, cpp_prefix):
     @param spec: the message spec
     @param cpp_prefix: the package cpp prefix
     """
-    s.write('#include "ros_echronos/Publisher.cpp"\n')
-    s.write('#include "ros_echronos/Subscriber.cpp"\n')
+    s.write('#include "templates/Publisher.cpp"\n')
+    s.write('#include "templates/Subscriber.cpp"\n')
 
     s.write('template class ros_echronos::Publisher<%s%s>;\n' % (cpp_prefix, spec.short_name))
     s.write('template class ros_echronos::Subscriber<%s%s>;\n' % (cpp_prefix, spec.short_name))

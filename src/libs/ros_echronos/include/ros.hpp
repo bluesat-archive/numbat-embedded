@@ -186,8 +186,8 @@ namespace ros_echronos {
     inline void ROS_INFO(const char *pcString, ...) {
         va_list args;
         va_start(args, pcString);
-#define ROS_INFO_SERIAL
-#ifdef ROS_INFO_SERIAL
+//#define ROS_INFO_SERIAL
+#if ROS_INFO_SERIAL==1
         if(write_mutex_set) {
             rtos_mutex_lock(write_mutex);
         }

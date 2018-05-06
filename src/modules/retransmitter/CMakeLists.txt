@@ -20,6 +20,6 @@ set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
 set(CPP_FILES retransmitter.cpp)
-add_module(retransmitter "${CPP_FILES}")
+add_module(retransmitter 1 0 0 "${CPP_FILES}")
 
 

@@ -37,6 +37,6 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
     )
     set_target_properties(${module_name} PROPERTIES COMPILE_FLAGS "-DROS_NODE_ID=${node_id} -DROS_INFO_SERIAL=${serial_on}")
     add_dependencies(${module_name} ${echronos_target})
-    target_link_libraries(${module_name} driverlib utils tlsf)
+    target_link_libraries(${module_name} driverlib tlsf)
 #    add_dependencies(ros_echronos_${module_name} ${ROS_BUILD_DIR})
 endfunction()

@@ -10,15 +10,22 @@ set(MODULE_DEP_FILES
 # NOTE: we don't include crtn or crti in the above because order is important
 
 
-function(add_module module_name files)
+function(add_module module_name node_id serial serial_buffered files)
     include_directories(
             ../boilerplate
             ${ROS_ECHRONOS_DIR}/include
     )
     construct_numbat_module(./ ${module_name})
     add_executable(${module_name} ${BOILERPLATE_DIR}/crtn.cpp ${files} ${MODULE_DEP_FILES} ${BOILERPLATE_DIR}/crti.cpp)
-    set_target_properties(${module_name} PROPERTIES COMPILE_FLAGS "-DROS_NODE_ID=1 -DROS_INFO_SERIAL=${serial_on}")
-    build_ros_echronos(./ ${module_name} ${module_name}-echronos.a 0 1)
+    build_ros_echronos(./ ${module_name} ${module_name}-echronos.a ${node_id} ${serial})
+    if(${serial_buffered})
+        message(STATUS "serial buffered")
+        set_target_properties(${module_name} PROPERTIES COMPILE_FLAGS "-DUART_BUFFERED")
+        target_link_libraries(${module_name} utils_buffered)
+    else()
+        message(STATUS "serial unbuffered")
+        target_link_libraries(${module_name} utils)
+    endif()
 #    target_link_libraries(${module_name} driverlib utils ros_echronos_${module_name} tlsf ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-echronos.a)
     target_link_libraries(${module_name} ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-echronos.a)
     target_link_libraries(${module_name} ${LIBGCC})

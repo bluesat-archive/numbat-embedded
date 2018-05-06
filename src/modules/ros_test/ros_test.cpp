@@ -4,6 +4,7 @@
 #include "ros.hpp"
 #include "owr_messages/pwm.hpp"
 #include "Publisher.hpp"
+#include "NodeHandle.hpp"
 
 owr_messages::pwm pwm_buffer[5];
 ros_echronos::Publisher<owr_messages::pwm> * pub;
@@ -80,7 +81,7 @@ extern "C" void task_ros_test_fn(void) {
         msg.targetVel = 2;
         msg.pwm = 100;
         msg.targetPos+=2;
-        String j(15);
+        ros_echronos::String j(15);
         msg.joint = j;
         memcpy(msg.joint.values, "Hello CAN!", 11);
         UARTprintf("pub pub\n");

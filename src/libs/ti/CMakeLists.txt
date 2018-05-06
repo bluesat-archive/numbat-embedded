@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.6)
 find_package(catkin REQUIRED)
 catkin_package(
         INCLUDE_DIRS ./
-        LIBRARIES driverlib sensorlib utils
+        LIBRARIES driverlib sensorlib utils utils_buffered
 )
 
 set(BUILD_TOOLS_DIR ../../../build-tools)
@@ -33,5 +33,12 @@ target_include_directories(utils PUBLIC
         ./
 )
 
+# buffered version of the utils file
+add_library(utils_buffered STATIC ${utils_files})
+target_include_directories(utils_buffered PUBLIC
+        ${CMAKE_INCLUDE_PATH}
+        ./
+)
+set_target_properties(utils_buffered PROPERTIES COMPILE_FLAGS "-DUART_BUFFERED")
 
 # TODO: usblib

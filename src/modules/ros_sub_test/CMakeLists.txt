@@ -1,13 +1,13 @@
-project(blinky)
+project(ros_sub_test)
 cmake_minimum_required(VERSION 3.6)
 
 find_package(catkin REQUIRED
-        COMPONENTS ti tlsf)
+        COMPONENTS ti pwm servo tlsf)
 
 catkin_package(
         INCLUDE_DIRS ./
-        LIBRARIES blinky
-        CATKIN_DEPENDS ti tlsf
+        LIBRARIES ros_sub_test
+        CATKIN_DEPENDS ti pwm servo tlsf
 )
 
 include_directories(
@@ -19,6 +19,8 @@ include_directories(
 set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
-add_module(blinky 0 1 0 blinky.cpp)
+set(CPP_FILES ros_sub_test.cpp can_wait_task.cpp)
+add_module(ros_sub_test 4 1 0 "${CPP_FILES}")
+target_link_libraries(ros_sub_test pwm servo m)
 
 
