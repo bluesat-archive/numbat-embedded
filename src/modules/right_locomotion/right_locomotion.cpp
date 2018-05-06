@@ -62,16 +62,16 @@ extern "C" void task_right_locomotion_fn(void) {
     // Create the subscribers
     std_msgs::Float64 front_right_drive_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> frontRightDriveSub("front_right_wheel_axel_controller/command", front_right_drive_buffer_in, 5, frontRightDriveCallback);
-    frontRightDriveSub.set_topic_id(0);
+    frontRightDriveSub.set_topic_id(1);
     std_msgs::Float64 front_right_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> frontRightRotateSub("front_right_swerve_controller/command", front_right_rotate_buffer_in, 5, frontRightRotateCallback);
-    frontRightRotateSub.set_topic_id(4);
+    frontRightRotateSub.set_topic_id(5);
     std_msgs::Float64 back_right_drive_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backRightDriveSub("back_right_wheel_axel_controller/command", back_right_drive_buffer_in, 5, backRightDriveCallback);
-    backRightDriveSub.set_topic_id(2);
+    backRightDriveSub.set_topic_id(3);
     std_msgs::Float64 back_right_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backRightRotateSub("back_right_swerve_controller/command", back_right_rotate_buffer_in, 5, backRightRotateCallback);
-    backRightRotateSub.set_topic_id(6);
+    backRightRotateSub.set_topic_id(7);
     frontRightDriveSub.init(nh);
     frontRightRotateSub.init(nh);
     backRightDriveSub.init(nh);
@@ -193,14 +193,11 @@ void init_can(void) {
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = speed / DRIVE_PWM_PERIOD;
-
-    if (duty > DRIVE_DUTY_MAX) {
-        duty = DRIVE_DUTY_MAX;
-    }
+    duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
 
     return duty;
 }
+
 
 static double wheel_to_servo_angle(double wheel_angle) {
     return wheel_angle * SERVO_ANGLE_CONVERSION_FACTOR;
@@ -223,6 +220,6 @@ void backRightDriveCallback(const std_msgs::Float64 & msg) {
 }
 
 void backRightRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, FRONT_RIGHT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+    servo_write_rads(HS_785HB, BACK_RIGHT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Back right swerve received.\n");
 }
