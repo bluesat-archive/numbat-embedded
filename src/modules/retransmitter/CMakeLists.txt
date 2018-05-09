@@ -21,5 +21,7 @@ include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
 set(CPP_FILES retransmitter.cpp)
 add_module(retransmitter 1 0 0 "${CPP_FILES}")
+generate_msgs(std_msgs Float64)
+depend_msgs(retransmitter std_msgs Float64)
 
 

@@ -23,4 +23,6 @@ set(CPP_FILES left_locomotion.cpp can_wait_task.cpp)
 add_module(left_locomotion 2 1 0 "${CPP_FILES}")
 target_link_libraries(left_locomotion pwm servo m)
 
+generate_msgs(std_msgs Float64)
+depend_msgs(left_locomotion std_msgs Float64)
 

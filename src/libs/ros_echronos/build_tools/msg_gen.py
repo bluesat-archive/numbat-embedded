@@ -727,21 +727,25 @@ def write_cpp_body(s, spec, cpp_prefix):
     write_template_includes(s, spec, cpp_prefix)
 
 
-def generate(msg_path):
+def generate(package, msg_name):
     """
     Generate a message
+
+    @param package: the package name
     
     @param msg_path: The path to the .msg file
     @type msg_path: str
     """
-    (package_dir, package) = roslib.packages.get_dir_pkg(msg_path)
+    package_dir = roslib.packages.get_pkg_dir(package)
+    #(package_dir, package) = roslib.packages.get_dir_pkg(msg_path)
     #TODO: remove this
     package_dir = "./"
 
-    (_, spec) = roslib.msgs.load_from_file(msg_path, package)
+    (_, spec) = roslib.msgs.load_by_type(msg_name, package)
+    # (_, spec) = roslib.msgs.load_from_file(msg_path, package)
     
     header = StringIO()
-    write_begin(header, spec, msg_path)
+    write_begin(header, spec, msg_name)
     write_generic_includes(header)
     write_includes(header, spec)
     
@@ -783,8 +787,9 @@ def generate(msg_path):
     header.close()
 
 def generate_messages(argv):
-    for arg in argv[1:]:
-        generate(arg)
+    assert(len(argv) >= 3)
+    for arg in argv[2:]:
+        generate(argv[1], arg)
 
 if __name__ == "__main__":
     roslib.msgs.set_verbose(False)

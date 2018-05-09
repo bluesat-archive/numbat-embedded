@@ -31,6 +31,7 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
     target_include_directories(
             ${module_name} PUBLIC
             ${ROS_ECHRONOS_DIR}/include
+            ${ROS_ECHRONOS_DIR}
             ${LIB_DIR}/tlsf #TODO: make this its own file
             ${echronos_build_dir}
             ${CMAKE_INCLUDE_PATH}
@@ -39,4 +40,39 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
     add_dependencies(${module_name} ${echronos_target})
     target_link_libraries(${module_name} driverlib tlsf)
 #    add_dependencies(ros_echronos_${module_name} ${ROS_BUILD_DIR})
+endfunction()
+
+set(MSG_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/msg_gen/cpp/")
+function(generate_msgs ros_pkg msgs)
+    foreach(msg ${msgs})
+        add_custom_command(
+                OUTPUT ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp ${MSG_OUTPUT_DIR}/include/${ros_pkg}/${msg}.hpp
+                COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${ROS_ECHRONOS_DIR}/build_tools/genmsg_cpp.py ${ros_pkg} ${msg}
+                COMMENT "Generating C++ code for msg ${ros_pkg}::${msgs}"
+        )
+#        add_custom_target(
+#                ${ros_pkg}/${msg}
+#                DEPENDS ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp
+#        )
+    endforeach()
+endfunction()
+
+function(depend_msgs target ros_pkg msgs)
+    foreach(msg ${msgs})
+        # add the source file to be compiled
+        target_sources(
+                ${target}
+                PRIVATE
+                    ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp
+                PUBLIC
+                    ${MSG_OUTPUT_DIR}/include/${ros_pkg}/${msg}.hpp
+        )
+        # update the include directories so the target can find its path
+        target_include_directories(
+                ${target}
+                PUBLIC
+                    ${MSG_OUTPUT_DIR}/include
+        )
+    endforeach()
+
 endfunction()
