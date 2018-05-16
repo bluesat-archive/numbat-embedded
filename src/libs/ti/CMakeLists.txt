@@ -39,6 +39,6 @@ target_include_directories(utils_buffered PUBLIC
         ${CMAKE_INCLUDE_PATH}
         ./
 )
-set_target_properties(utils_buffered PROPERTIES COMPILE_FLAGS "-DUART_BUFFERED")
+set_property(TARGET utils_buffered APPEND_STRING PROPERTY COMPILE_FLAGS " -DUART_BUFFERED ")
 
 # TODO: usblib
