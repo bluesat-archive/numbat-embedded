@@ -15,6 +15,9 @@ set(CMAKE_C_FLAGS
         -pedantic \
         -DPART_${PART} \
         -DTARGET_IS_TM4C123_RB1 \
+        -g \
+        -D DEBUG \
+        -lto \
         -Dgcc"
 )
 # -std=c99?
@@ -40,6 +43,7 @@ set(CMAKE_CXX_FLAGS
         -mtpcs-leaf-frame \
         -flto \
         --std=c++11 \
+        -D DEBUG \
         -Dgcc"
 )
 # -std=c++11
