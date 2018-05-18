@@ -17,8 +17,12 @@
 #define FRONT_RIGHT_ROTATE_PIN PWM2
 #define BACK_RIGHT_ROTATE_PIN PWM3
 
-#define DRIVE_PWM_PERIOD 10.0
-#define DRIVE_DUTY_MAX 20.0
+#define PWM_PERIOD 10.0 // ms
+#define NEUTRAL_DUTY 15.0 // 1.5 ms / period ms * 100 %
+#define MAX_DUTY_AMPLITUDE 5.0 // (2.0 - 1.5) / period ms * 100%
+#define SPEED_MAX 3.0 // m/s
+
+
 
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
 
@@ -82,7 +86,9 @@ extern "C" void task_right_locomotion_fn(void) {
 
     pwm_init(FRONT_RIGHT_DRIVE_PIN);
     pwm_init(BACK_RIGHT_DRIVE_PIN);
-    pwm_set_period(PWM_PAIR0, 10);
+    pwm_set_period(PWM_PAIR0, PWM_PERIOD);
+    pwm_set_duty(FRONT_RIGHT_DRIVE_PIN, NEUTRAL_DUTY);
+    pwm_set_duty(BACK_RIGHT_DRIVE_PIN, NEUTRAL_DUTY);
     pwm_enable(FRONT_RIGHT_DRIVE_PIN);
     pwm_enable(BACK_RIGHT_DRIVE_PIN);
 
@@ -193,9 +199,7 @@ void init_can(void) {
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
-
-    return duty;
+    return NEUTRAL_DUTY + ((speed / SPEED_MAX) * MAX_DUTY_AMPLITUDE);  
 }
 
 
