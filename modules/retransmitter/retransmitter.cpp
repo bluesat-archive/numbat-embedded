@@ -143,24 +143,26 @@ extern "C" void task_retransmitter_fn(void) {
     while(true) {
         wait_for_msg();
 
+/* P1 */
         for (size_t i = 0; i < sizeof(struct message); i++) {
             serial.data.structBytes[i] = (uint8_t)UARTgetc();
         }
+        UARTwrite((const char*)startMagic, 4);
+/* P1 end */
 
         /*if (serial.data.msg.endMagic != endMagic) {
             continue;
         }*/
-
-
+/* P2 */
         for (size_t i = 0; i < NUM_MSG; i++) {
             msg.data = serial.data.msg.data[i];
             publishers[i]->publish(msg);
         }
-        UARTwrite((const char*)startMagic, 4);
 #ifdef UART_BUFFERED
         UARTFlushTx(false);
 #endif
         nh.spin();
+/* P2 end */
         counter++;
     }
 }
