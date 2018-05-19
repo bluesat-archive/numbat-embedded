@@ -14,10 +14,10 @@ set(CMAKE_C_FLAGS
         -Wall \
         -pedantic \
         -DPART_${PART} \
-        -DTARGET_IS_TM4C123_RB1 \
         -g \
         -D DEBUG \
         -lto \
+        -DTARGET_IS_TM4C123_RB1 \
         -Dgcc"
 )
 # -std=c99?
@@ -37,13 +37,13 @@ set(CMAKE_CXX_FLAGS
         -Wall \
         -pedantic \
         -DPART_${PART} \
-        -DTARGET_IS_TM4C123_RB1 \
         -ffreestanding \
         -mtpcs-frame \
         -mtpcs-leaf-frame \
         -flto \
         --std=c++11 \
         -D DEBUG \
+        -DTARGET_IS_TM4C123_RB1 \
         -Dgcc"
 )
 # -std=c++11
@@ -70,6 +70,7 @@ set(CMAKE_EXE_LINKER_FLAGS
 		 -mtpcs-frame \
 		 -mtpcs-leaf-frame \
 		 -DPART_${PART}		\
+		 -DTARGET_IS_TM4C123_RB1 \
 		  -T new.ld       \
           -Wl,--print-memory-usage"
 )
