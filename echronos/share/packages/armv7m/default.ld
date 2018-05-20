@@ -34,14 +34,19 @@ SECTIONS
         { *(.vectors) }
 
         .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
-        { *(.text.startup) *(.text) }
+        {
+            *(.text.startup)
+             *(.text)
+        }
 
         . = LOADADDR (.text) + SIZEOF(.text);
         . = ALIGN(4);
         ro_data_start = .;
 
         .rodata : AT (ro_data_start)
-        { *(.rodata*) }
+        {
+            *(.rodata*)
+        }
 
         ro_end = ALIGN(4);
 
@@ -56,7 +61,9 @@ SECTIONS
 
         .data : AT (LOADADDR(.data.bitband) + SIZEOF(.data.bitband))
         {
-              *(.data)
+            _init_array_start = .
+            .init_array
+             *(.data)
               . = ALIGN(4);
         }
 
@@ -106,6 +113,24 @@ SECTIONS
         .debug_ranges   0 : { *(.debug_ranges) }
 
         .debug_macro    0 : { *(.debug_macro) }
+
+        /* Include the list of initialization functions sorted. */
+       /* .init_array :
+        {
+            *(.init_array)
+            KEEP (*(SORT(EXCLUDE_FILE(crti.opp crtn.opp) .init_array.*)))
+            KEEP (*(EXCLUDE_FILE(crti.opp crtn.opp) .init_array))
+            *(.init_array)
+        }*/
+
+        /* Include the list of termination functions sorted. */
+        /*.fini_array :
+        {
+            *(.fini_array)
+            KEEP (*(SORT(EXCLUDE_FILE(crti.opp crtn.opp) .fini_array.*)))
+            KEEP (*(EXCLUDE_FILE(crti.opp crtn.opp) .fini_array))
+            *(.fini_array)
+        }*/
 
         /DISCARD/ : { *(*) }
 }

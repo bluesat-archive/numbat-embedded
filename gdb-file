@@ -1,0 +1,7 @@
+monitor reset halt
+load
+monitor reset halt
+b main
+b hardfault
+b alloc.cpp : 56
+c

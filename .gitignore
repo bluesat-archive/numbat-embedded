@@ -6,8 +6,12 @@ build
 *.a
 *.d
 *.o
+*.orig
 out
 
 # clion ide files
 .idea
 cmake-build-debug
+
+# doxygen
+docs/doxygen

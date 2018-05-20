@@ -13,13 +13,13 @@ if [ -z "$1" ]
     exit
 fi
 
-if [ ${1: -4} == ".elf" ]
-  then
-    echo "$1 is an elf file."
-  else
-    echo "File to flash must be an elf file!"
-    exit
-fi
+#if [ ${1: -4} == ".elf" ]
+#  then
+#    echo "$1 is an elf file."
+#  else
+#    echo "File to flash must be an elf file!"
+#    exit
+#fi
 
 if [ -e "$1" ]
 then
@@ -31,9 +31,5 @@ fi
 
 arm-none-eabi-gdb $1 \
     -ex 'target extended localhost:3333' \
-    -ex 'monitor reset halt' \
-    -ex 'load' \
-    -ex 'monitor reset halt' \
-    -ex 'b main' \
-    -ex 'c' \
+    -ex 'source gdb-file'
 

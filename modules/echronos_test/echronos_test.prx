@@ -71,6 +71,9 @@
                 <mutex>
                     <name>m0</name>
                 </mutex>
+                <mutex>
+                    <name>alloc</name>
+                </mutex>
             </mutexes>
             <mutex>
                 <stats>false</stats>

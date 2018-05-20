@@ -1,7 +1,11 @@
 LIB_BUILD = libs/build
+LIB_DIR = libs
 MODULES_DIR = modules
 BUILD_DIR=build
 ECHRONOS_BUILD = echronos/build
+
+ROS_NODE_ID = 0
+ROS_INFO_SERIAL = -DROS_INFO_SERIAL
 
 include .compiler_makedefs
 include .utility_makedefs
@@ -15,10 +19,38 @@ include .numbat_makedefs
 # NUMBAT MODULE SOURCES BEGIN HERE
 
 # ****************
+# tlsf
+# ****************
+
+$(BUILD_DIR)/tlsf.o: $(LIB_DIR)/tlsf/tlsf.c $(LIB_DIR)/tlsf/tlsf.h
+tlsf: $(BUILD_DIR)/tlsf.o
+
+# ****************
 # BOILERPLATE CODE
 # ****************
 
 $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
+#these need to be C++ even though they are
+$(BUILD_DIR)/crtn.opp: $(MODULES_DIR)/boilerplate/crtn.cpp
+$(BUILD_DIR)/crti.opp: $(MODULES_DIR)/boilerplate/crti.cpp
+
+# ***********
+# PWM LIBRARY
+# ***********
+
+$(BUILD_DIR)/pwm.o: $(LIB_DIR)/pwm/pwm.c
+$(BUILD_DIR)/pwm_hw.o: $(LIB_DIR)/pwm/pwm_hw.c
+
+# *************
+# SERVO LIBRARY
+# *************
+
+$(BUILD_DIR)/servo.o: $(LIB_DIR)/servo/servo.c
+servolib: $(BUILD_DIR)/servo.o
+
+# ****************
+# ROS LIB
+# ****************
 
 # *************
 # BLINKY MODULE
@@ -26,12 +58,66 @@ $(BUILD_DIR)/boilerplate.o: $(MODULES_DIR)/boilerplate/boilerplate.c
 
 MODULE_NAME=blinky
 include .construct_numbat_module
+blinky_ROS_NODE_ID = 0
+blinky_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
 
-$(BUILD_DIR)/blinky.o: $(MODULE_DIR)/blinky.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/blinky.opp: $(MODULE_DIR)/blinky.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
-	$(BUILD_DIR)/blinky.o \
+	$(BUILD_DIR)/blinky.opp \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# *************
+# RETRANSMITTER MODULE
+# *************
+
+MODULE_NAME=retransmitter
+include .construct_numbat_module
+retransmitter_ROS_NODE_ID = 1
+retransmitter_ROS_INFO_SERIAL = -DNO_ROS_INFO_SERIAL
+
+$(BUILD_DIR)/retransmitter.opp: $(MODULE_DIR)/retransmitter.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/retransmitter.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+# *************
+# ROS_TEST MODULE
+# *************
+
+MODULE_NAME=ros_test
+include .construct_numbat_module
+ros_test_ROS_NODE_ID = 0
+ros_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/ros_test.opp: $(MODULE_DIR)/ros_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/ros_test.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# *************
+# ROS_SUB_TEST MODULE
+# *************
+
+MODULE_NAME=ros_sub_test
+include .construct_numbat_module
+ros_sub_test_ROS_NODE_ID = 0
+ros_sub_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/ros_sub_test.opp: $(MODULE_DIR)/ros_sub_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/ros_sub_test.opp \
+	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
 
 # *****************
 # TIMER TEST MODULE
@@ -39,12 +125,16 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=timer_test
 include .construct_numbat_module
+timer_test_ROS_NODE_ID = 0
+timer_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL:wq
 
-$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS) ti_libs
+
+$(BUILD_DIR)/timer_test.o: $(MODULE_DIR)/timer_test.c $(MODULE_ECHRONOS) ti_libs tlsf $(MODULE_NAME)_ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/timer_test.o \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
 
 # ***************
 # CAN TEST MODULE
@@ -52,12 +142,15 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=can_test
 include .construct_numbat_module
+can_test_ROS_NODE_ID = 0
+can_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
 
-$(BUILD_DIR)/can_test.o: $(MODULE_DIR)/can_test.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/can_test.o: $(MODULE_DIR)/can_test.c $(MODULE_ECHRONOS) ti_libs tlsf $(MODULE_NAME)_ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/can_test.o \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
 
 # ********************
 # ECHRONOS TEST MODULE
@@ -65,12 +158,99 @@ $(BUILD_DIR)/$(MODULE_NAME).elf: \
 
 MODULE_NAME=echronos_test
 include .construct_numbat_module
+echronos_test_ROS_NODE_ID = 0
+echronos_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
 
-$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS) ti_libs
+$(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS) ti_libs tlsf $(MODULE_NAME)_ros_echronos
 $(BUILD_DIR)/$(MODULE_NAME).elf: \
 	$(BUILD_DIR)/echronos_test.o \
 	$(BUILD_DIR)/boilerplate.o \
-	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# **********************
+# LEFT LOCOMOTION MODULE
+# **********************
+
+ROS_NODE_ID = 2
+
+MODULE_NAME=left_locomotion
+include .construct_numbat_module
+left_locomotion_ROS_NODE_ID = 2
+left_locomotion_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/left_locomotion.opp: $(MODULE_DIR)/left_locomotion.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf servolib
+$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/left_locomotion.opp \
+	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/servo.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o \
+	$(BUILD_DIR)/servo.o
+
+# ***********************
+# RIGHT LOCOMOTION MODULE
+# ***********************
+
+ROS_NODE_ID = 3
+
+MODULE_NAME=right_locomotion
+include .construct_numbat_module
+right_locomotion_ROS_NODE_ID = 3
+right_locomotion_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/right_locomotion.opp: $(MODULE_DIR)/right_locomotion.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp: $(MODULE_DIR)/can_wait_task.cpp
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/right_locomotion.opp \
+	$(BUILD_DIR)/$(MODULE_NAME)-can_wait_task.opp \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(BUILD_DIR)/servo.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# ***************
+# 102017 SERVO TEST MODULE
+# ***************
+
+MODULE_NAME=servo_test
+include .construct_numbat_module
+servo_test_ROS_NODE_ID = 3
+servo_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/servo_test.opp: $(MODULE_DIR)/servo_test.cpp $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/servo_test.opp \
+	$(BUILD_DIR)/boilerplate.o \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
+	$(BUILD_DIR)/servo.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
+
+# ***************
+# 102017 SERVO TEST MODULE
+# ***************
+
+MODULE_NAME=pwm_test
+include .construct_numbat_module
+pwm_test_ROS_NODE_ID = 3
+pwm_test_ROS_INFO_SERIAL = -DROS_INFO_SERIAL
+
+$(BUILD_DIR)/pwm_test.o: $(MODULE_DIR)/pwm_test.c $(MODULE_ECHRONOS) ti_libs $(MODULE_NAME)_ros_echronos tlsf
+$(BUILD_DIR)/$(MODULE_NAME).elf: \
+	$(BUILD_DIR)/pwm_test.o \
+	$(BUILD_DIR)/boilerplate.o \
+	$(BUILD_DIR)/pwm.o \
+	$(BUILD_DIR)/pwm_hw.o \
+	$(LIB_BUILD)/$(MODULE_NAME)-echronos.a \
+	$(BUILD_DIR)/tlsf.o
 
 # **********************
 # WHAT TO ACTUALLY BUILD
@@ -80,7 +260,14 @@ TARGETS=\
 	$(BUILD_DIR)/blinky.elf \
 	$(BUILD_DIR)/timer_test.elf \
 	$(BUILD_DIR)/can_test.elf \
-	$(BUILD_DIR)/echronos_test.elf
+	$(BUILD_DIR)/echronos_test.elf \
+	$(BUILD_DIR)/ros_test.elf \
+	$(BUILD_DIR)/ros_sub_test.elf \
+	$(BUILD_DIR)/left_locomotion.elf \
+	$(BUILD_DIR)/right_locomotion.elf \
+	$(BUILD_DIR)/servo_test.elf \
+	$(BUILD_DIR)/pwm_test.elf \
+	$(BUILD_DIR)/retransmitter.elf
 
 # NUMBAT MODULE SOURCES END HERE
 
@@ -99,3 +286,6 @@ modules_clean:
 clean: modules_clean echronos_lib_clean ti_libs_clean
 	$(CLEAN_PRINT)
 	rm -rf $(BUILD_DIR) $(LIB_BUILD)
+
+docs: all
+	doxygen doxygen.conf

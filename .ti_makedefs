@@ -1,7 +1,7 @@
 COMPILER=gcc
 
 # Set the compiler CPU/FPU options.
-CPU=-mcpu=cortex-m4
+CPU=-mcpu=cortex-m4 -mstructure-size-boundary=8
 FPU=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 # The flags passed to the assembler.
@@ -16,11 +16,34 @@ CFLAGS=-mthumb             \
        ${CPU}              \
        ${FPU}              \
        -mlittle-endian     \
-       -std=c99            \
+       -fno-exceptions     \
        -Wall               \
        -pedantic           \
        -DPART_${PART}      \
+       -std=c99            \
        -c
+#       -DUART_BUFFERED     \
+
+CPPFLAGS=-mthumb           \
+       ${CPU}              \
+       ${FPU}              \
+       -O0 \
+       -mlittle-endian     \
+       -fno-exceptions     \
+       -fno-unwind-tables  \
+       -fno-rtti           \
+       -frepo              \
+       -Wall               \
+       -pedantic           \
+       -DPART_${PART}      \
+       -ffreestanding \
+       -std=c++11          \
+       -mtpcs-frame \
+       -mtpcs-leaf-frame \
+       -flto \
+       $($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
+       -c
+#       -DUART_BUFFERED     \
 
 
 # The flags passed to the linker.
@@ -32,6 +55,9 @@ LIBGCC:=${shell ${CC} ${CFLAGS} -print-libgcc-file-name}
 # Get the location of libc.a from the GCC front-end.
 LIBC:=${shell ${CC} ${CFLAGS} -print-file-name=libc.a}
 
+# Get the location of the C++ stdlib from the GCC front-end
+LIBCPP:=${shell ${CC} ${CFLAGS} -print-file-name=libstdc++_nano.a}
+
 # Get the location of libm.a from the GCC front-end.
 LIBM:=${shell ${CC} ${CFLAGS} -print-file-name=libm.a}
 
@@ -41,13 +67,16 @@ OBJCOPY=${PREFIX}-objcopy
 # Tell the compiler to include debugging information if the DEBUG environment
 # variable is set.
 CFLAGS+=-g -D DEBUG -O0
+CPPFLAGS+=-g -D DEBUG -O0
 
 # Add the tool specific CFLAGS.
 CFLAGS+=${CFLAGSgcc}
+CPPFLAGS+=${CFLAGSgcc}
 
 # Add the include file paths to AFLAGS and CFLAGS.
 AFLAGS+=${patsubst %,-I%,${subst :, ,${IPATH}}}
 CFLAGS+=${patsubst %,-I%,${subst :, ,${IPATH}}}
+CPPFLAGS+=${patsubst %,-I%,${subst :, ,${IPATH}}}
 
 # The rule for building the object file from each C source file.
 ${COMPILER}${SUFFIX}/%.o: %.c

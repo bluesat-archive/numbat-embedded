@@ -63,10 +63,23 @@
                     <sig_set>can_delay</sig_set>
                 </timer>
             </timers>
+            <mutexes>
+                <mutex>
+                    <name>alloc</name>
+                </mutex>
+            </mutexes>
 
             <mutex>
                 <stats>false</stats>
             </mutex>
+            <!-- ignore this, just makes the headers generate correctly -->
+            <interrupt_events>
+                <interrupt_event>
+                    <name>can_receive_event</name>
+                    <task>task_can</task>
+                    <sig_set>can_delay</sig_set>
+                </interrupt_event>
+            </interrupt_events>
         </module>
     </modules>
 </system>
