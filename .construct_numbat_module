@@ -1,4 +1,0 @@
-MODULE_DIR=$(MODULES_DIR)/$(MODULE_NAME)
-MODULE_ECHRONOS=$(LIB_BUILD)/$(MODULE_NAME)-echronos.a
-$(MODULE_ECHRONOS): $(MODULE_DIR)/$(MODULE_NAME).prx
-include libs/ros_echronos/.ros_echronos

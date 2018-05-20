@@ -91,28 +91,7 @@ For information as to how to use this file, see the 'Configuration Reference' se
 
 Adding new numbat modules involves creating a new folder in the `src/modules` directory with at least one `.cpp` and `.prx` file, as well as a `CMakeLists.txt` file and a `package.xml` file. The latter two are required by the ros build system.
 
-To add a new module to the Makefile, open it up and copy one of the existing modules. You will need to change the `MODULE_NAME`, as well as the compilation steps. For each source file in your module, you will want to:
-
-- Add an `.o` (object) target for each `.c` (source file). i.e:
-
-        $(BUILD_DIR)/echronos_test.o: $(MODULE_DIR)/echronos_test.c $(MODULE_ECHRONOS)
-
-- Add the object target to your final elf.
-
-        $(BUILD_DIR)/$(MODULE_NAME).elf: \
-            $(BUILD_DIR)/echronos_test.o \ # <-- Like this
-            $(LIB_BUILD)/$(MODULE_NAME)-echronos.a
-
-The eChronos & TI header files and sources will automagically be attached to your elf file, so you don't need to worry about that.
-
-Finally, so that your new module actually gets looked at, you will need to add to to the `TARGETS` line as a new elf target:
-
-    TARGETS=\
-        $(BUILD_DIR)/blinky.elf \
-        $(BUILD_DIR)/echronos_test.elf # <-- Like this
-
-Hit make, and all compiling well you should get your shiny new module in `build`
-
+If you copy the `module_template` folder to a `src/modules` folder rename it to your module name, and fill in the TODOs in `CMakeLists.txt` and `package.xml` that is the easiest way to create a new module.
 # Help & Documentation
 
 The following manuals are kept in this repository **in case of upstream changes**. We do **not** claim ownership over any of the contents of these manuals.:

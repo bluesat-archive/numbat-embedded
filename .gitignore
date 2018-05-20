@@ -3,6 +3,9 @@ libs/build/*
 devel/
 elfs/
 build
+CMakeCache.txt
+.idea-temp/
+Project.cbp
 *.swp
 *.swo
 *.a
