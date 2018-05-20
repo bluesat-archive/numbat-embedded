@@ -89,8 +89,13 @@ extern "C" void task_left_locomotion_fn(void) {
 
     
     ros_echronos::ROS_INFO("starting the main loop\n");
+    int i = 0;
     while(true) {
         nh.spin();
+//        if(i % 100) {
+//            ros_echronos::ROS_INFO("Alive %d\n", i);
+//        }
+//        ++i;
     }
     /*
     // create a test message
