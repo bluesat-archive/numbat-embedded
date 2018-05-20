@@ -3,9 +3,10 @@ This is all the code that runs on numbat's embedded module computers
 
 It contains a few key components:
 
-- **Module-specific codebases** - these define the behaviour of different numbat modules. This is found in the `modules` directory.
-- **eChronos** - an open-source Real Time Operating System that provides cool stuff like task scheduling & prioritisation. (See https://github.com/echronos/echronos). An echronos distribution is found in the `echronos` directory.
-- **The TI software framework** - A bunch of driver libraries that make developing on our hardware easier, abstracting away lots of painful operations. This can be found in the `libs/ti` directory.
+- **Module-specific codebases** - these define the behaviour of different numbat modules. This is found in the `src/modules` directory.
+- **eChronos** - an open-source Real Time Operating System that provides cool stuff like task scheduling & prioritisation. (See https://github.com/echronos/echronos). An echronos distribution is found in the `build-tools/echronos` directory.
+- **The TI software framework** - A bunch of driver libraries that make developing on our hardware easier, abstracting away lots of painful operations. This can be found in the `src/libs/ti` directory.
+- **BLUEsat's ROS Echronos Library** - The defines the embedded implementation of our ros over can protocol. It can be found in the `src/libs/ros_echronos` folder.
 
 **To grab the source**:
 
@@ -16,23 +17,25 @@ It contains a few key components:
 
 First, make sure you have the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARM. These can be found in ubuntu/debian/arch package repositories.
 
-If you decide to use a different ARM toolchain, you may have to modify the `.compiler_makedefs` file to suit your system.
+On ubuntu you can install this by running `sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi`. You will also need ros's catkin build system installed. The recomended way to get this is by setting up a normal ros install and using the version provided by ros.org, however catkin also exists as a seperate package in the ubuntu package repository.
+
+If you decide to use a different ARM toolchain, you may have to modify the `build-tools/compiler_makedefs.cmake` file to suit your system.
 
 In the root folder, run:
 
-    make
+    catkin_make
 
 to build all modules.
 
 If you are having problems, check your prerequisites are being met.
 
-If everything goes well, you will end up with a bunch of .elf files in the build directory in the repository root folder. These are ready to flash to the hardware!
+If everything goes well, you will end up with a bunch of .elf files in the `elfs` directory in the repository root folder. These are ready to flash to the hardware!
 
 # Running modules on real hardware
 
 To flash your elf files and test your code, you'll need OpenOCD. This is an open-source debugging interface tool that allows you to use GDB to flash images and debug your code.
 
-You have 2 options here. You can install OpenOCD from your distributions package manager, or install OpenOCD from source. See (https://github.com/ntfreak/openocd) for the second option
+You have 2 options here. You can install OpenOCD from your distributions package manager (`sudo apt-get install openocd`), or install OpenOCD from source. See (https://github.com/ntfreak/openocd) for the second option
 
 Once you have OpenOCD installed
     - connect the EK-TM4C123GXL board to your computer via the USB connector labelled 'debug'
@@ -46,13 +49,15 @@ If everything goes well, you shouldn't see any error messages.
 
 If you get stuck, there are plenty of tutorials on the internet for getting OpenOCD up and running.
 
+Note: there is a `PART` flag in `build-tools/build_env.cmake` that sets the part number. This needs to be changed for the dev kits or the generic pcb. If you are running on the generic PCB it should be set to `TM4C123GH6PGE` and if you are running on the dev kit it should be set to `TM4C123GH6PM`.
+
 ### Flashing & Debugging
 
 Once you have started OpenOCD, it's time to flash and debug your image! This repository includes a script that does this all for you, `flash.sh`. Take a look at it to see what it's doing if you're curious.
 
 To try the blinky example, (making sure you have built everything!):
 
-    ./flash.sh build/blinky.elf
+    ./flash.sh elf/blinky.elf
 
 GDB should fire up, connect to your OpenOCD server, flash the image, reset and then break on your `main` function. To see cool stuff happen, press `c` to continue execution.
 
@@ -84,9 +89,7 @@ For information as to how to use this file, see the 'Configuration Reference' se
 
 # Adding new modules
 
-WARNING: Do not leave empty lines with tabs in the Makefile. They are counted as empty recipes and can lead to unexpected and hard to debug issues.
-
-Adding new numbat modules involves creating a new folder in the `modules` directory with at least one `.c` and `.prx` file, as well as modifying the top-level makefile.
+Adding new numbat modules involves creating a new folder in the `src/modules` directory with at least one `.cpp` and `.prx` file, as well as a `CMakeLists.txt` file and a `package.xml` file. The latter two are required by the ros build system.
 
 To add a new module to the Makefile, open it up and copy one of the existing modules. You will need to change the `MODULE_NAME`, as well as the compilation steps. For each source file in your module, you will want to:
 
