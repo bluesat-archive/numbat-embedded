@@ -18,9 +18,15 @@
 
 
 namespace ros_echronos {
+    /**
+     * Namespace for can specific functionality
+     */
     namespace can {
         extern int can_error_flag;
 
+        /**
+         * The maximum length of a can message
+         */
         const uint8_t CAN_MESSAGE_MAX_LEN = 8;
 
         /**
@@ -30,12 +36,27 @@ namespace ros_echronos {
         /**
          * Indicates that the "seq_num" field of a can message header is in special mode
          */
-         const uint8_t SEQ_NUM_SPECIAL_MODE = 7;
+        const uint8_t SEQ_NUM_SPECIAL_MODE = 7;
 
+        /**
+         * Possible function modes on the can buss
+         */
         typedef enum _ROS_Function {
+            /**
+             * Means the can message is part of a message transmission
+             */
             FN_ROS_MESSAGE_TRANSMISSION = 0,
+            /**
+             * Means the can message is part of a service call (Not implemented)
+             */
             FN_ROS_SERVICE = 1,
+            /**
+             * Means the can message is a control message
+             */
             FN_ROS_CONTROL_MSG = 2,
+            /**
+             * Undefined functionality, reserved for future expansion of the protocol
+             */
             FN_ROS_RESERVED = 3
         } ROS_Function;
         /**
@@ -43,6 +64,9 @@ namespace ros_echronos {
          */
         extern uint32_t can_base;
 
+        /**
+         * Represents a can header as per the ros over can protocol
+         */
         typedef union can_header {
             uint32_t bits;
             struct _header_fields {
@@ -61,6 +85,9 @@ namespace ros_echronos {
             }__attribute__((packed)) fields;
         } CAN_Header;
 
+        /**
+         * Represents a can packet.
+         */
         typedef struct can_ros_message {
             CAN_Header head;
             uint8_t body[CAN_MESSAGE_MAX_LEN];

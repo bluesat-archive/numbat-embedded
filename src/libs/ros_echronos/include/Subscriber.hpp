@@ -77,9 +77,17 @@ namespace ros_echronos {
              * unsubscribes the subscriber
              */
             void unsubscribe();
+            /**
+             * Function called when a can message is received
+             * @param msg the msg that has been recieved
+             */
             virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg);
             virtual void call_callback();
             // TODO: remove this
+            /**
+             * Used to set the topic id in the absence of the control commands
+             * @param id the id of the topic
+             */
             void set_topic_id(int id);
 
         private:
@@ -117,7 +125,7 @@ namespace ros_echronos {
              */
             Transmission_Mode mode = DROP_MISSING;
 
-            /*
+            /**
              * Empty message for fast clearing of slots
              */
             const T EMPTY_MSG;
