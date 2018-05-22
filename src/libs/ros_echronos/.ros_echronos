@@ -1,0 +1,45 @@
+#PART=TM4C123GH6PM
+CFLAGSgcc=-DTARGET_IS_TM4C123_RB1
+include .ti_makedefs
+ROS_ECHRONOS_DIR=libs/ros_echronos
+ROS_ARCH_DIR=$(ROS_ECHRONOS_DIR)/arch/tm4c
+IPATH+=$(ROS_ECHRONOS_DIR)/include $(LIB_DIR)/tlsf
+
+MODULE_BUILD_DIR=$(ECHRONOS_BUILD)/$(MODULE_NAME)-echronos
+ROS_BUILD_DIR=$(MODULE_BUILD_DIR)/lib/ros_echronos
+
+$(ROS_BUILD_DIR):
+	mkdir -p ${@}
+
+$(ROS_BUILD_DIR)/%.opp: $(ROS_ECHRONOS_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHRONOS)
+	$(BUILD_PRINT)
+	${CC} ${CPPFLAGS} \
+		-I$(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g') \
+		-I$(<D) \
+		-DROS_NODE_ID=$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_NODE_ID) \
+		$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
+		-D${COMPILER} -o ${@} ${<}
+
+$(ROS_BUILD_DIR)/%.opp: $(ROS_ARCH_DIR)/%.cpp $(ROS_BUILD_DIR) $(MODULE_ECHRONOS)
+	$(BUILD_PRINT)
+	${CC} ${CPPFLAGS} \
+		-I$(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g') \
+		-I$(<D) \
+		-DROS_NODE_ID=$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_NODE_ID) \
+		$($(shell echo ${@} | sed 's/lib\/ros_echronos\/.*\.opp//g' | sed 's/echronos\/build\///g' | sed 's/\///' | sed 's/-echronos//' )_ROS_INFO_SERIAL) \
+		-D${COMPILER} -o ${@} ${<}
+
+
+$(ROS_BUILD_DIR)/ros.opp: $(ROS_ECHRONOS_DIR)/ros.cpp
+$(ROS_BUILD_DIR)/NodeHandle.opp: $(ROS_ECHRONOS_DIR)/NodeHandle.cpp
+$(ROS_BUILD_DIR)/Float64.opp: $(ROS_ECHRONOS_DIR)/Float64.cpp
+$(ROS_BUILD_DIR)/Subscriber.opp: $(ROS_ECHRONOS_DIR)/Subscriber.cpp
+$(ROS_BUILD_DIR)/Publisher.opp: $(ROS_ECHRONOS_DIR)/Publisher.cpp
+$(ROS_BUILD_DIR)/Message_Buffer.opp: $(ROS_ECHRONOS_DIR)/Message_Buffer.cpp
+$(ROS_BUILD_DIR)/Incoming_Message_Buffer.opp: $(ROS_ECHRONOS_DIR)/Incoming_Message_Buffer.cpp
+$(ROS_BUILD_DIR)/Message.opp: $(ROS_ECHRONOS_DIR)/Message.cpp
+$(ROS_BUILD_DIR)/alloc.opp: $(ROS_ECHRONOS_DIR)/alloc.cpp
+$(ROS_BUILD_DIR)/can_impl.opp: $(ROS_ARCH_DIR)/can_impl.cpp
+$(ROS_BUILD_DIR)/Message_Descriptor.opp: $(ROS_ECHRONOS_DIR)/Message_Descriptor.cpp
+
+$(MODULE_NAME)_ros_echronos: $(ROS_BUILD_DIR)/ros.opp $(ROS_BUILD_DIR)/NodeHandle.opp $(ROS_BUILD_DIR)/Subscriber.opp $(ROS_BUILD_DIR)/Publisher.opp $(ROS_BUILD_DIR)/Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/alloc.opp $(ROS_BUILD_DIR)/can_impl.opp $(ROS_BUILD_DIR)/Message_Descriptor.opp $(ROS_BUILD_DIR)/Incoming_Message_Buffer.opp $(ROS_BUILD_DIR)/Message.opp $(ROS_BUILD_DIR)/Float64.opp

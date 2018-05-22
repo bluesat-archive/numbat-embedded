@@ -1,3 +1,0 @@
-BUILD_PRINT = @echo "[1;32mBuilding $^ -> $@[0m"
-CLEAN_PRINT = @echo "[1;32mCleaning -> $@[0m"
-MODULE_PRINT = @echo "[1;32mSuccessfully built module -> $@[0m"
