@@ -141,9 +141,9 @@ extern "C" void task_retransmitter_fn(void) {
     struct messageAdapter serial;
     int counter = 0;
     while(true) {
-        wait_for_msg();
 
 /* P1 */
+        wait_for_msg();
         for (size_t i = 0; i < sizeof(struct message); i++) {
             serial.data.structBytes[i] = (uint8_t)UARTgetc();
         }
