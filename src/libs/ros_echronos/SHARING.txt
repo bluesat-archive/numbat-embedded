@@ -1,0 +1,2 @@
+This library is released under the dual license of LGPLv3 and the BSB License.
+Copyright BLUEsat UNSW 2017.
