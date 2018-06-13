@@ -13,7 +13,7 @@
 #define NUM_CAN_OBJS 32
 #define CAN_FIFO_QUEUE_LENGTH 6
 // reserve 0 for sending messages
-#define CAN_ID_START 1
+#define CAN_ID_START 2
 #define CAN_DEVICE_BASE CAN0_BASE
 #define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER |  MSG_OBJ_EXTENDED_ID)
 
@@ -26,7 +26,8 @@ static tCANMsgObject msgs[NUM_CAN_OBJS];
  */
 static uint8_t current_id = CAN_ID_START;
 
-
+// we only need one id for control messages as they don't happen very often
+const ros_echronos::can::can_sub_id CTRL_SUB_ID = CAN_ID_START - 1;
 
 using namespace ros_echronos::can;
 

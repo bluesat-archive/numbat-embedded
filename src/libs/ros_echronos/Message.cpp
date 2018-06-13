@@ -86,9 +86,9 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
     if(!desc) {
         desc = generate_descriptor();
         //set the from node
-        from_node = msg.head.fields.node_id;
-        from_msg_num = msg.head.fields.message_num;
-        size = msg.head.fields.message_length;
+        from_node = msg.head.fields.function_fields.f0_ros_msg_fields.node_id;
+        from_msg_num = msg.head.fields.function_fields.f0_ros_msg_fields.message_num;
+        size = msg.head.fields.function_fields.f0_ros_msg_fields.message_length;
         decode_index = 0;
     }
     //ros_echronos::ROS_INFO("Decoding\n");

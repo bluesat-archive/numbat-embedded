@@ -14,6 +14,7 @@ set(ROS_INCLUDE_DIR ${ROS_ECHRONOS_DIR}/include)
 
 FILE(GLOB ros_files ${ROS_ECHRONOS_DIR}/arch/tm4c/*.cpp ${ROS_ECHRONOS_DIR}/*.cpp )
 FILE(GLOB ros_include_files ${ROS_INCLUDE_DIR}/*.hpp ${ROS_INCLUDE_DIR}/templates/*.hpp )
+FILE(GLOB ros_template_files ${ROS_ECHRONOS_DIR}/templates/*.cpp)
 
 # define the doxygen target if there isn't one already
 if(NOT TARGET ros-echronos-docs)
@@ -43,6 +44,14 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
         PUBLIC
             ${ros_include_files}
     )
+    # add template files
+    target_sources(
+            ${module_name}
+            PRIVATE
+                ${ros_template_files}
+    )
+    # don't build the templates directly
+    set_source_files_properties(${ros_template_files} PROPERTIES HEADER_FILE_ONLY TRUE)
 #    add_library(ros_echronos_${module_name} STATIC ${ros_files})
     target_include_directories(
             ${module_name} PUBLIC
@@ -54,6 +63,7 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
     )
     set_property(TARGET ${module_name} APPEND_STRING  PROPERTY COMPILE_FLAGS "-DROS_NODE_ID=${node_id} -DROS_INFO_SERIAL=${serial_on} ")
     add_dependencies(${module_name} ${echronos_target})
+
     
 #    add_dependencies(ros_echronos_${module_name} ${ROS_BUILD_DIR})
 endfunction()

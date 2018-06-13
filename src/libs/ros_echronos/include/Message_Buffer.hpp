@@ -11,6 +11,7 @@
 #define NUMBAT_EMBEDDED_MESSAGE_BUFFER_H
 
 #include "ros.hpp"
+#include "can.hpp"
 
 #define ROS_CAN_INPUT_BUFFER_SIZE 5
 

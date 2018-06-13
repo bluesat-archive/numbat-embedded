@@ -7,6 +7,7 @@
  * @copyright: Copyright BLUEsat UNSW 2017
  */
 #include "ros.hpp"
+#include "can.hpp"
 #ifndef NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP
 #define NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP
 

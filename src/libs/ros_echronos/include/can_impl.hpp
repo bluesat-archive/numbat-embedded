@@ -57,6 +57,10 @@ namespace ros_echronos {
          */
         extern _Incoming_Message_Buffer * incoming_msg_buffer;
 
+        /**
+         * The "subscription" that can be used for control messages
+         */
+        extern const can_sub_id CTRL_SUB_ID;
     }
 }
 
