@@ -51,13 +51,13 @@ template <class T> void Publisher<T>::init(ros_echronos::NodeHandle & node_handl
         next->prev = this;
     }
     nh->publishers = this;
-    header.fields.mode = can::ROS_CAN_MODE;
-    header.fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
-    header.fields.function_fields.f0_ros_msg_fields.node_id = nh->get_node_id();
-    header.fields.function_fields.f0_ros_msg_fields.not_in_range = 0;
+    header.fields.base_fields.mode = can::ROS_CAN_MODE;
+    header.fields.base_fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
+    header.fields.f0_ros_msg_fields.node_id = nh->get_node_id();
+    header.fields.f0_ros_msg_fields.not_in_range = 0;
 
     // TODO: topic registration
-    header.fields.function_fields.f0_ros_msg_fields.topic = topic_counter++;
+    header.fields.f0_ros_msg_fields.topic = topic_counter++;
 }
 
 template <class T> void Publisher<T>::publish(T & message, uint8_t priority) {
@@ -86,12 +86,12 @@ ros_echronos::can::CAN_ROS_Message Publisher<T>::get_next_message(bool &has_next
 
     memcpy(can_msg.body, current, can_msg.body_bytes);
     ros_echronos::ROS_INFO("msg: 0: %c, 1: %c\n", can_msg.body[0], can_msg.body[1]);
-    can_msg.head.fields.function_fields.f0_ros_msg_fields.message_length = current_message.message_size();
-    can_msg.head.fields.seq_num = seq_num++;
-    can_msg.head.fields.function_fields.f0_ros_msg_fields.message_num = msg_num;
-    if (can_msg.head.fields.seq_num >= can::SEQ_NUM_SPECIAL_MODE) {
-        can_msg.head.fields.seq_num = can::SEQ_NUM_SPECIAL_MODE;
-        can_msg.head.fields.function_fields.f0_ros_msg_fields.message_length = seq_num;
+    can_msg.head.fields.f0_ros_msg_fields.message_length = current_message.message_size();
+    can_msg.head.fields.base_fields.seq_num = seq_num++;
+    can_msg.head.fields.f0_ros_msg_fields.message_num = msg_num;
+    if (can_msg.head.fields.base_fields.seq_num >= can::SEQ_NUM_SPECIAL_MODE) {
+        can_msg.head.fields.base_fields.seq_num = can::SEQ_NUM_SPECIAL_MODE;
+        can_msg.head.fields.f0_ros_msg_fields.message_length = seq_num;
     }
     message_in_progress = has_next;
 

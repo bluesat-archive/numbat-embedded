@@ -76,6 +76,13 @@ namespace ros_echronos {
              */
             _Incoming_Message_Buffer in_buff;
 
+
+            /**
+             * Handler for incoming control messages
+             * @param msg the message
+             */
+            void handle_ctrl_msg(ros_echronos::can::CAN_ROS_Message msg);
+
     };
 }
 

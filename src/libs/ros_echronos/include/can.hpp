@@ -80,37 +80,37 @@ namespace ros_echronos {
          */
         typedef union can_header {
             unsigned long bits;
-            struct _header_fields {
+            union _header_fields {
                 // these MUST be ints to make the compiler place them in the same 32-bit container
                 // See: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0491i/Babjddhe.html
                 // (Also gcc docs, but they are less clear)
-                unsigned int mode : 1;
-                unsigned int priority : 2;
-                unsigned int ros_function : 2;
-                unsigned int seq_num : 3;
-                union _function_fields {
-                    /**
-                     * Header fields for ROS msgs
-                     */
-                    struct _ros_msg_fields {
-                        unsigned int message_num : 2;
-                        unsigned int topic : 7;
-                        unsigned int message_length : 8;
-                        unsigned int node_id : 4;
-                        unsigned int not_in_range : 3;
-                    } __attribute__((packed)) f0_ros_msg_fields;
-                    /**
-                     * Header fields for control msgs
-                     */
-                    struct _ros_ctrl_fields {
-                        unsigned int mode : 4;
-                        union _mode_specific_fields {
-
-                        } mode_fields;
-                    } __attribute__((packed)) f2_ctrl_msg_fields;
-                } __attribute__((packed)) function_fields;
+                struct _base_fields {
+                    unsigned int mode : 1;
+                    unsigned int priority : 2;
+                    unsigned int ros_function : 2;
+                    unsigned int seq_num : 3;
+                } __attribute__((packed)) base_fields;
+                /**
+                 * Header fields for ROS msgs
+                 */
+                struct _ros_msg_fields {
+                    unsigned int : sizeof(base_fields);
+                    unsigned int message_num : 2;
+                    unsigned int topic : 7;
+                    unsigned int message_length : 8;
+                    unsigned int node_id : 4;
+                    unsigned int not_in_range : 3;
+                } __attribute__((packed)) f0_ros_msg_fields;
+                /**
+                 * Header fields for control msgs
+                 */
+                struct _ros_ctrl_fields {
+                    unsigned int : sizeof(base_fields);
+                    unsigned int mode : 4;
+                } __attribute__((packed)) f2_ctrl_msg_fields;
             } __attribute__((packed)) fields;
         } CAN_Header;
+
         /**
          * Represents a can packet.
          */
@@ -131,10 +131,19 @@ namespace ros_echronos {
             int end_counter = 0;
         } input_buffer_t;
 
-        const CAN_Header TOPIC_BITMASK_HEADER = {
-            .fields={
-                1, 0, 0xF, 0, 0, 0xFFFFF, 0, 0, 0
+        const CAN_Header _TOPIC_BITMASK_BASE = {
+            .fields = {
+                .base_fields = { 1, 0, 0xF, 0},
             }
+        };
+        const CAN_Header _TOPIC_BITMASK_F0 = {
+            .fields = {
+                .f0_ros_msg_fields = { 0, 0xFFFFF, 0, 0, 0}
+            }
+        };
+
+        const CAN_Header TOPIC_BITMASK_HEADER = {
+            .bits = _TOPIC_BITMASK_BASE.bits || _TOPIC_BITMASK_BASE.bits
         };
 
 

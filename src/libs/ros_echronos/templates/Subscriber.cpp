@@ -32,14 +32,14 @@ template <class T> void Subscriber<T>::set_topic_id(int id) {
 template <class T> void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle) {
     can::can_ros_message msg;
 
-    msg.head.fields.function_fields.f0_ros_msg_fields.message_length = 0;
-    msg.head.fields.function_fields.f0_ros_msg_fields.message_num = 0;
-    msg.head.fields.mode = 1;
-    msg.head.fields.function_fields.f0_ros_msg_fields.node_id = nh->get_node_id();
-    msg.head.fields.priority = 0;
-    msg.head.fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
-    msg.head.fields.seq_num = 0;
-    msg.head.fields.function_fields.f0_ros_msg_fields.topic = topic_id;
+    msg.head.fields.f0_ros_msg_fields.message_length = 0;
+    msg.head.fields.f0_ros_msg_fields.message_num = 0;
+    msg.head.fields.base_fields.mode = 1;
+    msg.head.fields.f0_ros_msg_fields.node_id = nh->get_node_id();
+    msg.head.fields.base_fields.priority = 0;
+    msg.head.fields.base_fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
+    msg.head.fields.base_fields.seq_num = 0;
+    msg.head.fields.f0_ros_msg_fields.topic = topic_id;
     sub_id = can::subscribe_can(msg.head.bits, can::TOPIC_BITMASK_HEADER.bits); //TODO: add node id, function, etc
     nh = &node_handle;
     prev = NULL;
@@ -65,17 +65,17 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 
     // Step 1: Check if it is a new or existing message
 //    ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
-    if (msg.head.fields.seq_num == 0) {
+    if (msg.head.fields.base_fields.seq_num == 0) {
         msg_ptr = new (next_construction_msg()) T();
     } else {
         //try and match a buffer
         for(uint32_t i = 0, lmask=1; i < message_construction_buff_size; ++i, lmask = lmask<< 1) {
-            if((lmask & mask) && incoming_msgs[i].from_node == msg.head.fields.function_fields.f0_ros_msg_fields.node_id) {
+            if((lmask & mask) && incoming_msgs[i].from_node == msg.head.fields.f0_ros_msg_fields.node_id) {
                 // because we have a limited bits in the seq number we overflow to the message length field
-                const uint16_t msg_seq_num = msg.head.fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.seq_num : msg.head.fields.function_fields.f0_ros_msg_fields.message_length;
+                const uint16_t msg_seq_num = msg.head.fields.base_fields.seq_num != ros_echronos::can::SEQ_NUM_SPECIAL_MODE ? msg.head.fields.base_fields.seq_num : msg.head.fields.f0_ros_msg_fields.message_length;
                 // handle the case where we've dropped a packet
                 if(
-                        incoming_msgs[i].from_msg_num == msg.head.fields.function_fields.f0_ros_msg_fields.message_num &&
+                        incoming_msgs[i].from_msg_num == msg.head.fields.f0_ros_msg_fields.message_num &&
                         msg_seq_num == incoming_msgs[i].decode_index
                 ) {
                     msg_ptr = incoming_msgs + i;
@@ -84,7 +84,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
                         ros_echronos::ROS_INFO("Dropped a packet got seq %d exp %d, mnum %d emnum %d\n",
                                                msg_seq_num,
                                                incoming_msgs[i].decode_index,
-                                               msg.head.fields.function_fields.f0_ros_msg_fields.message_num,
+                                               msg.head.fields.f0_ros_msg_fields.message_num,
                                                incoming_msgs[i].from_msg_num
                         );
                         clear_slot(incoming_msgs+i);
