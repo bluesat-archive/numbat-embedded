@@ -16,6 +16,7 @@
 #include "rtos-kochab.h"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
+#include "CANPromise.hpp"
 
 namespace ros_echronos {
     /**
@@ -26,6 +27,7 @@ namespace ros_echronos {
 
         public:
 
+            NodeHandle() : promise_manager(promise_buffer, 3) {}
             /**
              * Registers the ros node with the controller, setsup any CAN handlers required
              * @param node_name
@@ -82,6 +84,12 @@ namespace ros_echronos {
              * @param msg the message
              */
             void handle_ctrl_msg(ros_echronos::can::CAN_ROS_Message msg);
+
+            promise::CANPromise promise_buffer[3];
+            /**
+             * Stores promises
+             */
+            promise::CANPromiseManager promise_manager;
 
     };
 }

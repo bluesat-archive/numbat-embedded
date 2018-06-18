@@ -15,11 +15,25 @@
 
 namespace ros_echronos {
     namespace promise {
+        class CANPromise;
         /**
          * Class that manages CAN Promises
          * @tparam N the size of the promise queue
          */
-        template <int N> class CANPromiseManager<N> {
+        class CANPromiseManager {
+            public:
+                /**
+                 * Creates a new promise manager
+                 * @param buffer the buffer
+                 * @param buffer_size the size of the buffer
+                 */
+                CANPromiseManager(CANPromise * buffer, size_t buffer_size);
+                /**
+                 * Takes a message and matches it to the current list of promises
+                 * @param msg the incoming msg
+                 * @return if a match was found
+                 */
+                bool match_message(can::CAN_ROS_MSG msg);
             private:
 
         };

@@ -95,6 +95,11 @@ void NodeHandle::run_handle_message_loop() {
                 continue;
             }*/
         msg = in_buff.pop_locked();
+        // if its a promised message, don't bother with the decoding
+        if(promise_manager.match_message(msg)) {
+            continue;
+        }
+
         if (msg.head.fields.base_fields.mode == (unsigned int)FN_ROS_MESSAGE_TRANSMISSION) {
             _Subscriber *current;
             for (current = subscribers; current; current = (_Subscriber *) current->next) {
