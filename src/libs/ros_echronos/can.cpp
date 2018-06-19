@@ -6,10 +6,6 @@
  * @copydetails: This code is released under the LGPLv3 and newer License and the BSD License
  * @copyright: Copyright BLUEsat UNSW 2017
  */
-
-#include "inc/hw_can.h"
-#include "driverlib/can.h"
-#include "utils/uartstdio.h"
 #include "include/can.hpp"
 
 int ros_echronos::can::can_error_flag;

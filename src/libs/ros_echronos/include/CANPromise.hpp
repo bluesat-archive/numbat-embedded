@@ -33,7 +33,7 @@ namespace ros_echronos {
                  * @param msg the incoming msg
                  * @return if a match was found
                  */
-                bool match_message(can::CAN_ROS_MSG msg);
+                bool match_message(can::CAN_ROS_Message msg);
             private:
 
         };
@@ -46,13 +46,13 @@ namespace ros_echronos {
                  * @param data the data
                  * @return this object
                  */
-                CANPromise then(bool (*func) (can::CAN_ROS_MSG &), void * data);
+                CANPromise then(bool (*func)(can::CAN_ROS_MSG &), void * data);
                 /**
                  * Called if there is an error on reading the promise
                  * @param func the function to call on an error
                  * @return this object
                  */
-                CANPromise on_error(void (*func) (can::CAN_ROS_MSG &));
+                CANPromise on_error(void (*func)(can::CAN_ROS_MSG &));
 
                 /**
                  * Block using the provided signal.
@@ -67,7 +67,7 @@ namespace ros_echronos {
                  * @return the value
                  * @see wait
                  */
-                can::CAN_ROS_MSG get_value();
+                can::CAN_ROS_Message get_value();
 
             private:
 

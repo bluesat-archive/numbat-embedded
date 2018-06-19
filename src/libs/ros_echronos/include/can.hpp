@@ -7,6 +7,8 @@
  * @copyright: Copyright BLUEsat UNSW 2017
  */
 
+#include "boilerplate.h"
+#include "rtos-kochab.h"
 
 #ifndef PROJECT_CAN_H
 #define PROJECT_CAN_H
