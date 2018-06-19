@@ -25,9 +25,9 @@ namespace ros_echronos {
                 /**
                  * Creates a new promise manager
                  * @param buffer the buffer
-                 * @param buffer_size the size of the buffer
+                 * @param buffer_size the size of the buffer in CANPromises
                  */
-                CANPromiseManager(CANPromise * buffer, size_t buffer_size);
+                CANPromiseManager(void * buffer, size_t buffer_size);
                 /**
                  * Takes a message and matches it to the current list of promises
                  * @param msg the incoming msg
@@ -46,13 +46,13 @@ namespace ros_echronos {
                  * @param data the data
                  * @return this object
                  */
-                CANPromise then(bool (*func)(can::CAN_ROS_MSG &), void * data);
+                CANPromise then(bool (*func)(can::CAN_ROS_Message &), void * data);
                 /**
                  * Called if there is an error on reading the promise
                  * @param func the function to call on an error
                  * @return this object
                  */
-                CANPromise on_error(void (*func)(can::CAN_ROS_MSG &));
+                CANPromise on_error(void (*func)(can::CAN_ROS_Message &));
 
                 /**
                  * Block using the provided signal.
@@ -77,7 +77,7 @@ namespace ros_echronos {
                 bool ready = false;
 
 
-                friend CANPromiseManager;
+                friend class CANPromiseManager;
                 /**
                  * Called by CANPromiseManager to give a promise waiting on the given
                  * mask and filter combo

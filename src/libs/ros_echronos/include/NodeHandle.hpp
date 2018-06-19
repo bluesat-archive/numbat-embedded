@@ -85,7 +85,8 @@ namespace ros_echronos {
              */
             void handle_ctrl_msg(ros_echronos::can::CAN_ROS_Message msg);
 
-            promise::CANPromise promise_buffer[3];
+            // we want an empty buffer, not one that has been initalised
+            uint8_t promise_buffer[sizeof(promise::CANPromise)*3];
             /**
              * Stores promises
              */
