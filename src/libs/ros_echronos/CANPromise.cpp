@@ -7,4 +7,83 @@
  * @copyright: Copyright BLUEsat UNSW 2017
  */
 
+#include <string.h>
+
 #include "include/CANPromise.hpp"
+
+
+using namespace ros_echronos::promise;
+
+CANPromise::CANPromise(can::CAN_Header mask, can::CAN_Header filter) :
+    mask(mask),
+    filter(filter)
+{
+
+}
+
+CANPromise * CANPromise::then(PromiseFn func, void * data) {
+    then_fn = func;
+    // C++ doesn't have inbuilt currying
+    then_data = data;
+    return this;
+}
+
+CANPromise * CANPromise::on_error(PromiseFn func, void *data) {
+    error_fn = func;
+    error_data = data;
+    return this;
+}
+
+CANPromise * CANPromise::wait(RtosSignalId signal) {
+    signal = signal;
+    waiting = true;
+    rtos_signal_wait(signal);
+    if(error) {
+        error_fn(msg, error_data);
+    } else {
+        then_fn(msg, then_data);
+    }
+    return this;
+}
+
+bool CANPromise::matches(can::CAN_Header &header) {
+    //TODO: return something different if we have already matched
+    return (header.bits && mask.bits) == filter.bits;
+}
+
+void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {
+    //TODO: handle if wait hasn't been called
+    this->error = error;
+    this->msg = msg;
+    rtos_signal_send(signal);
+}
+
+bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
+    for(
+            char * current_buff = (char*) buffer;
+            (CANPromise*)current_buff < ((CANPromise*)buffer)+buffer_size;
+            current_buff+=sizeof(CANPromise)*buffer_size
+    ) {
+        // if the first two bytes are null
+        if(!current_buff[0] && !current_buff[1]) {
+            CANPromise * pbuff = ((CANPromise *)current_buff);
+            if(pbuff->matches(msg.head)) {
+                pbuff->trigger_match(msg, false);
+                //TODO: find the correct place to do this
+                //it needs to be after the match has happened rather than before
+                //pbuff->~CANPromise();
+                //memset(current_buff, 0, sizeof(pbuff));
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+CANPromiseManager::CANPromiseManager(void *buffer, size_t buffer_size) :
+    buffer(buffer),
+    buffer_size(buffer_size)
+{
+    // we use this to determine if the buffer is empty
+    memset(buffer, 0, buffer_size*sizeof(CANPromise));
+}

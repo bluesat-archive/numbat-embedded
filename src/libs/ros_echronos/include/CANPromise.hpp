@@ -35,9 +35,11 @@ namespace ros_echronos {
                  */
                 bool match_message(can::CAN_ROS_Message msg);
             private:
-
+                void * buffer;
+                size_t buffer_size;
         };
 
+        typedef bool (*PromiseFn)(can::CAN_ROS_Message &, void * );
         class CANPromise {
             public:
                 /**
@@ -46,13 +48,14 @@ namespace ros_echronos {
                  * @param data the data
                  * @return this object
                  */
-                CANPromise then(bool (*func)(can::CAN_ROS_Message &), void * data);
+                CANPromise * then(PromiseFn func, void * data);
                 /**
                  * Called if there is an error on reading the promise
                  * @param func the function to call on an error
+                 * @param data the data
                  * @return this object
                  */
-                CANPromise on_error(void (*func)(can::CAN_ROS_Message &));
+                CANPromise * on_error(PromiseFn func, void * data);
 
                 /**
                  * Block using the provided signal.
@@ -60,7 +63,7 @@ namespace ros_echronos {
                  * @param signal the signal to use to manage this wait
                  * @return the promise
                  */
-                CANPromise wait(RtosSignalId signal);
+                CANPromise * wait(RtosSignalId signal);
 
                 /**
                  * Gets the value, blocks if its not ready
@@ -85,6 +88,34 @@ namespace ros_echronos {
                  * @param filter the header filter
                  */
                 CANPromise(can::CAN_Header mask, can::CAN_Header filter);
+
+                /**
+                 * Checks if the header matches this promise.
+                 * Called by CANPromiseManager
+                 * @param header the header to check
+                 * @return true on a match false otherwise
+                 */
+                bool matches(can::CAN_Header & header);
+
+                /**
+                 * Called by CANPromiseManager on a match
+                 * @param msg the message
+                 * @param error if there is an error
+                 */
+                void trigger_match(can::CAN_ROS_Message msg, bool error);
+
+                PromiseFn then_fn;
+                void * then_data;
+                PromiseFn error_fn;
+                void * error_data;
+                bool error;
+
+                RtosSignalId signal;
+                bool waiting = false;
+                can::CAN_ROS_Message msg;
+
+                can::CAN_Header mask;
+                can::CAN_Header filter;
         };
     }
 }
