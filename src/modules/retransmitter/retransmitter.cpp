@@ -167,6 +167,30 @@ extern "C" void task_retransmitter_fn(void) {
     }
 }
 
+void task_p1(void) {
+    /* P1 */
+    wait_for_msg();
+    for (size_t i = 0; i < sizeof(struct message); i++) {
+        serial.data.structBytes[i] = (uint8_t)UARTgetc();
+    }
+    UARTwrite((const char*)startMagic, 4);
+    /* P1 end */    
+}
+
+
+void task_p2(void) {
+    /* P2 */
+    for (size_t i = 0; i < NUM_MSG; i++) {
+        msg.data = serial.data.msg.data[i];
+        publishers[i]->publish(msg);
+    }
+#ifdef UART_BUFFERED
+        UARTFlushTx(false);
+#endif
+    nh.spin();
+    /* P2 end */
+}
+
 int main(void) {
 
     // Initialize the floating-point unit.
