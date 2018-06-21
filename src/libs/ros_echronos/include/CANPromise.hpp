@@ -60,10 +60,13 @@ namespace ros_echronos {
                 /**
                  * Block using the provided signal.
                  * Condition: signal is not otherwise triggered
+                 *
+                 * The promise is deleted once this call is made.
+                 * You should not attempt to use this object after.
                  * @param signal the signal to use to manage this wait
-                 * @return the promise
+                 * @return the message
                  */
-                CANPromise * wait(RtosSignalId signal);
+                can::CAN_ROS_Message wait(RtosSignalId signal);
 
                 /**
                  * Gets the value, blocks if its not ready
@@ -111,6 +114,7 @@ namespace ros_echronos {
                 bool error;
 
                 RtosSignalId signal;
+                RtosTaskId waiting_on;
                 bool waiting = false;
                 can::CAN_ROS_Message msg;
 

@@ -11,7 +11,6 @@
 
 #include "include/CANPromise.hpp"
 
-
 using namespace ros_echronos::promise;
 
 CANPromise::CANPromise(can::CAN_Header mask, can::CAN_Header filter) :
@@ -34,16 +33,25 @@ CANPromise * CANPromise::on_error(PromiseFn func, void *data) {
     return this;
 }
 
-CANPromise * CANPromise::wait(RtosSignalId signal) {
+ros_echronos::can::CAN_ROS_Message CANPromise::wait(RtosSignalId signal) {
     signal = signal;
     waiting = true;
+    waiting_on = rtos_task_current();
     rtos_signal_wait(signal);
     if(error) {
         error_fn(msg, error_data);
     } else {
         then_fn(msg, then_data);
     }
-    return this;
+    // we want to deconstruct and 0 this class now
+    // so we can't touch any class variables once we do that
+    // (Surprisingly this is valid standard C++)
+    can::CAN_ROS_Message m = msg;
+    void * this_ptr = this;
+    this->~CANPromise();
+    // can't use any class variables or functions now
+    memset(this_ptr, 0, sizeof(CANPromise));
+    return msg;
 }
 
 bool CANPromise::matches(can::CAN_Header &header) {
@@ -55,7 +63,7 @@ void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {
     //TODO: handle if wait hasn't been called
     this->error = error;
     this->msg = msg;
-    rtos_signal_send(signal);
+    rtos_signal_send(waiting_on, signal);
 }
 
 bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
@@ -69,10 +77,6 @@ bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
             CANPromise * pbuff = ((CANPromise *)current_buff);
             if(pbuff->matches(msg.head)) {
                 pbuff->trigger_match(msg, false);
-                //TODO: find the correct place to do this
-                //it needs to be after the match has happened rather than before
-                //pbuff->~CANPromise();
-                //memset(current_buff, 0, sizeof(pbuff));
                 return true;
             }
         }
