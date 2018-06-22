@@ -34,6 +34,14 @@ namespace ros_echronos {
                  * @return if a match was found
                  */
                 bool match_message(can::CAN_ROS_Message msg);
+
+                /**
+                 * Creates a new promise for the given match
+                 * @param mask the header mask
+                 * @param filter the filter
+                 * @return the promise object for the match
+                 */
+                CANPromise * match(can::CAN_Header mask, can::CAN_Header filter);
             private:
                 void * buffer;
                 size_t buffer_size;

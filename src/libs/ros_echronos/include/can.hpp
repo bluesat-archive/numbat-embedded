@@ -109,6 +109,7 @@ namespace ros_echronos {
                 struct _ros_ctrl_fields {
                     unsigned int : sizeof(base_fields);
                     unsigned int mode : 4;
+                    unsigned int control_specific : 28 - sizeof(base_fields) - 4;
                 } __attribute__((packed)) f2_ctrl_msg_fields;
             } __attribute__((packed)) fields;
         } CAN_Header;

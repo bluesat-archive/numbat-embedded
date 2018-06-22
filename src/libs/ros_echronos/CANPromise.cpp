@@ -66,6 +66,14 @@ void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {
     rtos_signal_send(waiting_on, signal);
 }
 
+CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filter) {
+    for(uint8_t * buffer = this->buffer; buffer < buffer+(sizeof(CANPromise)*buffer_size); buffer+= sizeof(CANPromise)) {
+        if(buffer[0] && buffer[1]) {
+            return new(buffer) CANPromise(mask, filter);
+        }
+    }
+}
+
 bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
     for(
             char * current_buff = (char*) buffer;

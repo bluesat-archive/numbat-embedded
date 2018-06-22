@@ -92,6 +92,15 @@ namespace ros_echronos {
              */
             promise::CANPromiseManager promise_manager;
 
+            /**
+             * Register the node with the master
+             * @param node_name the name of the node
+             * @param msg_signal the signal to wait for
+             */
+            void do_register_node(char *node_name, RtosSignalId msg_signal);
+
+            uint8_t node_id;
+
     };
 }
 

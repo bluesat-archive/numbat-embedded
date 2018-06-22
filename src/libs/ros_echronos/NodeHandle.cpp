@@ -13,6 +13,7 @@
 #include "include/Subscriber.hpp"
 #include "include/can_impl.hpp"
 #include "include/can.hpp"
+#include "include/can/register_node.hpp"
 #include <atomic>
 
 
@@ -29,6 +30,28 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
     can::incoming_msg_buffer = &in_buff;
     has_init = true;
     can::node_handle_ready = true;
+    // we do this here so we won't be waiting infinetly for ourselves
+    do_register_node(node_name, );
+}
+
+void NodeHandle::do_register_node(char *node_name) {
+    Register_Header header = ros_echronos::can::control_0_register::REGISTER_BASE_FIELDS;
+    //TODO: hash
+    header.hash = 0;
+    ROS_CAN_Message msg;
+    msg.head.bits = header.bits;
+    strncpy(&msg.body_bytes, node_name, CAN_MESSAGE_MAX_LEN);
+    // register the check before we do the match
+    promise::CANPromise promise = promise_manager.match(,);
+    ros_echronos::can::send_can(msg);
+    promise.then([&](can::CAN_ROS_Message & msg, void * data) {
+        can::control_0_register::Register_Response_Body bdy;
+        memcpy(bdy.bits, msg.body, CAN_MESSAGE_MAX_LEN);
+        node_id = bdy.fields.node_id;
+    })->on_error([&](can::CAN_ROS_Message & msg, void * data){
+        // all we can do is try again
+        do_register_node(node_name);
+    })->wait(msg_signal);
 }
 
 void NodeHandle::spin() {
@@ -57,9 +80,7 @@ void NodeHandle::spin() {
 }
 
 uint8_t NodeHandle::get_node_id() {
-    //TODO implement properly
-    //NOTE: ROS_NODE_ID should be defined as a compile time -D flag
-    return ROS_NODE_ID;
+    return node_id;
 }
 
 void NodeHandle::run_handle_message_loop() {
