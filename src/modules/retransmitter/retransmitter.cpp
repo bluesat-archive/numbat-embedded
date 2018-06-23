@@ -103,7 +103,7 @@ extern "C" void task_retransmitter_fn(void) {
 
     ros_echronos::NodeHandle nh;
 
-    nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
+    nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
     // you would have to use the new operator to initialise these in a loop and we can't do that

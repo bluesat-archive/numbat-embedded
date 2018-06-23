@@ -8,6 +8,7 @@
  */
 
 #include <string.h>
+#include <new>
 
 #include "include/CANPromise.hpp"
 
@@ -51,7 +52,7 @@ ros_echronos::can::CAN_ROS_Message CANPromise::wait(RtosSignalId signal) {
     this->~CANPromise();
     // can't use any class variables or functions now
     memset(this_ptr, 0, sizeof(CANPromise));
-    return msg;
+    return m;
 }
 
 bool CANPromise::matches(can::CAN_Header &header) {
@@ -67,7 +68,7 @@ void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {
 }
 
 CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filter) {
-    for(uint8_t * buffer = this->buffer; buffer < buffer+(sizeof(CANPromise)*buffer_size); buffer+= sizeof(CANPromise)) {
+    for(uint8_t * buffer = (uint8_t*)this->buffer; buffer < buffer+(sizeof(CANPromise)*buffer_size); buffer+= sizeof(CANPromise)) {
         if(buffer[0] && buffer[1]) {
             return new(buffer) CANPromise(mask, filter);
         }

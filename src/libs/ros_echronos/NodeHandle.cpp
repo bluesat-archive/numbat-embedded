@@ -23,7 +23,7 @@ volatile bool can::node_handle_ready = false;
 
 
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
-                      RtosSignalId can_interupt_signal) {
+                      RtosSignalId can_interupt_signal, RtosSignalId register_node_signal) {
     ros_echronos::ROS_INFO("can interupt event %d\n", can_interupt_event);
     can::can_interupt_event = can_interupt_event;
     can_receive_signal = can_interupt_signal;
@@ -31,26 +31,33 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
     has_init = true;
     can::node_handle_ready = true;
     // we do this here so we won't be waiting infinetly for ourselves
-    do_register_node(node_name, );
+    do_register_node(node_name, register_node_signal);
 }
 
-void NodeHandle::do_register_node(char *node_name) {
+void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
+    using namespace ros_echronos::can::control_0_register;
     Register_Header header = ros_echronos::can::control_0_register::REGISTER_BASE_FIELDS;
     //TODO: hash
     header.hash = 0;
     ROS_CAN_Message msg;
     msg.head.bits = header.bits;
     strncpy(&msg.body_bytes, node_name, CAN_MESSAGE_MAX_LEN);
-    // register the check before we do the match
-    promise::CANPromise promise = promise_manager.match(,);
+    // the actual message will be the same apart from the step number
+    Register_Header match_reg_head = header;
+    match_reg_head.fields.step = 1;
+    CAN_Header match_head;
+    match_head.bits = match_reg_head.bits;
+    // register the check before we send so we don't mis it
+    // we register the signal here so we can catch it anyway
+    promise::CANPromise promise = promise_manager.match(REGISTER_HEADER_MASK ,match_head);
     ros_echronos::can::send_can(msg);
     promise.then([&](can::CAN_ROS_Message & msg, void * data) {
         can::control_0_register::Register_Response_Body bdy;
-        memcpy(bdy.bits, msg.body, CAN_MESSAGE_MAX_LEN);
+        memcpy(bdy.bytes, msg.body, CAN_MESSAGE_MAX_LEN);
         node_id = bdy.fields.node_id;
     })->on_error([&](can::CAN_ROS_Message & msg, void * data){
         // all we can do is try again
-        do_register_node(node_name);
+        do_register_node(node_name, msg_signal);
     })->wait(msg_signal);
 }
 

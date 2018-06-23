@@ -22,32 +22,63 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Register_Header;
 
-            const ROS_CAN_Header _register_base_fields = {
+            const CAN_Header _register_base_fields = {
                     .fields = {
                             .base_fields = {
-                                    ROS_CAN_MODE, 0, ROS_Function.FN_ROS_CONTROL_MSG, 0
+                                    ((unsigned int)ROS_CAN_MODE),
+                                    0,
+                                    ((unsigned int)FN_ROS_CONTROL_MSG),
+                                    0
                             }
                     }
             };
 
-            const ROS_CAN_Header _register_ctrl_fields = {
+            const CAN_Header _register_ctrl_fields = {
                     .fields = {
-                            .f2_ros_msg_fields = {
-                                    (int) Ctrl_Function.REGISTER_NODE, 0
+                            .f2_ctrl_msg_fields = {
+                                    ((unsigned int) REGISTER_NODE), 0
                             }
                     }
             };
 
-            const ROS_CAN_Header REGISTER_BASE_FIELDS = {
+            const CAN_Header REGISTER_BASE_FIELDS = {
                     .bits = _register_base_fields.bits || _reigster_ctrl_fields.bits
             };
 
             typedef union _register_response {
-                uint8_t bytes[CAN_MMESSAGE_MAX_LEN];
+                uint8_t bytes[CAN_MESSAGE_MAX_LEN];
                 struct _fields {
                     unsigned int node_id : 4;
                 } fields __attribute__((packed));
             } Register_Response_Body;
+
+            const CAN_Header _register_header_mask_base_fields {
+                .fields = {
+                        .base_fields = {
+                                1, 0xFFFF, 0xFFFF, 0xFFF
+                        }
+                }
+            };
+
+            const CAN_Header _register_header_mask_f2_fields {
+                    .fields = {
+                            .f2_ctrl_msg_fields = {
+                                    0xFFF, 0xFFF
+                            }
+                    }
+            };
+
+            const Register_Header _register_header_mask_reg_fields {
+                .fields = {
+                    0xFFFF, 0xFFFF
+                }
+            };
+
+            const CAN_Header REGISTER_HEADER_MASK {
+                .bits = _register_header_mask_base_fields.bits
+                        | _register_header_mask_f2_fields.bits
+                        | _register_header_mask_reg_fields.bits
+            };
 
         }
     }

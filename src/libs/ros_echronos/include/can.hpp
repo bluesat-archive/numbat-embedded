@@ -141,7 +141,7 @@ namespace ros_echronos {
         };
         const CAN_Header _TOPIC_BITMASK_F0 = {
             .fields = {
-                .f0_ros_msg_fields = { 0, 0xFFFFF, 0, 0, 0}
+                .f0_ros_msg_fields = { 0, 0xFFFF, 0, 0, 0}
             }
         };
 

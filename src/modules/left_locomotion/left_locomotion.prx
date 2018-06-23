@@ -65,6 +65,9 @@
                 <signal_label>
                     <name>can_receive_signal</name>
                 </signal_label>
+                <signal_label>
+                    <name>ros_promise_signal</name>
+                </signal_label>
             </signal_labels>
 
             <timers>
