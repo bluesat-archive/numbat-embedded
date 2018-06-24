@@ -36,12 +36,13 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
 
 void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     using namespace ros_echronos::can::control_0_register;
+    using namespace ros_echronos::can;
     Register_Header header = ros_echronos::can::control_0_register::REGISTER_BASE_FIELDS;
     //TODO: hash
-    header.hash = 0;
-    ROS_CAN_Message msg;
+    header.fields.hash = 0;
+    CAN_ROS_Message msg;
     msg.head.bits = header.bits;
-    strncpy(&msg.body_bytes, node_name, CAN_MESSAGE_MAX_LEN);
+    strncpy(reinterpret_cast<char *>(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
     // the actual message will be the same apart from the step number
     Register_Header match_reg_head = header;
     match_reg_head.fields.step = 1;
@@ -49,16 +50,30 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     match_head.bits = match_reg_head.bits;
     // register the check before we send so we don't mis it
     // we register the signal here so we can catch it anyway
-    promise::CANPromise promise = promise_manager.match(REGISTER_HEADER_MASK ,match_head);
+    promise::CANPromise * promise = promise_manager.match(REGISTER_HEADER_MASK ,match_head);
     ros_echronos::can::send_can(msg);
-    promise.then([&](can::CAN_ROS_Message & msg, void * data) {
+
+    // we create this here as its only used for the next operation (wish we could use curying here...)
+    // because we wait here it is safe to do this on the stack
+    typedef struct _on_error_data {
+        NodeHandle * this_node;
+        char * node_name;
+        RtosSignalId msg_signal;
+    } On_Error_Data;
+    On_Error_Data on_error_data;
+    on_error_data.this_node = this;
+    on_error_data.node_name = node_name;
+    on_error_data.msg_signal = msg_signal;
+    promise->then((promise::PromiseFn)([](can::CAN_ROS_Message & msg, void * data) {
         can::control_0_register::Register_Response_Body bdy;
         memcpy(bdy.bytes, msg.body, CAN_MESSAGE_MAX_LEN);
-        node_id = bdy.fields.node_id;
-    })->on_error([&](can::CAN_ROS_Message & msg, void * data){
+        // we can't capture because it requires std lib stuff
+        // but we can pass ourselves as a pointer
+        ((NodeHandle*)data)->node_id = bdy.fields.node_id;
+    }), this)->on_error([](can::CAN_ROS_Message & msg, void * data){
         // all we can do is try again
-        do_register_node(node_name, msg_signal);
-    })->wait(msg_signal);
+        ((On_Error_Data*)data)->this_node->do_register_node(((On_Error_Data*)data)->node_name, ((On_Error_Data*)data)->msg_signal);
+    }, &on_error_data)->wait(msg_signal);
 }
 
 void NodeHandle::spin() {

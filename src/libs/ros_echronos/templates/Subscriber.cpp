@@ -112,7 +112,7 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
 
 template <class T> T * Subscriber<T>::next_construction_msg() {
     uint32_t local_mask = 1;
-    for(int i = 0; i != message_construction_buff_size; ++i, local_mask= local_mask << 1) {
+    for(size_t i = 0; i != message_construction_buff_size; ++i, local_mask= local_mask << 1) {
         if(!(local_mask & mask)) {
             mask |= local_mask;
             return incoming_msgs + i;

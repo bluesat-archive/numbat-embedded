@@ -41,8 +41,8 @@ namespace ros_echronos {
                     }
             };
 
-            const CAN_Header REGISTER_BASE_FIELDS = {
-                    .bits = _register_base_fields.bits || _reigster_ctrl_fields.bits
+            const Register_Header REGISTER_BASE_FIELDS = {
+                    .bits = _register_base_fields.bits || _register_ctrl_fields.bits
             };
 
             typedef union _register_response {

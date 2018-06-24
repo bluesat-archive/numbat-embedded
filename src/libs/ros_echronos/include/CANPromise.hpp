@@ -47,7 +47,7 @@ namespace ros_echronos {
                 size_t buffer_size;
         };
 
-        typedef bool (*PromiseFn)(can::CAN_ROS_Message &, void * );
+        typedef void (*PromiseFn)(can::CAN_ROS_Message &, void * );
         class CANPromise {
             public:
                 /**
