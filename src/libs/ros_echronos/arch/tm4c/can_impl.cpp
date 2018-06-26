@@ -27,9 +27,15 @@ static tCANMsgObject msgs[NUM_CAN_OBJS];
 static uint8_t current_id = CAN_ID_START;
 
 // we only need one id for control messages as they don't happen very often
-const ros_echronos::can::can_sub_id CTRL_SUB_ID = CAN_ID_START - 1;
+const ros_echronos::can::can_sub_id ros_echronos::can::CTRL_SUB_ID = CAN_ID_START - 1;
 
 using namespace ros_echronos::can;
+
+/**
+ * Activates the given sub id and sets the provided values
+ * @param id the id
+ */
+static void update_and_activate_sub(can_sub_id id, uint32_t id_mask, uint32_t mask_bits);
 
 void ros_echronos::can::send_can(CAN_ROS_Message & msg) {
 
@@ -57,10 +63,7 @@ can_sub_id ros_echronos::can::subscribe_can(uint32_t id_mask, uint32_t mask_bits
         if (i < CAN_FIFO_QUEUE_LENGTH-1) {
             msgs[current_id].ui32Flags |= MSG_OBJ_FIFO;
         }
-        msgs[current_id].ui32MsgID = id_mask;
-        msgs[current_id].ui32MsgIDMask = mask_bits;
-        msgs[current_id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
-        CANMessageSet(CAN_DEVICE_BASE, current_id, msgs + current_id, MSG_OBJ_TYPE_RX);
+        update_and_activate_sub(current_id, id_mask, mask_bits);
         ++current_id;
     }
     return id;
@@ -75,6 +78,17 @@ void ros_echronos::can::unsubscribe_can(can_sub_id id) {
     if(current_id == id) {
         current_id--;
     }
+}
+
+void ros_echronos::can::set_ctrl_sub(uint32_t id_mask, uint32_t mask_bits) {
+    msgs[CTRL_SUB_ID].ui32Flags = CAN_RECEIVE_FLAGS;
+    update_and_activate_sub(CTRL_SUB_ID, id_mask, mask_bits);
+}
+
+void ros_echronos::can::clear_ctrl_sub() {
+    msgs[CTRL_SUB_ID].ui32MsgID = 0;
+    msgs[CTRL_SUB_ID].ui32MsgIDMask = MSG_OBJ_NO_FLAGS;
+    CANMessageClear(CAN_DEVICE_BASE, CTRL_SUB_ID);
 }
 
 static int error_flag = 0;
@@ -137,4 +151,12 @@ void ros_echronos::can::can_receive_unlock() {
 void ros_echronos::can::can_receive_lock() {
     // TODO: use the CAN_DEVICE_BASE flag here
     IntDisable(INT_CAN0);
+}
+
+static inline void update_and_activate_sub(const can_sub_id id, uint32_t id_mask, uint32_t mask_bits) {
+
+    msgs[id].ui32MsgID = id_mask;
+    msgs[id].ui32MsgIDMask = mask_bits;
+    msgs[id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
+    CANMessageSet(CAN_DEVICE_BASE, id, msgs + id, MSG_OBJ_TYPE_RX);
 }

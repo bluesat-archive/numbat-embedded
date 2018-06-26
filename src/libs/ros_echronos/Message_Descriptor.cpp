@@ -54,7 +54,7 @@ Message_Descriptor::~Message_Descriptor() {
 void Message_Descriptor::decode_msg(can::CAN_ROS_Message &msg) {
     uint8_t * curr_bdy = msg.body;
     for(int i = 0; i  < msg.body_bytes;  curr_bdy = msg.body+i) {
-        size_t curr_field_size = field_size[field_offset];
+        uint32_t curr_field_size = field_size[field_offset];
 
         // if we are starting a field and the size needs to be calculated
         if(curr_field_size==0 && field_internal_offset == 0) {

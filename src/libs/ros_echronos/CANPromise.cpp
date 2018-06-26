@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include <new>
+#include <can_impl.hpp>
 
 #include "include/CANPromise.hpp"
 
@@ -68,14 +69,36 @@ void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {
 }
 
 CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filter) {
+    CANPromise * ret;
+    // overall subscription masks & filters
+    uint32_t ctrl_mask = mask.bits;
+    uint32_t ctrl_filter = filter.bits;
+
+
     for(uint8_t * buffer = (uint8_t*)this->buffer; buffer < buffer+(sizeof(CANPromise)*buffer_size); buffer+= sizeof(CANPromise)) {
         if(buffer[0] && buffer[1]) {
-            return new(buffer) CANPromise(mask, filter);
+            ret = new(buffer) CANPromise(mask, filter);
+        } else {
+            // space is occupied
+            // the sum of the filters is the & of the ctrl masks
+            // and the and of the bits in the filter that are masked and of equal value
+            ctrl_filter = ((ctrl_mask & ctrl_filter) & (((CANPromise*)buffer)->mask.bits & ((CANPromise*)buffer)->filter.bits)) &
+                ((~ctrl_mask & ctrl_filter) & (~((CANPromise*)buffer)->mask.bits) & ~((CANPromise*)buffer)->filter.bits);
+            //TODO: simplify the above boolean logic
+
+            ctrl_mask &= ((CANPromise*)buffer)->mask.bits;
         }
     }
+    ros_echronos::can::set_ctrl_sub(ctrl_mask, ctrl_filter);
+    return ret;
 }
 
 bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
+    bool found = false;
+    uint8_t promises = 0;
+    // overall subscription masks & filters
+    uint32_t ctrl_mask = 0;
+    uint32_t ctrl_filter = 0;
     for(
             char * current_buff = (char*) buffer;
             (CANPromise*)current_buff < ((CANPromise*)buffer)+buffer_size;
@@ -86,11 +109,29 @@ bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
             CANPromise * pbuff = ((CANPromise *)current_buff);
             if(pbuff->matches(msg.head)) {
                 pbuff->trigger_match(msg, false);
-                return true;
+                found = true;
+            } else {
+                ++promises;
+                // space is occupied
+                // the sum of the filters is the & of the ctrl masks
+                // and the and of the bits in the filter that are masked and of equal value
+                ctrl_filter = ((ctrl_mask & ctrl_filter) & (((CANPromise*)buffer)->mask.bits & ((CANPromise*)buffer)->filter.bits)) &
+                              ((~ctrl_mask & ctrl_filter) & (~((CANPromise*)buffer)->mask.bits) & ~((CANPromise*)buffer)->filter.bits);
+                //TODO: simplify the above boolean logic
+
+                ctrl_mask &= ((CANPromise*)buffer)->mask.bits;
             }
         }
     }
-    return false;
+    // update the filter
+    if(found) {
+        if(promises > 0) {
+            can::set_ctrl_sub(ctrl_mask, ctrl_filter);
+        } else {
+            can::clear_ctrl_sub();
+        }
+    }
+    return found;
 }
 
 CANPromiseManager::CANPromiseManager(void *buffer, size_t buffer_size) :

@@ -113,13 +113,9 @@ void NodeHandle::run_handle_message_loop() {
         rtos_sleep(3);
     }
     ros_echronos::ROS_INFO("NodeHandle init done\n");
-    int start_counter, end_counter;
-    CAN_ROS_Message * msg_ptr;
     CAN_ROS_Message msg;
     while(true) {
         rtos_signal_wait(can_receive_signal);
-
-        //ROS_INFO("start %d", input_buffer.start_counter);
 
         //TODO: check the queue is not empty, although if we get here it shouldn't be
 //        if(msg_queue.front()) {
@@ -127,16 +123,7 @@ void NodeHandle::run_handle_message_loop() {
 //            msg = *msg_ptr;
 //            //msg = *(msg_queue.front());
 //            msg_queue.pop();
-            /*start_counter = input_buffer.start_counter;
-            msg = input_buffer.buffer;
-            end_counter = input_buffer.start_counter;*/
 
-            // check we didn't interupt the message read half way through
-            /*if(end_counter != start_counter) {
-                //TODO: handle concurent requests
-                ROS_INFO("Thread error\n");
-                continue;
-            }*/
         msg = in_buff.pop_locked();
         // if its a promised message, don't bother with the decoding
         if(promise_manager.match_message(msg)) {
