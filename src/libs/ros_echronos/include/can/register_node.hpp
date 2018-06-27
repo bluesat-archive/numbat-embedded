@@ -41,7 +41,7 @@ namespace ros_echronos {
                     }
             };
 
-            const Register_Header REGISTER_BASE_FIELDS = {
+            const CAN_Header REGISTER_BASE_FIELDS = {
                     .bits = _register_base_fields.bits || _register_ctrl_fields.bits
             };
 

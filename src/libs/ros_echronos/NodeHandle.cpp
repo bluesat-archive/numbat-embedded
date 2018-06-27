@@ -37,7 +37,7 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
 void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     using namespace ros_echronos::can::control_0_register;
     using namespace ros_echronos::can;
-    Register_Header header = ros_echronos::can::control_0_register::REGISTER_BASE_FIELDS;
+    Register_Header header;
     //TODO: hash
     header.fields.hash = 0;
     CAN_ROS_Message msg;
@@ -46,8 +46,8 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     // the actual message will be the same apart from the step number
     Register_Header match_reg_head = header;
     match_reg_head.fields.step = 1;
-    CAN_Header match_head;
-    match_head.bits = match_reg_head.bits;
+    CAN_Header match_head  = ros_echronos::can::control_0_register::REGISTER_BASE_FIELDS;
+    match_head.bits |= match_reg_head.bits;
     // register the check before we send so we don't mis it
     // we register the signal here so we can catch it anyway
     promise::CANPromise * promise = promise_manager.match(REGISTER_HEADER_MASK ,match_head);

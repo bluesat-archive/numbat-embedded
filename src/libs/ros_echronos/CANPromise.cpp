@@ -75,18 +75,18 @@ CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filt
     uint32_t ctrl_filter = filter.bits;
 
 
-    for(uint8_t * buffer = (uint8_t*)this->buffer; buffer < buffer+(sizeof(CANPromise)*buffer_size); buffer+= sizeof(CANPromise)) {
-        if(buffer[0] && buffer[1]) {
-            ret = new(buffer) CANPromise(mask, filter);
+    for(CANPromise * local_buffer = static_cast<CANPromise *>(this->buffer); local_buffer < (this->buffer + buffer_size); ++local_buffer) {
+        if(((uint16_t*)local_buffer)[0]) {
+            ret = new(local_buffer) CANPromise(mask, filter);
         } else {
             // space is occupied
             // the sum of the filters is the & of the ctrl masks
             // and the and of the bits in the filter that are masked and of equal value
-            ctrl_filter = ((ctrl_mask & ctrl_filter) & (((CANPromise*)buffer)->mask.bits & ((CANPromise*)buffer)->filter.bits)) &
-                ((~ctrl_mask & ctrl_filter) & (~((CANPromise*)buffer)->mask.bits) & ~((CANPromise*)buffer)->filter.bits);
+            ctrl_filter = ((ctrl_mask & ctrl_filter) & (local_buffer->mask.bits & (local_buffer->filter.bits))) &
+                ((~ctrl_mask & ctrl_filter) & (~(local_buffer->mask.bits) & (local_buffer->filter.bits)));
             //TODO: simplify the above boolean logic
 
-            ctrl_mask &= ((CANPromise*)buffer)->mask.bits;
+            ctrl_mask &= ((CANPromise*)local_buffer)->mask.bits;
         }
     }
     ros_echronos::can::set_ctrl_sub(ctrl_mask, ctrl_filter);
