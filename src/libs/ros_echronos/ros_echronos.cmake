@@ -13,7 +13,7 @@ set(ROS_ARCH_DIR ${ROS_ECHRONOS_DIR}/arch/tm4c)
 set(ROS_INCLUDE_DIR ${ROS_ECHRONOS_DIR}/include)
 
 FILE(GLOB ros_files ${ROS_ECHRONOS_DIR}/arch/tm4c/*.cpp ${ROS_ECHRONOS_DIR}/*.cpp )
-FILE(GLOB ros_include_files ${ROS_INCLUDE_DIR}/*.hpp ${ROS_INCLUDE_DIR}/templates/*.hpp )
+FILE(GLOB ros_include_files ${ROS_INCLUDE_DIR}/*.hpp ${ROS_INCLUDE_DIR}/templates/*.hpp ${ROS_INCLUDE_DIR}/can/*.hpp)
 FILE(GLOB ros_template_files ${ROS_ECHRONOS_DIR}/templates/*.cpp)
 
 # define the doxygen target if there isn't one already

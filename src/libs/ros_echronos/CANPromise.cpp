@@ -76,7 +76,7 @@ CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filt
 
 
     for(CANPromise * local_buffer = static_cast<CANPromise *>(this->buffer); local_buffer < (this->buffer + buffer_size); ++local_buffer) {
-        if(((uint16_t*)local_buffer)[0]) {
+        if(!((uint16_t*)local_buffer)[0]) {
             ret = new(local_buffer) CANPromise(mask, filter);
         } else {
             // space is occupied

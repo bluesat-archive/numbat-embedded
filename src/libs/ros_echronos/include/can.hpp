@@ -23,16 +23,16 @@ namespace ros_echronos {
         /**
          * The maximum length of a can message
          */
-        const uint8_t CAN_MESSAGE_MAX_LEN = 8;
+        constexpr uint8_t CAN_MESSAGE_MAX_LEN = 8;
 
         /**
          * Value for the ros mode on the can bus
          */
-        const uint8_t ROS_CAN_MODE = 1;
+        constexpr uint8_t ROS_CAN_MODE = 1;
         /**
          * Indicates that the "seq_num" field of a can message header is in special mode
          */
-        const uint8_t SEQ_NUM_SPECIAL_MODE = 7;
+        constexpr uint8_t SEQ_NUM_SPECIAL_MODE = 7;
 
         /**
          * Possible function modes on the can buss
@@ -134,12 +134,12 @@ namespace ros_echronos {
             int end_counter = 0;
         } input_buffer_t;
 
-        const CAN_Header _TOPIC_BITMASK_BASE = {
+        constexpr CAN_Header _TOPIC_BITMASK_BASE = {
             .fields = {
                 .base_fields = { 1, 0, 0xF, 0},
             }
         };
-        const CAN_Header _TOPIC_BITMASK_F0 = {
+        constexpr CAN_Header _TOPIC_BITMASK_F0 = {
             .fields = {
                 .f0_ros_msg_fields = { 0, 0xFFFF, 0, 0, 0}
             }

@@ -46,11 +46,16 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     // the actual message will be the same apart from the step number
     Register_Header match_reg_head = header;
     match_reg_head.fields.step = 1;
-    CAN_Header match_head  = ros_echronos::can::control_0_register::REGISTER_BASE_FIELDS;
+    CAN_Header match_head  = REGISTER_BASE_FIELDS;
     match_head.bits |= match_reg_head.bits;
     // register the check before we send so we don't mis it
     // we register the signal here so we can catch it anyway
-    promise::CANPromise * promise = promise_manager.match(REGISTER_HEADER_MASK ,match_head);
+    CAN_Header reg_head;
+    // for some reason static initilisation of this does not work
+    reg_head.bits = _register_header_mask_base_fields.bits
+                        | _register_header_mask_f2_fields.bits
+                        | _register_header_mask_reg_fields.bits;
+    promise::CANPromise * promise = promise_manager.match(reg_head ,match_head);
     ros_echronos::can::send_can(msg);
 
     // we create this here as its only used for the next operation (wish we could use curying here...)

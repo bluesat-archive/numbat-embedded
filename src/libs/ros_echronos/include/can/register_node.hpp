@@ -22,7 +22,7 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Register_Header;
 
-            const CAN_Header _register_base_fields = {
+            constexpr CAN_Header _register_base_fields = {
                     .fields = {
                             .base_fields = {
                                     ((unsigned int)ROS_CAN_MODE),
@@ -33,7 +33,7 @@ namespace ros_echronos {
                     }
             };
 
-            const CAN_Header _register_ctrl_fields = {
+            constexpr CAN_Header _register_ctrl_fields = {
                     .fields = {
                             .f2_ctrl_msg_fields = {
                                     ((unsigned int) REGISTER_NODE), 0
@@ -52,7 +52,7 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Register_Response_Body;
 
-            const CAN_Header _register_header_mask_base_fields {
+            constexpr CAN_Header _register_header_mask_base_fields {
                 .fields = {
                         .base_fields = {
                                 1, 0xFFFF, 0xFFFF, 0xFFF
@@ -60,7 +60,7 @@ namespace ros_echronos {
                 }
             };
 
-            const CAN_Header _register_header_mask_f2_fields {
+            constexpr CAN_Header _register_header_mask_f2_fields {
                     .fields = {
                             .f2_ctrl_msg_fields = {
                                     0xFFF, 0xFFF
@@ -68,7 +68,7 @@ namespace ros_echronos {
                     }
             };
 
-            const Register_Header _register_header_mask_reg_fields {
+            constexpr Register_Header _register_header_mask_reg_fields {
                 .fields = {
                     0xFFFF, 0xFFFF
                 }
