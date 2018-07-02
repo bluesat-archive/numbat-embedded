@@ -37,25 +37,31 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
 void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     using namespace ros_echronos::can::control_0_register;
     using namespace ros_echronos::can;
-    Register_Header header;
-    //TODO: hash
-    header.fields.hash = 0;
-    CAN_ROS_Message msg;
-    msg.head.bits = header.bits;
-    strncpy(reinterpret_cast<char *>(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
-    // the actual message will be the same apart from the step number
-    Register_Header match_reg_head = header;
-    match_reg_head.fields.step = 1;
-    CAN_Header match_head  = REGISTER_BASE_FIELDS;
-    match_head.bits |= match_reg_head.bits;
     // register the check before we send so we don't mis it
     // we register the signal here so we can catch it anyway
-    CAN_Header reg_head;
+    CAN_Header reg_header_mask;
     // for some reason static initilisation of this does not work
-    reg_head.bits = _register_header_mask_base_fields.bits
-                        | _register_header_mask_f2_fields.bits
-                        | _register_header_mask_reg_fields.bits;
-    promise::CANPromise * promise = promise_manager.match(reg_head ,match_head);
+    reg_header_mask.bits = _register_header_mask_base_fields.bits
+                    | _register_header_mask_f2_fields.bits
+                    | _register_header_mask_reg_fields.bits;
+    Register_Header reg_specific_header;
+    //TODO: hash
+    reg_specific_header.fields.hash = 0;
+    reg_specific_header.fields.step = 0;
+
+    // build the message to send
+    CAN_ROS_Message msg;
+    msg.head.bits = reg_specific_header.bits | REGISTER_BASE_FIELDS.bits;
+    strncpy(reinterpret_cast<char *>(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
+
+    // build the header to match response, it will be the same apart from the step number
+    Register_Header match_reg_specific_head = reg_specific_header;
+    match_reg_specific_head.fields.step = 1;
+    CAN_Header match_head = REGISTER_BASE_FIELDS;
+    match_head.bits |= match_reg_specific_head.bits;
+
+    ROS_INFO("Registering %x mask %x", match_head.bits, reg_header_mask.bits);
+    promise::CANPromise * promise = promise_manager.match(match_head ,reg_header_mask);
     ros_echronos::can::send_can(msg);
 
     // we create this here as its only used for the next operation (wish we could use curying here...)
@@ -75,9 +81,11 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
         // we can't capture because it requires std lib stuff
         // but we can pass ourselves as a pointer
         ((NodeHandle*)data)->node_id = bdy.fields.node_id;
+        ROS_INFO("CAN Success recv head: %x\n", msg.head.bits);
     }), this)->on_error([](can::CAN_ROS_Message & msg, void * data){
         // all we can do is try again
         ((On_Error_Data*)data)->this_node->do_register_node(((On_Error_Data*)data)->node_name, ((On_Error_Data*)data)->msg_signal);
+        ROS_INFO("CAN Error\n");
     }, &on_error_data)->wait(msg_signal);
 }
 

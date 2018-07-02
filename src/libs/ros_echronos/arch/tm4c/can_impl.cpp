@@ -15,8 +15,7 @@
 // reserve 0 for sending messages
 #define CAN_ID_START 2
 #define CAN_DEVICE_BASE CAN0_BASE
-#define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER |  MSG_OBJ_EXTENDED_ID)
-
+#define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER |  MSG_OBJ_EXTENDED_ID | MSG_OBJ_USE_EXT_FILTER)
 /**
  * The CAN msg objects we can use to store ids in
  */
@@ -157,6 +156,7 @@ static inline void update_and_activate_sub(const can_sub_id id, uint32_t id_mask
 
     msgs[id].ui32MsgID = id_mask;
     msgs[id].ui32MsgIDMask = mask_bits;
+    msgs[id].ui32Flags = MSG_OBJ_RX_INT_ENABLE;
     msgs[id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
     CANMessageSet(CAN_DEVICE_BASE, id, msgs + id, MSG_OBJ_TYPE_RX);
 }
