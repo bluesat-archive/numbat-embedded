@@ -17,7 +17,6 @@
 #define FRONT_LEFT_ROTATE_PIN PWM2
 #define BACK_LEFT_ROTATE_PIN PWM3
 
-ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define DRIVE_PWM_PERIOD 10.0
 
@@ -55,7 +54,6 @@ extern "C" void task_left_locomotion_fn(void) {
     ros_echronos::NodeHandle nh;
     nh.init("left_locomotion_fn", "left_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("Done init\n");
-    nh_ptr = &nh;
 
     ros_echronos::ROS_INFO("Initalising left locomotion subscribers\n");
     // Create the subscribers

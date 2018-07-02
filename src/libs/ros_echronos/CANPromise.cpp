@@ -36,7 +36,7 @@ CANPromise * CANPromise::on_error(PromiseFn func, void *data) {
 }
 
 ros_echronos::can::CAN_ROS_Message CANPromise::wait(RtosSignalId signal) {
-    signal = signal;
+    this->signal = signal;
     waiting = true;
     waiting_on = rtos_task_current();
     rtos_signal_wait(signal);
@@ -58,7 +58,7 @@ ros_echronos::can::CAN_ROS_Message CANPromise::wait(RtosSignalId signal) {
 
 bool CANPromise::matches(can::CAN_Header &header) {
     //TODO: return something different if we have already matched
-    return (header.bits && mask.bits) == filter.bits;
+    return (header.bits & filter.bits) == (mask.bits & filter.bits);
 }
 
 void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {

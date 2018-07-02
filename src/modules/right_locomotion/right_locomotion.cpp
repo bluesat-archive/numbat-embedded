@@ -26,8 +26,6 @@
 
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
 
-ros_echronos::NodeHandle * volatile nh_ptr = NULL;
-
 #define SYSTICKS_PER_SECOND     100
 
 #define CAN_BITRATE 500000
@@ -60,7 +58,6 @@ extern "C" void task_right_locomotion_fn(void) {
     ros_echronos::NodeHandle nh;
     nh.init("right_locomotion_fn", "right_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("Done init\n");
-    nh_ptr = &nh;
 
     ros_echronos::ROS_INFO("Initalising right locomotion subscribers\n");
     // Create the subscribers

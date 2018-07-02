@@ -21,6 +21,10 @@ using namespace ros_echronos;
 
 volatile bool can::node_handle_ready = false;
 
+/**
+ * Used so we can run tasks based on the nh being ready
+ */
+ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
                       RtosSignalId can_interupt_signal, RtosSignalId register_node_signal) {
@@ -30,6 +34,8 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
     can::incoming_msg_buffer = &in_buff;
     has_init = true;
     can::node_handle_ready = true;
+    nh_ptr = this;
+
     // we do this here so we won't be waiting infinetly for ourselves
     do_register_node(node_name, register_node_signal);
 }
