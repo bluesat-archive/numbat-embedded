@@ -120,6 +120,12 @@ namespace ros_echronos {
 
             inline T * next_construction_msg();
             inline void clear_slot(T * msg_ptr);
+
+            /**
+             * Internal function to register a node
+             * @param signal_wait the signal to wait on
+             */
+            void register_node(RtosSignalId signal_wait);
             /**
              * which error handling mode we are in
              */

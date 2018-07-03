@@ -137,4 +137,8 @@ template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
     mask ^= (1 << (msg_ptr - incoming_msgs));
 
 }
+
+template <class T> void Subscriber<T>::register_node(RtosSignalId signal_wait) {
+    
+}
 //TODO: flush unfinished messages from the buffer or rerequest them

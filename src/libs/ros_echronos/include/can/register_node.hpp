@@ -16,7 +16,7 @@ namespace ros_echronos {
             typedef union _reigster_header {
                 uint32_t bits;
                 struct _fields {
-                    unsigned int : 12;
+                    unsigned int : HEADER_COMMON_BITS;
                     unsigned int step : 1;
                     unsigned int hash : 8;
                 } fields __attribute__((packed));

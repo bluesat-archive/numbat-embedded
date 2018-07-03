@@ -18,6 +18,10 @@ namespace ros_echronos {
  * Namespace for can specific functionality
  */
     namespace can {
+        /**
+         * the number of bits to skip when making custom control headers
+         */
+        constexpr uint8_t HEADER_COMMON_BITS = 12;
         extern int can_error_flag;
 
         /**
