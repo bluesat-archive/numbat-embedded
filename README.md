@@ -1,5 +1,5 @@
 # Overview
-This is all the code that runs on numbat's embedded module computers
+This is all the code that runs on BLUEsat UNSW's Off-World Robotic [Numbat Rover](http://bluesat.com.au/projects/off-world-robotics/) embedded module computers
 
 It contains a few key components:
 
@@ -57,7 +57,7 @@ Once you have started OpenOCD, it's time to flash and debug your image! This rep
 
 To try the blinky example, (making sure you have built everything!):
 
-    ./flash.sh elf/blinky.elf
+    ./flash.sh elfs/blinky.elf
 
 GDB should fire up, connect to your OpenOCD server, flash the image, reset and then break on your `main` function. To see cool stuff happen, press `c` to continue execution.
 
@@ -111,10 +111,7 @@ You can install doxygen on Ubuntu using the following command
 
 `sudo apt-get install doxygen`
 
-To generate the documentation run
-
-`make docs`
-
+If you have the doxygen cmake package it will automatically generate docs
 
 # C++ Limitations
 
