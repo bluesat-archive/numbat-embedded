@@ -26,6 +26,11 @@ volatile bool can::node_handle_ready = false;
  */
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
+/**
+ * Hashes a null terminated string
+ */
+static uint8_t hash(char * name);
+
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
                       RtosSignalId can_interupt_signal, RtosSignalId register_node_signal) {
     ros_echronos::ROS_INFO("can interupt event %d\n", can_interupt_event);
@@ -52,7 +57,7 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
                     | _register_header_mask_reg_fields.bits;
     Register_Header reg_specific_header;
     //TODO: hash
-    reg_specific_header.fields.hash = 0;
+    reg_specific_header.fields.hash = hash(node_name);
     reg_specific_header.fields.step = 0;
 
     // build the message to send
@@ -167,7 +172,16 @@ void NodeHandle::run_handle_message_loop() {
     }
 }
 
-
-void NodeHandle::handle_ctrl_msg(ros_echronos::can::CAN_ROS_Message msg) {
-
+static uint8_t hash(char * name) {
+    constexpr uint8_t PRIME_HASH = 97;
+    uint8_t hash = 31;
+    // 8bit varient of FNV Hash that does not have primes, etc calibrated properly
+    // (the chance of collision is very low here anyway)
+    // http://isthe.com/chongo/tech/comp/fnv/#public_domain
+    while(name[0] != '\0') {
+        hash = hash ^ *(name++);
+        hash = hash * PRIME_HASH;
+    }
+    return hash;
 }
+
