@@ -19,7 +19,7 @@ FILE(GLOB ros_include_files ${ROS_INCLUDE_DIR}/*.hpp ${ROS_INCLUDE_DIR}/template
 if(NOT TARGET ros-echronos-docs)
 
     find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
-    if( Doxygen_FOUND)
+    if( COMMAND doxygen_add_docs )
         set(DOXYGEN_OUTPUT_DIRECTORY ../../../docs/doxygen)
         doxygen_add_docs(
                 ros-echronos-docs
