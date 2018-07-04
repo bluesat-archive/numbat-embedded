@@ -99,12 +99,18 @@ static void wait_for_msg() {
         }
     }
 }
+
+ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
+std_msgs::Float64 msg;
+struct messageAdapter serial;
+ros_echronos::NodeHandle nh;
+void task_p1(void);
+void task_p2(void);
+
 extern "C" void task_retransmitter_fn(void) {
 
-    ros_echronos::NodeHandle nh;
 
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
-    ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
     // you would have to use the new operator to initialise these in a loop and we can't do that
     std_msgs::Float64 msg_buf_front_left_a[BUF_SIZE];
@@ -137,59 +143,31 @@ extern "C" void task_retransmitter_fn(void) {
         publishers[i]->init(nh);
     }
     
-    std_msgs::Float64 msg;
-    struct messageAdapter serial;
-    int counter = 0;
     while(true) {
-
-/* P1 */
-        wait_for_msg();
-        for (size_t i = 0; i < sizeof(struct message); i++) {
-            serial.data.structBytes[i] = (uint8_t)UARTgetc();
-        }
-        UARTwrite((const char*)startMagic, 4);
-/* P1 end */
-
-        /*if (serial.data.msg.endMagic != endMagic) {
-            continue;
-        }*/
-/* P2 */
-        for (size_t i = 0; i < NUM_MSG; i++) {
-            msg.data = serial.data.msg.data[i];
-            publishers[i]->publish(msg);
-        }
-#ifdef UART_BUFFERED
-        UARTFlushTx(false);
-#endif
-        nh.spin();
-/* P2 end */
-        counter++;
+        task_p1();
+        task_p2();
     }
 }
 
-// void task_p1(void) {
-//     /* P1 */
-//     wait_for_msg();
-//     for (size_t i = 0; i < sizeof(struct message); i++) {
-//         serial.data.structBytes[i] = (uint8_t)UARTgetc();
-//     }
-//     UARTwrite((const char*)startMagic, 4);
-//     /* P1 end */    
-// }
+void task_p1(void) {
+    wait_for_msg();
+    for (size_t i = 0; i < sizeof(struct message); i++) {
+        serial.data.structBytes[i] = (uint8_t)UARTgetc();
+    }
+    UARTwrite((const char*)startMagic, 4);
+}
 
 
-// void task_p2(void) {
-//     /* P2 */
-//     for (size_t i = 0; i < NUM_MSG; i++) {
-//         msg.data = serial.data.msg.data[i];
-//         publishers[i]->publish(msg);
-//     }
-// #ifdef UART_BUFFERED
-//         UARTFlushTx(false);
-// #endif
-//     nh.spin();
-//     /* P2 end */
-// }
+void task_p2(void) {
+    for (size_t i = 0; i < NUM_MSG; i++) {
+        msg.data = serial.data.msg.data[i];
+        publishers[i]->publish(msg);
+    }
+#ifdef UART_BUFFERED
+        UARTFlushTx(false);
+#endif
+    nh.spin();
+}
 
 int main(void) {
 
