@@ -144,12 +144,12 @@ extern "C" void task_retransmitter_fn(void) {
     }
     
     while(true) {
-        task_p1();
-        task_p2();
+        task_read_to_buffer();
+        task_publish_buffer();
     }
 }
 
-void task_p1(void) {
+void task_read_to_buffer(void) {
     wait_for_msg();
     for (size_t i = 0; i < sizeof(struct message); i++) {
         serial.data.structBytes[i] = (uint8_t)UARTgetc();
@@ -158,7 +158,7 @@ void task_p1(void) {
 }
 
 
-void task_p2(void) {
+void task_publish_buffer(void) {
     for (size_t i = 0; i < NUM_MSG; i++) {
         msg.data = serial.data.msg.data[i];
         publishers[i]->publish(msg);
