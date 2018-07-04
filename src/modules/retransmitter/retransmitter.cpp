@@ -104,8 +104,8 @@ ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 std_msgs::Float64 msg;
 struct messageAdapter serial;
 ros_echronos::NodeHandle nh;
-void task_p1(void);
-void task_p2(void);
+void task_read_to_buffer(void);
+void task_publish_buffer(void);
 
 extern "C" void task_retransmitter_fn(void) {
 
