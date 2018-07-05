@@ -218,6 +218,7 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     (cpp_msg_unqualified, cpp_msg_with_alloc, cpp_msg_base) = cpp_message_declarations(cpp_name_prefix, msg)
     s.write('  typedef %s * Ptr;\n'%(cpp_msg_with_alloc))
     s.write('  typedef %s * const ConstPtr;\n'%(cpp_msg_with_alloc))
+    s.write('  constexpr static char * NAME = "%s/%s";\n' % (spec.package, spec.short_name))
 
     s.write('}; // class %s\n'%(msg))
     

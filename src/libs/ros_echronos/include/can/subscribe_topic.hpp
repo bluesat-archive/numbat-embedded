@@ -20,13 +20,14 @@ namespace ros_echronos {
                     unsigned int : HEADER_COMMON_BITS;
                     unsigned int node_id : 4;
                     unsigned int step : 1;
-                    unsigned int hash : 8;
+                    unsigned int hash : 3;
+                    unsigned int seq_num : 4;
                     /**
                      * length of the topic name in packets
                      */
-                    unsigned int length : 3;
+                    unsigned int length : 4;
                 } fields __attribute__((packed));
-            };
+            } Subscribe_Header;
 
             /**
              * Base fields that are set for all ctrl_2 messages
@@ -45,12 +46,19 @@ namespace ros_echronos {
             /**
              * Ctrl message specific fields that are common
              */
-            constexpr CAN_Header _sub_ctrL_fields = {
+            constexpr CAN_Header _sub_ctrl_fields = {
                 .fields = {
                     .f2_ctrl_msg_fields = {
                         ((unsigned int)SUBSCRIBE_TOPIC), 0
                     }
                 }
+            };
+
+            /**
+             * Merged CAN Header
+             */
+            const CAN_Header SUB_CTRL_HEADER {
+                .bits = _sub_base_fields.bits | _sub_ctrl_fields.bits
             };
 
 

@@ -159,6 +159,11 @@ namespace ros_echronos {
 
         extern RtosInterruptEventId can_interupt_event;
         extern volatile bool node_handle_ready;
+
+        /**
+         * Hashes a null terminated string
+         */
+        uint8_t hash(const char * name);
     }
 }
 #endif //PROJECT_CAN_H

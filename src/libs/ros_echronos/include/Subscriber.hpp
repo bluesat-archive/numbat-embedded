@@ -136,6 +136,11 @@ namespace ros_echronos {
              */
             const T EMPTY_MSG;
 
+            /**
+             * The topic name
+             */
+            char const * topic_name;
+
     };
 }
 

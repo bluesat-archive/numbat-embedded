@@ -11,6 +11,7 @@
 #include <can_impl.hpp>
 #include <NodeHandle.hpp>
 #include "Subscriber.hpp"
+#include "include/can/subscribe_topic.hpp"
 #include "Message.hpp"
 #include "Message_Buffer.cpp"
 
@@ -18,7 +19,12 @@ using namespace ros_echronos;
 
 
 template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
-        : incoming_msgs(read_buffer), message_construction_buff_size(buffer_size/2), ready_msgs(incoming_msgs + message_construction_buff_size, buffer_size-message_construction_buff_size), callback(callback) {
+        : incoming_msgs(read_buffer),
+          message_construction_buff_size(buffer_size/2),
+          ready_msgs(incoming_msgs + message_construction_buff_size, buffer_size-message_construction_buff_size),
+          callback(callback),
+          topic_name(topic_name)
+{
 
 }
 
@@ -139,6 +145,48 @@ template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
 }
 
 template <class T> void Subscriber<T>::register_node(RtosSignalId signal_wait) {
-    
+    using namespace ros_echronos::can::control_2_subscribe;
+    using namespace ros_echronos::can;
+
+    const size_t topic_length = strlen(topic_name);
+    const size_t msg_name_len = strlen(T::NAME);
+    Subscribe_Header msg_head;
+    msg_head.fields.step = 0;
+    msg_head.fields.node_id = nh->get_node_id();
+    msg_head.fields.length = (topic_length + msg_name_len + 1) / CAN_MESSAGE_MAX_LEN;
+    msg_head.fields.hash = hash(topic_name); // this gets truncated but that's fine
+    msg_head.fields.seq_num = 0;
+
+
+    CAN_ROS_Message msg;
+    msg.head = SUB_CTRL_HEADER;
+    msg.head.bits |= msg_head.bits;
+    msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+    char const * ptr;
+    for(ptr = topic_name; ptr < topic_name+topic_length && ptr != '\0'; ++ptr) {
+        const uint8_t index = (ptr - topic_name) % CAN_MESSAGE_MAX_LEN;
+        msg.body[index] = *ptr;
+        if(!index && (ptr-topic_name)) {
+            send_can(msg);
+            ++(msg_head.fields.step);
+            msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+            memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+        }
+    }
+    const uint8_t index_offset = (ptr - topic_name) % CAN_MESSAGE_MAX_LEN;
+    for(ptr = T::NAME; ptr < T::NAME+msg_name_len && ptr != '\0'; ++ptr) {
+        const uint8_t index = ((ptr - T::NAME) % CAN_MESSAGE_MAX_LEN) + index_offset;
+        msg.body[index] = *ptr;
+        if(!index && (ptr-T::NAME)) {
+            send_can(msg);
+            ++(msg_head.fields.step);
+            msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+            memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+        }
+    }
+    if(((ptr - T::NAME) % CAN_MESSAGE_MAX_LEN) + index_offset) {
+        send_can(msg);
+    }
+    //TODO: append message type
 }
 //TODO: flush unfinished messages from the buffer or rerequest them
