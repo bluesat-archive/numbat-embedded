@@ -64,8 +64,10 @@ void i2c_set_slave_addr(int module, uint8_t slave_addr, bool read) {
 	I2CMasterSlaveAddrSet(i2c_module[module], slave_addr, read);
 }
 
-void i2c_stop(int module) {
+int i2c_stop(int module) {
 	I2CMasterControl(i2c_module[module], I2C_CMD_STOP);
+	int error = I2CMasterErr(i2c_module[module]);
+	return error;
 }
 
 
