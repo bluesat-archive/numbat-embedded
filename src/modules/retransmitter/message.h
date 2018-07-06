@@ -19,11 +19,13 @@ struct message {
     uint32_t endMagic;
 } __attribute__((packed)) ; 
 
+union Data {
+    struct message msg;
+    uint8_t structBytes[sizeof(struct message)];
+};
+
 struct messageAdapter {
-    union _data {
-        struct message msg;
-        uint8_t structBytes[sizeof(struct message)];
-    } data;
+    union Data data;
 };
 
 //const unsigned char startMagic[4] = {0xFE, 0xED, 0xBE, 0xEF};

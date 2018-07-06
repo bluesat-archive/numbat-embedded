@@ -107,8 +107,14 @@ ros_echronos::NodeHandle nh;
 void task_read_to_buffer(void);
 void task_publish_buffer(void);
 
-extern "C" void task_retransmitter_fn(void) {
+union Data buf_reading;
+union Data buf_ready;
+union Data buf_sending;
 
+bool buffer_ready = false;
+bool buffer_sent = false;
+
+extern "C" void task_retransmitter_fn(void) {
 
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
 
@@ -142,7 +148,7 @@ extern "C" void task_retransmitter_fn(void) {
     for (size_t i = 0; i < NUM_MSG; i++) {
         publishers[i]->init(nh);
     }
-    
+
     while(true) {
         task_read_to_buffer();
         task_publish_buffer();
