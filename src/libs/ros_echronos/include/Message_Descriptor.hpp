@@ -34,7 +34,7 @@ namespace ros_echronos {
              * @param field_size the size of each field, 0 represents a variable length field
              * @param num_fields the number of fields in the message (and thus the number of elements in each array)
              */
-            Message_Descriptor(void ** field_ptrs, size_t * field_size, size_t num_fields);
+            Message_Descriptor(void ** field_ptrs, size_t * field_size, const size_t num_fields);
 
             /**
              * Destroys the descriptor
@@ -58,10 +58,10 @@ namespace ros_echronos {
              * @param num_fields the number of fields in the message (and thus the number of elements in each array)
              * @param copy if the fields should be copied or just use the existing pointers
              */
-            Message_Descriptor(void ** field_ptrs, size_t * field_size, size_t num_fields, bool copy);
+            Message_Descriptor(void ** field_ptrs, size_t * field_size, size_t num_fields, const bool copy);
             void ** field_ptrs = NULL;
             size_t * field_size = NULL;
-            size_t num_fields;
+            const size_t num_fields;
             /**
              * The field we are currently on
              */
@@ -78,7 +78,7 @@ namespace ros_echronos {
             /**
              * If we need to memory manage our arrays
              */
-            bool mem_manage_arrays;
+            const bool mem_manage_arrays;
 
         // allow Messages to use our protected methofs
         //friend class Message;
@@ -105,7 +105,5 @@ namespace ros_echronos {
 
     }
 }
-
-
 
 #endif //NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP

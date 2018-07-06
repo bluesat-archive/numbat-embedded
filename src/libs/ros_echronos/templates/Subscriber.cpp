@@ -144,12 +144,15 @@ template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
 
 }
 
-template <class T> void Subscriber<T>::register_node(RtosSignalId signal_wait) {
+template <class T> void Subscriber<T>::register_node(const RtosSignalId signal_wait) {
     using namespace ros_echronos::can::control_2_subscribe;
     using namespace ros_echronos::can;
 
+    //calculate lengths
     const size_t topic_length = strlen(topic_name);
     const size_t msg_name_len = strlen(T::NAME);
+
+    // build the request header
     Subscribe_Header msg_head;
     msg_head.fields.step = 0;
     msg_head.fields.node_id = nh->get_node_id();
@@ -157,7 +160,20 @@ template <class T> void Subscriber<T>::register_node(RtosSignalId signal_wait) {
     msg_head.fields.hash = hash(topic_name); // this gets truncated but that's fine
     msg_head.fields.seq_num = 0;
 
+    // build the response mask
+    CAN_Header mask;
+    mask.bits = _CTRL_HEADER_MASK_BASE_FIELDS.bits
+                        | _CTRL_HEADER_MASK_F2_FIELDS.bits
+                        | SUB_CTRL_HEADER_MASK.bits;
 
+    // build the expected response header
+    Subscribe_Header response_head = msg_head;
+    response_head.fields.step = 1;
+    CAN_Header can_response_head;
+    can_response_head.bits = response_head.bits | SUB_CTRL_HEADER.bits;
+    promise::CANPromise * const promise = nh->promise_manager.match(can_response_head, mask);
+
+    // build the strings and send messages
     CAN_ROS_Message msg;
     msg.head = SUB_CTRL_HEADER;
     msg.head.bits |= msg_head.bits;
@@ -187,6 +203,24 @@ template <class T> void Subscriber<T>::register_node(RtosSignalId signal_wait) {
     if(((ptr - T::NAME) % CAN_MESSAGE_MAX_LEN) + index_offset) {
         send_can(msg);
     }
-    //TODO: append message type
+
+    typedef struct _recurse_data {
+        Subscriber * this_obj;
+        RtosSignalId sig;
+    } _Recurse_Data;
+
+    _Recurse_Data recurse_data = {this, signal_wait};
+
+    promise->then((promise::PromiseFn)([](can::CAN_ROS_Message & msg, void * data) {
+        Response_Body resp;
+        ROS_INFO("CAN Received Header %s\n", msg.head.bits);
+        memcpy(resp.bytes, msg.body, msg.body_bytes);
+        ((Subscriber*)data)->sub_id = resp.fields.topic_id;
+        ROS_INFO("%s got topic id %d\n", ((Subscriber*)data)->topic_name, resp.fields.topic_id);
+
+    }), this)->on_error([](can::CAN_ROS_Message & msg, void * data) {
+        // all we can do is try again
+        ((_Recurse_Data*)data)->this_obj->register_node(((_Recurse_Data*)data)->sig);
+    }, &recurse_data);
 }
 //TODO: flush unfinished messages from the buffer or rerequest them

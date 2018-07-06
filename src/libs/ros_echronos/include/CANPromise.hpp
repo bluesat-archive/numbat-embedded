@@ -126,8 +126,8 @@ namespace ros_echronos {
                 bool waiting = false;
                 can::CAN_ROS_Message msg;
 
-                can::CAN_Header mask;
-                can::CAN_Header filter;
+                const can::CAN_Header mask;
+                const can::CAN_Header filter;
         };
     }
 }

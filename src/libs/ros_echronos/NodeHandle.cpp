@@ -48,8 +48,8 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     // we register the signal here so we can catch it anyway
     CAN_Header reg_header_mask;
     // for some reason static initilisation of this does not work
-    reg_header_mask.bits = _register_header_mask_base_fields.bits
-                    | _register_header_mask_f2_fields.bits
+    reg_header_mask.bits = _CTRL_HEADER_MASK_BASE_FIELDS.bits
+                    | _CTRL_HEADER_MASK_F2_FIELDS.bits
                     | _register_header_mask_reg_fields.bits;
     Register_Header reg_specific_header;
     reg_specific_header.fields.hash = hash(node_name);

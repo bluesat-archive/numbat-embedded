@@ -43,7 +43,7 @@ class Message_Buffer {
          * @param msg the message to store
          * @return a pointer to the message in the buffer
          */
-        T * put(T * msg);
+        T * put(T *const msg);
         bool is_empty();
 
         /**
@@ -57,7 +57,7 @@ class Message_Buffer {
          * @param index the index of the array
          * @return the pointer to the item in the buffer specified by the index
          */
-        T *operator[](int index);
+        T *operator[](const int index);
     private:
         bool is_full = false;
 
@@ -114,7 +114,7 @@ template <class T> T Message_Buffer<T>::pop() {
 }
 
 template <class T>
-T * Message_Buffer<T>::put(T * msg) {
+T * Message_Buffer<T>::put(T *const msg) {
         (*buffer_tail) = *msg;
         T * output = buffer_tail;
         --buffer_tail;
@@ -149,7 +149,7 @@ template <class T> size_t Message_Buffer<T>::length() {
         }
 }
 
-template <class T> T * Message_Buffer<T>::operator[](int index) {
+template <class T> T * Message_Buffer<T>::operator[](const int index) {
         int nindex = (buffer_tail - buffer_start) + index;
         nindex = nindex % (buffer_start - buffer_end);
         return buffer_start + nindex;

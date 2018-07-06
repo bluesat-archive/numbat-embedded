@@ -15,14 +15,14 @@ using namespace ros_echronos;
 Message_Descriptor::Message_Descriptor(
         void **field_ptrs,
         size_t *field_size,
-        size_t num_fields
+        const size_t num_fields
 ) : Message_Descriptor(field_ptrs, field_size, num_fields, true) {}
 
 Message_Descriptor::Message_Descriptor(
         void **field_ptrs,
         size_t *field_size,
-        size_t num_fields,
-        bool copy
+        const size_t num_fields,
+        const bool copy
 ) : num_fields(num_fields), mem_manage_arrays(copy) {
     if(copy) {
         this->field_ptrs = (void **) alloc::malloc(sizeof(void *) * num_fields);
@@ -35,13 +35,11 @@ Message_Descriptor::Message_Descriptor(
     }
 }
 
-Message_Descriptor::Message_Descriptor(const Message_Descriptor &to_copy) {
-    num_fields = to_copy.num_fields;
+Message_Descriptor::Message_Descriptor(const Message_Descriptor &to_copy) : num_fields(to_copy.num_fields), mem_manage_arrays(to_copy.mem_manage_arrays) {
     field_ptrs = (void **) alloc::malloc(sizeof(void*)* num_fields);
     field_size = (size_t *) alloc::malloc(sizeof(size_t)* num_fields);
     memcpy(field_ptrs, to_copy.field_ptrs, sizeof(void *) * num_fields);
     memcpy(field_size, to_copy.field_size, sizeof(size_t) * num_fields);
-    mem_manage_arrays = true;
 }
 
 Message_Descriptor::~Message_Descriptor() {

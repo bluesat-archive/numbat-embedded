@@ -38,6 +38,7 @@ namespace ros_echronos {
          */
         constexpr uint8_t SEQ_NUM_SPECIAL_MODE = 7;
 
+
         /**
          * Possible function modes on the can buss
          */
@@ -76,10 +77,6 @@ namespace ros_echronos {
                 HEARTBEAT = 9,
                 EXTENDED = 10
          } Ctrl_Function;
-        /**
-         * Used to store the base register of the can bus (CAN0)
-         */
-        extern uint32_t can_base;
 
         /**
          * Represents a can header as per the ros over can protocol
@@ -127,6 +124,39 @@ namespace ros_echronos {
             uint8_t body_bytes;
         } CAN_ROS_Message __attribute__((aligned(4)));
 
+        /**
+         * Standard header base for ctrl messages
+         */
+        constexpr CAN_Header CAN_CTRL_BASE_FIELDS = {
+            .fields = {
+                .base_fields = {
+                    ((unsigned int) ROS_CAN_MODE),
+                    0,
+                    ((unsigned int) FN_ROS_CONTROL_MSG),
+                    0
+                }
+            }
+        };
+
+        /**
+         * Mask for the subscriber ctrl header base fields
+         */
+        constexpr CAN_Header _CTRL_HEADER_MASK_BASE_FIELDS {
+            .fields = {
+                .base_fields = {
+                    1, 0xFFFF, 0xFFFF, 0xFFF
+                }
+            }
+        };
+
+        constexpr CAN_Header _CTRL_HEADER_MASK_F2_FIELDS {
+            .fields = {
+                .f2_ctrl_msg_fields = {
+                    0xFFF, 0xFFF
+                }
+            }
+        };
+
 
         /**
          * We can't use mutexes in buffers so we have to assume that we do not receive another message
@@ -153,9 +183,6 @@ namespace ros_echronos {
             .bits = _TOPIC_BITMASK_BASE.bits || _TOPIC_BITMASK_BASE.bits
         };
 
-
-        extern input_buffer_t input_buffer;
-//        extern rigtorp::SPSCQueue<CAN_ROS_Message, 5> msg_queue;
 
         extern RtosInterruptEventId can_interupt_event;
         extern volatile bool node_handle_ready;

@@ -18,6 +18,11 @@
 
 
 namespace ros_echronos {
+    /**
+     * bits in a node id
+     */
+    constexpr uint8_t NODE_ID_WIDTH = 4;
+
     template <class T> class Publisher;
     template <class T> class Subscriber;
     class NodeHandle;

@@ -65,6 +65,10 @@ namespace ros_echronos {
              * This function does not return!
              */
             void run_handle_message_loop();
+            /**
+             * Stores promises
+             */
+            promise::CANPromiseManager promise_manager;
 
         private:
             /**
@@ -91,10 +95,6 @@ namespace ros_echronos {
 
             // we want an empty buffer, not one that has been initalised
             uint8_t promise_buffer[sizeof(promise::CANPromise)*3];
-            /**
-             * Stores promises
-             */
-            promise::CANPromiseManager promise_manager;
 
             /**
              * Register the node with the master
@@ -103,7 +103,7 @@ namespace ros_echronos {
              */
             void do_register_node(char *node_name, RtosSignalId msg_signal);
 
-            uint8_t node_id;
+            uint8_t node_id : NODE_ID_WIDTH;
 
     };
 }

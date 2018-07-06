@@ -12,7 +12,6 @@
 //because templates
 #include "templates/Message_Buffer.cpp"
 
-ros_echronos::can::input_buffer_t ros_echronos::can::input_buffer;
 _Incoming_Message_Buffer * ros_echronos::can::incoming_msg_buffer;
 //rigtorp::SPSCQueue<ros_echronos::can::CAN_ROS_Message, 5> ros_echronos::can::msg_queue;
 

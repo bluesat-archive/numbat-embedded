@@ -8,10 +8,6 @@
  */
 #include "include/can.hpp"
 
-int ros_echronos::can::can_error_flag;
-
-uint32_t  ros_echronos::can::can_base;
-
 uint8_t ros_echronos::can::hash(char const * name) {
     constexpr uint8_t PRIME_HASH = 97;
     uint8_t hash = 31;

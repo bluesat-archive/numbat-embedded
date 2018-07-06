@@ -22,17 +22,6 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Register_Header;
 
-            constexpr CAN_Header _register_base_fields = {
-                    .fields = {
-                            .base_fields = {
-                                    ((unsigned int)ROS_CAN_MODE),
-                                    0,
-                                    ((unsigned int)FN_ROS_CONTROL_MSG),
-                                    0
-                            }
-                    }
-            };
-
             constexpr CAN_Header _register_ctrl_fields = {
                     .fields = {
                             .f2_ctrl_msg_fields = {
@@ -42,7 +31,7 @@ namespace ros_echronos {
             };
 
             const CAN_Header REGISTER_BASE_FIELDS = {
-                    .bits = _register_base_fields.bits || _register_ctrl_fields.bits
+                    .bits = CAN_CTRL_BASE_FIELDS.bits || _register_ctrl_fields.bits
             };
 
             typedef union _register_response {
@@ -52,21 +41,6 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Register_Response_Body;
 
-            constexpr CAN_Header _register_header_mask_base_fields {
-                .fields = {
-                        .base_fields = {
-                                1, 0xFFFF, 0xFFFF, 0xFFF
-                        }
-                }
-            };
-
-            constexpr CAN_Header _register_header_mask_f2_fields {
-                    .fields = {
-                            .f2_ctrl_msg_fields = {
-                                    0xFFF, 0xFFF
-                            }
-                    }
-            };
 
             constexpr Register_Header _register_header_mask_reg_fields {
                 .fields = {
@@ -75,8 +49,8 @@ namespace ros_echronos {
             };
 
             const CAN_Header REGISTER_HEADER_MASK {
-                .bits = _register_header_mask_base_fields.bits
-                        | _register_header_mask_f2_fields.bits
+                .bits = _CTRL_HEADER_MASK_BASE_FIELDS.bits
+                        | _CTRL_HEADER_MASK_F2_FIELDS.bits
                         | _register_header_mask_reg_fields.bits
             };
 

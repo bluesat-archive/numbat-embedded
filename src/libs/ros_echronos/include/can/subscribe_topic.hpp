@@ -30,20 +30,6 @@ namespace ros_echronos {
             } Subscribe_Header;
 
             /**
-             * Base fields that are set for all ctrl_2 messages
-             */
-            constexpr CAN_Header _sub_base_fields = {
-                .fields = {
-                    .base_fields = {
-                        ((unsigned int)ROS_CAN_MODE),
-                        0,
-                        ((unsigned int)FN_ROS_CONTROL_MSG),
-                        0
-                    }
-                }
-            };
-
-            /**
              * Ctrl message specific fields that are common
              */
             constexpr CAN_Header _sub_ctrl_fields = {
@@ -58,8 +44,24 @@ namespace ros_echronos {
              * Merged CAN Header
              */
             const CAN_Header SUB_CTRL_HEADER {
-                .bits = _sub_base_fields.bits | _sub_ctrl_fields.bits
+                .bits = CAN_CTRL_BASE_FIELDS.bits | _sub_ctrl_fields.bits
             };
+
+            /**
+             * Mask for the subscriber ctrl header
+             */
+            constexpr Subscribe_Header SUB_CTRL_HEADER_MASK {
+                .fields = {
+                    0xF, 0xF, 0xF, 0
+                }
+            };
+
+            typedef union _response_body {
+                uint8_t bytes[CAN_MESSAGE_MAX_LEN];
+                struct _fields {
+                    unsigned int topic_id : 6;
+                } fields __attribute__((packed));
+            } Response_Body;
 
 
         }

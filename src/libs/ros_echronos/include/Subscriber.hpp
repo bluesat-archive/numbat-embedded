@@ -24,7 +24,7 @@ namespace ros_echronos {
             /**
              * the topic id of the subscription
              */
-            uint8_t topic_id;
+            uint8_t topic_id : 6;
 
             /**
              * Handles receiving a message for a given topic
@@ -95,7 +95,7 @@ namespace ros_echronos {
             /**
              * Buffer of incoming messages
              */
-            T * incoming_msgs;
+            T * const incoming_msgs;
             /**
              * Bitmask of free buffer slots in incoming messages
              */
@@ -103,7 +103,7 @@ namespace ros_echronos {
             /**
              * Max size of buffer
              */
-            size_t message_construction_buff_size;
+            const size_t message_construction_buff_size;
             /**
              * Buffer of ready messages
              */
@@ -125,7 +125,7 @@ namespace ros_echronos {
              * Internal function to register a node
              * @param signal_wait the signal to wait on
              */
-            void register_node(RtosSignalId signal_wait);
+            void register_node(const RtosSignalId signal_wait);
             /**
              * which error handling mode we are in
              */
@@ -139,7 +139,7 @@ namespace ros_echronos {
             /**
              * The topic name
              */
-            char const * topic_name;
+            char *  const  topic_name;
 
     };
 }
