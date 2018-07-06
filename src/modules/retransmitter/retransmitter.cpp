@@ -111,8 +111,8 @@ union Data buf_reading;
 union Data buf_ready;
 union Data buf_sending;
 
-bool buffer_ready = false;
-bool buffer_sent = false;
+bool is_buffer_ready = false;
+bool is_buffer_sent = false;
 
 extern "C" void task_retransmitter_fn(void) {
 
@@ -158,17 +158,24 @@ extern "C" void task_retransmitter_fn(void) {
 void task_read_to_buffer(void) {
     wait_for_msg();
     for (size_t i = 0; i < sizeof(struct message); i++) {
-        serial.data.structBytes[i] = (uint8_t)UARTgetc();
+        serial.data.structBytes[i] = (uint8_t) UARTgetc();
+        buf_reading.structBytes[i] = serial.data.structBytes[i];
     }
+    buf_ready = buf_reading;
+    is_buffer_ready = true;
     UARTwrite((const char*)startMagic, 4);
 }
 
-
 void task_publish_buffer(void) {
+
+    // wait for buffer to fill up
+    while (!is_buffer_ready);
+    buf_sending = buf_ready;
     for (size_t i = 0; i < NUM_MSG; i++) {
-        msg.data = serial.data.msg.data[i];
+        msg.data = buf_sending.msg.data[i];
         publishers[i]->publish(msg);
     }
+    is_buffer_ready = false;
 #ifdef UART_BUFFERED
         UARTFlushTx(false);
 #endif
