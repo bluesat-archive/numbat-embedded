@@ -104,8 +104,8 @@ ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 std_msgs::Float64 msg;
 struct messageAdapter serial;
 ros_echronos::NodeHandle nh;
-void task_read_to_buffer(void);
-void task_publish_buffer(void);
+// void task_read_to_buffer_fn(void);
+// void task_publish_buffer_fn(void);
 
 union Data buf_reading;
 union Data buf_ready;
@@ -149,13 +149,13 @@ extern "C" void task_retransmitter_fn(void) {
         publishers[i]->init(nh);
     }
 
-    while(true) {
-        task_read_to_buffer();
-        task_publish_buffer();
-    }
+    // while(true) {
+    //     task_read_to_buffer_fn();
+    //     task_publish_buffer_fn();
+    // }
 }
 
-void task_read_to_buffer(void) {
+extern "C" void task_read_to_buffer_fn(void) {
     wait_for_msg();
     for (size_t i = 0; i < sizeof(struct message); i++) {
         serial.data.structBytes[i] = (uint8_t) UARTgetc();
@@ -166,7 +166,7 @@ void task_read_to_buffer(void) {
     UARTwrite((const char*)startMagic, 4);
 }
 
-void task_publish_buffer(void) {
+extern "C" void task_publish_buffer_fn(void) {
 
     // wait for buffer to fill up
     while (!is_buffer_ready);

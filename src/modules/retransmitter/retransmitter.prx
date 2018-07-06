@@ -50,6 +50,18 @@
                     <priority>30</priority>
                     <stack_size>4096</stack_size>
                 </task>
+                <task>
+                    <name>task_read_to_buffer</name>
+                    <function>task_read_to_buffer_fn</function>
+                    <priority>32</priority>
+                    <stack_size>4096</stack_size>
+                </task>
+                <task>
+                    <name>task_publish_buffer</name>
+                    <function>task_publish_buffer_fn</function>
+                    <priority>31</priority>
+                    <stack_size>4096</stack_size>
+                </task>
             </tasks>
 
             <signal_labels>
