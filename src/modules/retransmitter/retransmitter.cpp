@@ -100,12 +100,9 @@ static void wait_for_msg() {
     }
 }
 
-ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
-std_msgs::Float64 msg;
 struct messageAdapter serial;
-ros_echronos::NodeHandle nh;
-// void task_read_to_buffer_fn(void);
-// void task_publish_buffer_fn(void);
+ros_echronos::NodeHandle * shared_nh;
+ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
 union Data buf_reading;
 union Data buf_ready;
@@ -115,7 +112,8 @@ bool is_buffer_ready = false;
 bool is_buffer_sent = false;
 
 extern "C" void task_retransmitter_fn(void) {
-
+    ros_echronos::NodeHandle nh;
+    shared_nh = &nh;
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
 
     // you would have to use the new operator to initialise these in a loop and we can't do that
