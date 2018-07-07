@@ -142,42 +142,41 @@ extern "C" void task_retransmitter_fn(void) {
     ros_echronos::Publisher<std_msgs::Float64> back_right_s(topics[6], (std_msgs::Float64*)msg_buf_back_right_s, BUF_SIZE, false);
     publishers[7] = &back_right_s;
 
-
     for (size_t i = 0; i < NUM_MSG; i++) {
         publishers[i]->init(nh);
     }
 
-    // while(true) {
-    //     task_read_to_buffer_fn();
-    //     task_publish_buffer_fn();
-    // }
-}
+    while(true) {
 
-extern "C" void task_read_to_buffer_fn(void) {
-    wait_for_msg();
-    for (size_t i = 0; i < sizeof(struct message); i++) {
-        serial.data.structBytes[i] = (uint8_t) UARTgetc();
-        buf_reading.structBytes[i] = serial.data.structBytes[i];
+        wait_for_msg();
+        for (size_t i = 0; i < sizeof(struct message); i++) {
+            serial.data.structBytes[i] = (uint8_t) UARTgetc();
+            buf_reading.structBytes[i] = serial.data.structBytes[i];
+        }
+        buf_ready = buf_reading;
+        is_buffer_ready = true;
+        UARTwrite((const char*)startMagic, 4);
     }
-    buf_ready = buf_reading;
-    is_buffer_ready = true;
-    UARTwrite((const char*)startMagic, 4);
 }
 
 extern "C" void task_publish_buffer_fn(void) {
+    ros_echronos::NodeHandle nh = *shared_nh;
+    std_msgs::Float64 msg;
 
-    // wait for buffer to fill up
-    while (!is_buffer_ready);
-    buf_sending = buf_ready;
-    for (size_t i = 0; i < NUM_MSG; i++) {
-        msg.data = buf_sending.msg.data[i];
-        publishers[i]->publish(msg);
-    }
-    is_buffer_ready = false;
+    while(true) {
+        // wait for buffer to fill up
+        while (!is_buffer_ready);
+        buf_sending = buf_ready;
+        for (size_t i = 0; i < NUM_MSG; i++) {
+            msg.data = buf_sending.msg.data[i];
+            publishers[i]->publish(msg);
+        }
+        is_buffer_ready = false;
 #ifdef UART_BUFFERED
         UARTFlushTx(false);
 #endif
-    nh.spin();
+        nh.spin();
+    }
 }
 
 int main(void) {
