@@ -153,7 +153,9 @@ extern "C" void task_retransmitter_fn(void) {
             serial.data.structBytes[i] = (uint8_t) UARTgetc();
             buf_reading.structBytes[i] = serial.data.structBytes[i];
         }
+        rtos_mutex_lock(RTOS_MUTEX_ID_BUF);
         buf_ready = buf_reading;
+        rtos_mutex_unlock(RTOS_MUTEX_ID_BUF);
         is_buffer_ready = true;
         UARTwrite((const char*)startMagic, 4);
     }
@@ -166,7 +168,9 @@ extern "C" void task_publish_buffer_fn(void) {
     while(true) {
         // wait for buffer to fill up
         while (!is_buffer_ready);
+        rtos_mutex_lock(RTOS_MUTEX_ID_BUF);
         buf_sending = buf_ready;
+        rtos_mutex_unlock(RTOS_MUTEX_ID_BUF);
         for (size_t i = 0; i < NUM_MSG; i++) {
             msg.data = buf_sending.msg.data[i];
             publishers[i]->publish(msg);

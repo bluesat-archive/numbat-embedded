@@ -80,6 +80,9 @@
                 <mutex>
                     <name>alloc</name>
                 </mutex>
+                <mutex>
+                    <name>buf</name>
+                </mutex>
             </mutexes>
 
             <mutex>
