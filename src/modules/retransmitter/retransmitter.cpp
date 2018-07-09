@@ -108,8 +108,8 @@ union Data buf_reading;
 union Data buf_ready;
 union Data buf_sending;
 
-bool is_buffer_ready = false;
-bool is_buffer_sent = false;
+volatile bool is_buffer_ready = false;
+volatile bool is_buffer_sent = false;
 
 extern "C" void task_retransmitter_fn(void) {
     ros_echronos::NodeHandle nh;
