@@ -71,7 +71,7 @@ namespace ros_echronos {
              * @param node_handle the node handle to use
              * @precondition the Node Handle has been initalised and is in communication with the controller
              */
-            void init(ros_echronos::NodeHandle & node_handle);
+            void init(ros_echronos::NodeHandle &node_handle, RtosSignalId ctrl_wait_sig);
 
             /**
              * unsubscribes the subscriber

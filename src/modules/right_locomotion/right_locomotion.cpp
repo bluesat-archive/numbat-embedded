@@ -73,10 +73,10 @@ extern "C" void task_right_locomotion_fn(void) {
     std_msgs::Float64 back_right_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> backRightRotateSub("back_right_swerve_controller/command", back_right_rotate_buffer_in, 5, backRightRotateCallback);
     backRightRotateSub.set_topic_id(7);
-    frontRightDriveSub.init(nh);
-    frontRightRotateSub.init(nh);
-    backRightDriveSub.init(nh);
-    backRightRotateSub.init(nh);
+    frontRightDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    frontRightRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    backRightDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    backRightRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
 
     servo_init(HS_785HB, FRONT_RIGHT_ROTATE_PIN);
     servo_init(HS_785HB, BACK_RIGHT_ROTATE_PIN);
