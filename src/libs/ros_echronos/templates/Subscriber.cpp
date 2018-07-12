@@ -146,6 +146,36 @@ template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
 
 }
 
+static inline uint8_t send_string(can::CAN_ROS_Message & msg, can::control_2_subscribe::Subscribe_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
+    using namespace ros_echronos::can;
+    using namespace ros_echronos::can::control_2_subscribe;
+    uint8_t index;
+    const char * const end_ptr = start_str_ptr+str_len;
+    for(const char * str_ptr = start_str_ptr; str_ptr < end_ptr; ++str_ptr) {
+        const uint32_t ptr_offset = (str_ptr - start_str_ptr) + index_offset;
+        index = ptr_offset % (CAN_MESSAGE_MAX_LEN);
+        msg.body[index] = *str_ptr;
+        if(index == (CAN_MESSAGE_MAX_LEN-1)) {
+            msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+            send_can(msg);
+            ++(msg_head.fields.step);
+            msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+            memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+        }
+    }
+    ++index;
+    msg.body[index] = '\0';
+    if(index == (CAN_MESSAGE_MAX_LEN-1)) {
+        msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+        send_can(msg);
+        ++(msg_head.fields.step);
+        msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+        memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+        index = 0;
+    }
+    return index;
+}
+
 template <class T> void Subscriber<T>::register_node(const RtosSignalId signal_wait) {
     using namespace ros_echronos::can::control_2_subscribe;
     using namespace ros_echronos::can;
@@ -180,30 +210,11 @@ template <class T> void Subscriber<T>::register_node(const RtosSignalId signal_w
     msg.head = SUB_CTRL_HEADER;
     msg.head.bits |= msg_head.bits;
     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
-    char const * ptr;
-    for(ptr = topic_name; ptr < topic_name+topic_length && ptr != '\0'; ++ptr) {
-        const uint8_t index = (ptr - topic_name) % CAN_MESSAGE_MAX_LEN;
-        msg.body[index] = *ptr;
-        if(!index && (ptr-topic_name)) {
-            send_can(msg);
-            ++(msg_head.fields.step);
-            msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
-            memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
-            msg.body[index] = *ptr;
-        }
-    }
-    const uint8_t index_offset = (ptr - topic_name) % CAN_MESSAGE_MAX_LEN;
-    for(ptr = T::NAME; ptr < T::NAME+msg_name_len && ptr != '\0'; ++ptr) {
-        const uint8_t index = ((ptr - T::NAME) % CAN_MESSAGE_MAX_LEN) + index_offset;
-        msg.body[index] = *ptr;
-        if(!index && (ptr-T::NAME)) {
-            send_can(msg);
-            ++(msg_head.fields.step);
-            msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
-            memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
-        }
-    }
-    if(((ptr - T::NAME) % CAN_MESSAGE_MAX_LEN) + index_offset) {
+    const uint8_t index_offset = send_string(msg, msg_head, topic_name, topic_length, 0);
+    const uint8_t index = send_string(msg, msg_head, T::NAME, msg_name_len, index_offset+1);
+    // if we haven't just sent a message and its not the last null terminator, send
+    if((index != (CAN_MESSAGE_MAX_LEN-1)) && (index != 0)) {
+        msg.body_bytes = index+1;
         send_can(msg);
     }
 
