@@ -63,8 +63,38 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Response_Body;
 
+            inline uint8_t send_string(can::CAN_ROS_Message & msg, can::control_2_subscribe::Subscribe_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
+                using namespace ros_echronos::can;
+                using namespace ros_echronos::can::control_2_subscribe;
+                uint8_t index;
+                const char * const end_ptr = start_str_ptr+str_len;
+                for(const char * str_ptr = start_str_ptr; str_ptr < end_ptr; ++str_ptr) {
+                    const uint32_t ptr_offset = (str_ptr - start_str_ptr) + index_offset;
+                    index = ptr_offset % (CAN_MESSAGE_MAX_LEN);
+                    msg.body[index] = *str_ptr;
+                    if(index == (CAN_MESSAGE_MAX_LEN-1)) {
+                        msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+                        send_can(msg);
+                        ++(msg_head.fields.step);
+                        msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+                        memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+                    }
+                }
+                ++index;
+                msg.body[index] = '\0';
+                if(index == (CAN_MESSAGE_MAX_LEN-1)) {
+                    msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+                    send_can(msg);
+                    ++(msg_head.fields.step);
+                    msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+                    memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+                    index = 0;
+                }
+                return index;
+            }
 
         }
+
     }
 }
 #endif //PROJECT_SUBSCRIBE_TOPIC_H

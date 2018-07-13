@@ -125,7 +125,7 @@ namespace ros_echronos {
              * Internal function to register a node
              * @param signal_wait the signal to wait on
              */
-            void register_node(const RtosSignalId signal_wait);
+            void register_topic(const RtosSignalId signal_wait);
             /**
              * which error handling mode we are in
              */

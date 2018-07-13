@@ -70,9 +70,10 @@ namespace ros_echronos {
              * Called to enable the publisher
              * Does all the setup that needs to be done after node initalisation and registers with the controller
              * @param node_handle the node handle to use
+             * @param promise_signal the signal used to manage promises whilst registering with the controller
              * @precondition the Node Handle has been initalised and is in communication with the controller
              */
-            void init(ros_echronos::NodeHandle & node_handle);
+            void init(ros_echronos::NodeHandle &node_handle, RtosSignalId promise_signal);
 
             /**
              * Publish a message on the topic provided
@@ -126,6 +127,16 @@ namespace ros_echronos {
              */
             Transmission_Mode mode = DROP_MISSING;
 
+            /**
+             * The publisher's topic id
+             */
+            uint8_t topic_id;
+
+            /**
+             * Register this topic with the controller
+             * @param signal_wait the signal used for promises
+             */
+            void register_topic(const RtosSignalId signal_wait);
     };
 }
 

@@ -40,7 +40,7 @@ void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle, RtosSignalId ctr
     can::can_ros_message msg;
 
     nh = &node_handle;
-    register_node(ctrl_wait_sig);
+    register_topic(ctrl_wait_sig);
     msg.head.fields.f0_ros_msg_fields.message_length = 0;
     msg.head.fields.f0_ros_msg_fields.message_num = 0;
     msg.head.fields.base_fields.mode = 1;
@@ -146,37 +146,8 @@ template <class T> void Subscriber<T>::clear_slot(T *msg_ptr) {
 
 }
 
-static inline uint8_t send_string(can::CAN_ROS_Message & msg, can::control_2_subscribe::Subscribe_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
-    using namespace ros_echronos::can;
-    using namespace ros_echronos::can::control_2_subscribe;
-    uint8_t index;
-    const char * const end_ptr = start_str_ptr+str_len;
-    for(const char * str_ptr = start_str_ptr; str_ptr < end_ptr; ++str_ptr) {
-        const uint32_t ptr_offset = (str_ptr - start_str_ptr) + index_offset;
-        index = ptr_offset % (CAN_MESSAGE_MAX_LEN);
-        msg.body[index] = *str_ptr;
-        if(index == (CAN_MESSAGE_MAX_LEN-1)) {
-            msg.body_bytes = CAN_MESSAGE_MAX_LEN;
-            send_can(msg);
-            ++(msg_head.fields.step);
-            msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
-            memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
-        }
-    }
-    ++index;
-    msg.body[index] = '\0';
-    if(index == (CAN_MESSAGE_MAX_LEN-1)) {
-        msg.body_bytes = CAN_MESSAGE_MAX_LEN;
-        send_can(msg);
-        ++(msg_head.fields.step);
-        msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
-        memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
-        index = 0;
-    }
-    return index;
-}
 
-template <class T> void Subscriber<T>::register_node(const RtosSignalId signal_wait) {
+template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_wait) {
     using namespace ros_echronos::can::control_2_subscribe;
     using namespace ros_echronos::can;
 
@@ -229,12 +200,12 @@ template <class T> void Subscriber<T>::register_node(const RtosSignalId signal_w
         Response_Body resp;
         ROS_INFO("CAN Received Header %x\n", msg.head.bits);
         memcpy(resp.bytes, msg.body, msg.body_bytes);
-        ((Subscriber*)data)->sub_id = resp.fields.topic_id;
+        ((Subscriber*)data)->topic_id = resp.fields.topic_id;
         ROS_INFO("%s got topic id %d\n", ((Subscriber*)data)->topic_name, resp.fields.topic_id);
 
     }), this)->on_error([](can::CAN_ROS_Message & msg, void * data) {
         // all we can do is try again
-        ((_Recurse_Data*)data)->this_obj->register_node(((_Recurse_Data*)data)->sig);
+        ((_Recurse_Data *) data)->this_obj->register_topic(((_Recurse_Data *) data)->sig);
     }, &recurse_data)->wait(signal_wait);
 }
 //TODO: flush unfinished messages from the buffer or rerequest them

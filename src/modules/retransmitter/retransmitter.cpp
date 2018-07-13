@@ -134,7 +134,7 @@ extern "C" void task_retransmitter_fn(void) {
 
 
     for (size_t i = 0; i < NUM_MSG; i++) {
-        publishers[i]->init(nh);
+        publishers[i]->init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     }
     
     std_msgs::Float64 msg;
