@@ -3,7 +3,7 @@
 #include "i2c.h"
 
 /* Constructor */
-TCS34725::TCS34725(i2cModule_t i2c_module, tcs34725IntegrationTime_t it, tcs34725Gain_t gain) {
+TCS34725::TCS34725(i2cModule_t i2c_module, integrationTime_t it, gain_t gain) {
     module = i2c_module;
     tcs34725_integration_time = it;
     tcs34725_gain = gain;
@@ -17,12 +17,12 @@ void TCS34725::init(void) {
     enable();
 }
 
-void TCS34725::set_integration_time(tcs34725IntegrationTime_t it) {
+void TCS34725::set_integration_time(integrationTime_t it) {
     write8(TCS34725_ATIME, it); // update timing register
     tcs34725_integration_time = it; // update value placeholders
 }
 
-void TCS34725::set_gain(tcs34725Gain_t gain) {
+void TCS34725::set_gain(gain_t gain) {
     write8(TCS34725_CONTROL, gain);
     tcs34725_gain = gain;
 }
@@ -82,6 +82,17 @@ uint16_t TCS34725::calculate_colour_temperature(uint16_t r, uint16_t g, uint16_t
 
     /* Return the results in degrees Kelvin */
     return (uint16_t) cct;
+}
+
+uint16_t TCS34725::calculate_lux(uint16_t r, uint16_t g, uint16_t b)
+{
+  float illuminance;
+
+  /* This only uses RGB ... how can we integrate clear or calculate lux */
+  /* based exclusively on clear since this might be more reliable?      */
+  illuminance = (-0.32466F * r) + (1.57837F * g) + (-0.73191F * b);
+
+  return (uint16_t) illuminance;
 }
 
 

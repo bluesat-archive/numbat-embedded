@@ -44,9 +44,22 @@ class LIS3MDL {
     } lis3mdlReg_t;
 
     public:
-        LIS3MDL(i2cModule_t i2c_module, slaveAddrState_t slave_state);
+        /** 
+         * Constructor that takes in the I2C module connected to the device and 
+         * optionally the state of the SD0/SA1 pin.
+         * 
+         * The state determines the I2C slave address. If not specified, the
+         * address will be detected automatically.
+         */
+        LIS3MDL(i2cModule_t i2c_module, slaveAddrState_t = SLAVE_AUTO);
+
+        /* Initialises the I2C module obtains the device address if necessary.*/
         void init(void);
+
+        /* Powers up the magnetometer with default settings */
         void enable(void);
+
+        /* Reads the magnetism in the x,y,z directions */
         void read_magnetism(int16_t *x, int16_t *y, int16_t *z);
         void write_register(uint8_t reg, uint8_t data);
 

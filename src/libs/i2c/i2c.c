@@ -35,7 +35,7 @@ const struct gpio_config_struct gpio_config[] = {
 	{GPIO_PE4_I2C2SCL, GPIO_PE5_I2C2SDA}, {GPIO_PD0_I2C3SCL, GPIO_PD1_I2C3SDA}};
 
 // 0 - 100 Kbps, 1 - 400 Kbps, 2 - 1 Mbps (fast mode plus)
-void i2c_init(int module, mode mode) {
+void i2c_init(i2cModule_t module, i2cMode_t mode) {
 	SysCtlPeripheralEnable(sysctl_module[module]);
 	while (!SysCtlPeripheralReady(sysctl_module[module]));
 	//GPIOIntRegister(i2c_module[module], i2cIntHandler) // might do interrupts later
@@ -48,14 +48,15 @@ void i2c_init(int module, mode mode) {
 	GPIOPinConfigure(gpio_config[module].scl);
 	GPIOPinConfigure(gpio_config[module].sda);
 
-	I2CMasterInitExpClk(i2c_module[module], SysCtlClockGet(), mode > 0); // initialise master
+	// initialise master
+	I2CMasterInitExpClk(i2c_module[module], SysCtlClockGet(), mode > 0); 
 	if (mode == FAST_PLUS) {
 		/*
 		uint32_t SCLFreq = 100000000
 		ui32TPR = ((ui32I2CClk + (2 * 10 * ui32SCLFreq) - 1) /
                (2 * 10 * ui32SCLFreq)) - 1;*/
-		HWREG(i2c_module[module] + I2C_O_MTPR) /= 3; // divide timer period by 3 for fast plus mode
-	}
+		// divide timer period by 3 for fast plus mode
+		HWREG(i2c_module[module] + I2C_O_MTPR) /= 3;
 	//I2CMasterSlaveAddrSet(I2C0_BASE + module, slave, false); // initialise slave
 }
 

@@ -10,6 +10,13 @@
 #ifndef I2C_H
 #define I2C_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
+#include <stdint.h>
+
 /* I2C master commands */
 #define I2C_CMD_SINGLE_SEND			0x00000007 // start -> transmit -> stop
 #define I2C_CMD_SINGLE_RECEIVE 		0x00000007 // start -> receive -> stop
@@ -121,3 +128,9 @@ int i2c_read(i2cModule_t module, uint8_t *data, uint32_t command);
  * @return byte read from slave
  */
 //uint8_t i2c_cmd_read_byte(i2cModule_t module, uint32_t command);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

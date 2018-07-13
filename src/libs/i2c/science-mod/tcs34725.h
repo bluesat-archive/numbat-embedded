@@ -1,8 +1,8 @@
-// #include "i2c.h"
+
 
 /* LIBRARY PORTED FROM ARDUINO IMPLEMENTATION 
  * https://github.com/adafruit/Adafruit_Si7021/blob/master/Adafruit_Si7021.h */
- 
+
 /*
  * Date Started: 6/7/18
  * Original Author: [Original Author's Name]
@@ -11,7 +11,7 @@
  * This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2017
  */
 
-
+// #include "i2c.h"
 #ifndef TCS34725_H
 #define TCS34725_H
 
@@ -67,32 +67,39 @@
 #define TCS34725_BDATAH           (0x1B)
 
 
-typedef enum {
-    TCS34725_INTEGRATIONTIME_2_4MS  = 0xFF,   /**<  2.4ms - 1 cycle    - Max Count: 1024  */
-    TCS34725_INTEGRATIONTIME_24MS   = 0xF6,   /**<  24ms  - 10 cycles  - Max Count: 10240 */
-    TCS34725_INTEGRATIONTIME_50MS   = 0xEB,   /**<  50ms  - 20 cycles  - Max Count: 20480 */
-    TCS34725_INTEGRATIONTIME_101MS  = 0xD5,   /**<  101ms - 42 cycles  - Max Count: 43008 */
-    TCS34725_INTEGRATIONTIME_154MS  = 0xC0,   /**<  154ms - 64 cycles  - Max Count: 65535 */
-    TCS34725_INTEGRATIONTIME_700MS  = 0x00    /**<  700ms - 256 cycles - Max Count: 65535 */
-} tcs34725IntegrationTime_t;
-
-typedef enum {
-    TCS34725_GAIN_1X                = 0x00,   /**<  No gain  */
-    TCS34725_GAIN_4X                = 0x01,   /**<  4x gain  */
-    TCS34725_GAIN_16X               = 0x02,   /**<  16x gain */
-    TCS34725_GAIN_60X               = 0x03    /**<  60x gain */
-} tcs34725Gain_t;
-
 class TCS34725 {
     public:
-        TCS34725(i2cModule_t = I2C0, tcs34725IntegrationTime_t = TCS34725_INTEGRATIONTIME_2_4MS, tcs34725Gain_t = TCS34725_GAIN_1X);
+        typedef enum {
+            TCS34725_INTEGRATIONTIME_2_4MS  = 0xFF,   /**<  2.4ms - 1 cycle    - Max Count: 1024  */
+            TCS34725_INTEGRATIONTIME_24MS   = 0xF6,   /**<  24ms  - 10 cycles  - Max Count: 10240 */
+            TCS34725_INTEGRATIONTIME_50MS   = 0xEB,   /**<  50ms  - 20 cycles  - Max Count: 20480 */
+            TCS34725_INTEGRATIONTIME_101MS  = 0xD5,   /**<  101ms - 42 cycles  - Max Count: 43008 */
+            TCS34725_INTEGRATIONTIME_154MS  = 0xC0,   /**<  154ms - 64 cycles  - Max Count: 65535 */
+            TCS34725_INTEGRATIONTIME_700MS  = 0x00    /**<  700ms - 256 cycles - Max Count: 65535 */
+        } integrationTime_t;
+
+        typedef enum {
+            TCS34725_GAIN_1X                = 0x00,   /**<  No gain  */
+            TCS34725_GAIN_4X                = 0x01,   /**<  4x gain  */
+            TCS34725_GAIN_16X               = 0x02,   /**<  16x gain */
+            TCS34725_GAIN_60X               = 0x03    /**<  60x gain */
+        } gain_t;
+
+        TCS34725(i2cModule_t = I2C0, integrationTime_t = TCS34725_INTEGRATIONTIME_2_4MS, gain_t = TCS34725_GAIN_1X);
         void init(void);
-        void set_integration_time(tcs34725IntegrationTime_t it);
-        void set_gain(tcs34725Gain_t gain);
+        void set_integration_time(integrationTime_t it);
+        void set_gain(gain_t gain);
         void read_raw_data(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
+
+        /*
+         * Calculates the temperature in degrees Kelvin from the given R/G/B values 
+         * @return colour temperature in degrees Kelvin 
+         */
         uint16_t calculate_colour_temperature(uint16_t r, uint16_t g, uint16_t b);
+
+        /* Calculates the illuminance from the R/G/B values */
         uint16_t calculate_lux(uint16_t r, uint16_t g, uint16_t b);
-        void write8(uint8_t reg, uint32_t value);
+        void write8(uint8_t reg, uint8_t data);
         uint8_t read8(uint8_t reg);
         uint16_t read16(uint8_t reg);
         void set_interrupt(bool flag);
@@ -103,6 +110,6 @@ class TCS34725 {
 
     private:
         i2cModule_t module;
-        tcs34725Gain_t tcs34725_gain;
-        tcs34725IntegrationTime_t tcs34725_integration_time;
+        gain_t tcs34725_gain;
+        integrationTime_t tcs34725_integration_time;
 }

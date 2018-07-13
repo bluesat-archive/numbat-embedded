@@ -59,9 +59,9 @@ void LIS3MDL::read_magnetism(int16_t *x, int16_t *y, int16_t *z) {
 }
 
 void LIS3MDL::write_register(uint8_t reg, uint8_t data) {
-  i2c_set_slave_addr(module, lis3mdl_addr, false);
-  i2c_write(module, reg, I2C_CMD_SEND_START);
-  i2c_write(module, data, I2C_CMD_SEND_FINISH);
+    i2c_set_slave_addr(module, lis3mdl_addr, false);
+    i2c_write(module, reg, I2C_CMD_SEND_START);
+    i2c_write(module, data, I2C_CMD_SEND_FINISH);
 }
 
 uint8_t LIS3MDL::test_device_addr(uint8_t addr) {

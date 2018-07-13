@@ -1,0 +1,9 @@
+{
+    "C_Cpp.dimInactiveRegions": true,
+    "editor.rulers": [
+        80
+    ],
+    "files.associations": {
+        "i2c.h": "c"
+    }
+}
