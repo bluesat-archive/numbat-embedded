@@ -94,6 +94,7 @@
                     <task>task_can_wait</task>
                 </interrupt_event>
             </interrupt_events>
+	    
         </module>
     </modules>
 </system>
