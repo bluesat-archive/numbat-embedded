@@ -1,7 +1,6 @@
 #include "LIS3MDL.h"
 #include "i2c.h"
 
-
 #define LIS3MDL_HIGH_ADDR  0b0011110
 #define LIS3MDL_LOW_ADDR   0b0011100
 

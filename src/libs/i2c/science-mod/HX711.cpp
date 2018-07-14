@@ -1,7 +1,5 @@
-extern "C" {
-  #include "driverlib/gpio.h"
-  #include "driverlib/sysctl.h"
-}
+#include "driverlib/gpio.h"
+#include "driverlib/sysctl.h"
 
 #define SIZE_OF_BYTE 8
 #define NUM_DATA_BITS 24
@@ -15,10 +13,6 @@ HX711::HX711(port_t dout_port, pinNum_t dout_pin, port_t sck_port, pinNum_t sck_
 }
 
 void HX711::init(void) {
-    /*
-    GPIODirModeSet(DOUT_PORT, DOUT_PIN, GPIO_DIR_MODE_IN);
-    GPIODirModeSet(SCK_PORT, SCK_PIN, GPIO_DIR_MODE_OUT);
-    */
     GPIOPinTypeGPIOInput(DOUT_PORT, DOUT_PIN);
     GPIOPinTypeGPIOOutput(SCK_PORT, SCK_PIN);
     set_gain(CHANNEL_A_128);

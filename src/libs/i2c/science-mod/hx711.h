@@ -11,7 +11,7 @@
 
 class HX711 {
     public:
-        typedef enum {
+        enum {
             /* TM4C123GH6PM only supports up to PORTF */
             PORTA = 0x40004000,  // GPIO Port A
             PORTB = 0x40005000,  // GPIO Port B
@@ -31,7 +31,7 @@ class HX711 {
             #endif
         } port_t;
 
-        typedef enum {
+        enum {
             PIN_0 = 0x00000001,  // GPIO pin 0
             PIN_1 = 0x00000002,  // GPIO pin 1
             PIN_2 = 0x00000004,  // GPIO pin 2
@@ -42,7 +42,7 @@ class HX711 {
             PIN_7 = 0x00000080   // GPIO pin 7
         } pinNum_t;
 
-        typedef enum {
+        enum {
             CHANNEL_A_128, // channel A with a gain of 128
             CHANNEL_A_64,  // channel A with a gain of 64
             CHANNEL_B_32   // channel B has fixed gain of 32
@@ -77,6 +77,8 @@ class HX711 {
         void power_up(void);
         void power_down(void);
     private:
+        bool is_ready(void);
+
         uint32_t DOUT_PORT;
         uint32_t DOUT_PIN;
         uint32_t SCK_PORT;
@@ -84,7 +86,6 @@ class HX711 {
         uint8_t GAIN_CYCLES;
         int32_t tare_offset;
         float scale;
-        bool is_ready(void);
 }
 
 #endif

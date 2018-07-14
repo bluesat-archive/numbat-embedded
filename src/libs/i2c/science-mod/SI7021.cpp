@@ -1,5 +1,5 @@
 #include "SI7021.h"
-#include "i2c.h" // need to include in path
+#include "i2c.h"
 
 #define SI7021_ADDR                 0x40
 #define HUMID_MEAS_HOLD_CMD         0xE5
@@ -14,13 +14,14 @@
 #define USER_REG_1_WRITE_CMD        0xE6
 #define HEATER_CTRL_REG_READ_CMD    0x51
 #define HEATER_CTRL_REG_WRITE_CMD   0x11
+#define FIRMWARE_REV_CMD            0x84B8
 
 SI7021::SI7021(i2cModule_t i2c_module) {
     module = i2c_module;
 }
 
 void SI7021::init(void) {
-    i2c_init(module, FAST);
+    i2c_init(module, FAST);)
 }
 
 float SI7021::read_temperature(void) {
@@ -65,7 +66,6 @@ void SI7021::reset(void) {
 void SI7021::read_serial_number(uint32_t *ser_hi, uint32_t *ser_lo) {
     *ser_hi = read_serial_word(SI7021_ID1_CMD);
     *ser_lo = read_serial_word(SI7021_ID2_CMD);
-    i2c_stop(module);
 }
 
 uint32_t SI7021::read_serial32(uint32_t cmd) {
@@ -86,10 +86,20 @@ uint32_t SI7021::read_serial32(uint32_t cmd) {
         ser = (ser << 8 | tmp);
     }
     // nack last byte
-    i2c_read(module, &checksum, I2C_CMD_RECEIVE_NACK_CONT);
+    i2c_read(module, &checksum, I2C_CMD_RECEIVE_FINISH);
     return ser;
 }
 
+uint8_t SI7021::read_firmware_revision(void) {
+    i2c_set_slave_addr(module, SI7021_ADDR, false);
+    i2c_write(module, FIRMWARE_REV_CMD >> 8, I2C_CMD_SEND_START);
+    i2c_write(module, FIRMWARE_REV_CMD & 0xFF, I2C_CMD_SEND_CONT);
+    i2c_set_slave_addr(module, SI7021_ADDR, true);
+    uint8_t firmware;
+    i2c_read(module, &firmware, I2C_CMD_RECEIVE_NACK_START);
+    i2c_stop(module);
+    return firmware;
+}
 
 void SI7021::write_register(controlReg_t reg, uint8_t data) {
     uint8_t cmd;

@@ -14,14 +14,14 @@
 
 class LIS3MDL {
     /* slave address is modified by the SDO/SA1 pin */
-    typedef enum {
+    enum {
         SLAVE_LOW, // SDO/SA1 connected to ground
         SLAVE_HIGH, // SDO/SA1 connected to supply
         SLAVE_AUTO // automatically detect the state of SDO/SA1
     } slaveAddrState_t;
 
     
-    typedef enum {
+    enum {
         WHO_AM_I    = 0x0F,
         CTRL_REG1   = 0x20,
         CTRL_REG2   = 0x21,
@@ -65,9 +65,11 @@ class LIS3MDL {
 
 
     private:
+        uint8_t test_device_addr(uint8_t addr);
+
         i2cModule_t module;
         slaveAddrState_t state;
         uint8_t lis3mdl_addr;
-        
-        uint8_t test_device_addr(uint8_t addr);
 }
+
+#endif

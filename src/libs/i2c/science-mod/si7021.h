@@ -16,23 +16,28 @@ class SI7021 {
         /* Control registers to set the configuration of SI7021 */
         typedef enum {
             USER_REG_1,
-            HEATER_CTRL_REG
+            // used to modify the heater current
+            // reduces the likelihood of offset accumulation of humidty sensor
+            HEATER_CTRL_REG 
         } controlReg_t;
 
         SI7021(i2cModule_t = I2C0);
         void init(void);
         float read_temperature(void);
         float read_humidity(void);
-        void reset(void);
-        void read_serial_number(uint32_t *ser_hi, uint32_t *ser_lo);
         void write_register(controlReg_t reg, uint8_t data);
         uint8_t read_register(controlReg_t reg);
-    
-    private:
-        int module;
+        void reset(void);
+        void read_serial_number(uint32_t *ser_hi, uint32_t *ser_lo);
+        uint8_t read_firmware_revision(void);
 
+    private:
         uint32_t read_serial32(uint32_t cmd);
+
+        int module;
+       
 }
 
+#endif
 
 

@@ -48,16 +48,15 @@ void i2c_init(i2cModule_t module, i2cMode_t mode) {
 	GPIOPinConfigure(gpio_config[module].scl);
 	GPIOPinConfigure(gpio_config[module].sda);
 
+	uint32_t i2c_clk = SysCtlClockGet();
 	// initialise master
-	I2CMasterInitExpClk(i2c_module[module], SysCtlClockGet(), mode > 0); 
+	I2CMasterInitExpClk(i2c_module[module], i2c_clk, mode > 0); 
 	if (mode == FAST_PLUS) {
-		/*
-		uint32_t SCLFreq = 100000000
-		ui32TPR = ((ui32I2CClk + (2 * 10 * ui32SCLFreq) - 1) /
-               (2 * 10 * ui32SCLFreq)) - 1;*/
-		// divide timer period by 3 for fast plus mode
-		HWREG(i2c_module[module] + I2C_O_MTPR) /= 3;
-	//I2CMasterSlaveAddrSet(I2C0_BASE + module, slave, false); // initialise slave
+		uint32_t scl_freq = 1000000;
+		uint32_t tpr = ((i2c_clk + (2 * 10 * scl_freq) - 1) /
+               (2 * 10 * scl_freq)) - 1;
+		HWREG(i2c_module[module] + I2C_O_MTPR) = tpr;
+	}
 }
 
 void i2c_set_slave_addr(int module, uint8_t slave_addr, bool read) {
@@ -82,13 +81,13 @@ void i2c_write(int module, uint8_t data, uint32_t command) {
 int i2c_read(int module, uint8_t *data, uint32_t command) {
 	I2CMasterControl(i2c_module[module], command);
 	while(I2CMasterBusBusy(i2c_module[module]));
-	int status = I2CMasterErr(i2c_module[module]);
+	int error = I2CMasterErr(i2c_module[module]);
 	if (status) { // got an error, stop transmission 
 		i2c_stop_transmission(i2c_module[module]);
 	} else { // no error, read data
 		*data = I2CMasterDataGet(i2c_module[module]);
 	}
-	return status;
+	return error;
 }
 
 /*
