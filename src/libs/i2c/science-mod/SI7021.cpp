@@ -1,5 +1,4 @@
 #include "SI7021.h"
-#include "i2c.h"
 
 #define SI7021_ADDR                 0x40
 #define HUMID_MEAS_HOLD_CMD         0xE5
@@ -21,10 +20,10 @@ SI7021::SI7021(i2cModule_t i2c_module) {
 }
 
 void SI7021::init(void) {
-    i2c_init(module, FAST);)
+    i2c_init(module, FAST);
 }
 
-float SI7021::read_temperature(void) {
+uint32_t SI7021::read_temperature(void) {
     i2c_set_slave_addr(module, SI7021_ADDR, false);
     // perform temperature measurement
     i2c_write(module, TEMP_MEAS_HOLD_CMD, I2C_CMD_SEND_START); 
@@ -39,10 +38,10 @@ float SI7021::read_temperature(void) {
     //i2c_read(module, &checksum, I2C_CMD_RECEIVE_FINISH); // optional checksum
     uint16_t temp16 = (msb << 8) | lsb;
     float temp = 175.72 * (float) temp16 / 65536 - 46.85;
-    return temp;
+    return (uint32_t) temp;
 }
 
-float SI7021::read_humidity(void) {
+uint32_t SI7021::read_humidity(void) {
     i2c_set_slave_addr(module, SI7021_ADDR, false);
     // perform temperature measurement
     i2c_write(module, HUMID_MEAS_HOLD_CMD, I2C_CMD_SEND_START); 
@@ -55,7 +54,7 @@ float SI7021::read_humidity(void) {
     i2c_read(module, &lsb, I2C_CMD_RECEIVE_FINISH);
     uint16_t hum16 = (msb << 8) | lsb;
     float humidity = 125 * (float) hum16 / 65536 - 6;
-    return humidity;
+    return (uint32_t) humidity;
 }
 
 void SI7021::reset(void) {
@@ -64,8 +63,8 @@ void SI7021::reset(void) {
 } 
 
 void SI7021::read_serial_number(uint32_t *ser_hi, uint32_t *ser_lo) {
-    *ser_hi = read_serial_word(SI7021_ID1_CMD);
-    *ser_lo = read_serial_word(SI7021_ID2_CMD);
+    *ser_hi = read_serial32(SI7021_ID1_CMD);
+    *ser_lo = read_serial32(SI7021_ID2_CMD);
 }
 
 uint32_t SI7021::read_serial32(uint32_t cmd) {
@@ -80,7 +79,7 @@ uint32_t SI7021::read_serial32(uint32_t cmd) {
     i2c_read(module, &tmp, I2C_CMD_RECEIVE_START);
     ser = tmp;
     // loop and read the remaining upper bytes
-    for (int i = 1; i < NUM_READS_ID) {
+    for (int i = 1; i < NUM_READS_ID; i++) {
         i2c_read(module, &checksum, I2C_CMD_RECEIVE_CONT);
         i2c_read(module, &tmp, I2C_CMD_RECEIVE_CONT);
         ser = (ser << 8 | tmp);

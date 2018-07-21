@@ -1,6 +1,5 @@
 #include <math.h>
 #include "TCS34725.h"
-#include "i2c.h"
 #include "driverlib/sysctl.h"
 
 #define TCS34725_ADDRESS          (0x29)
@@ -12,12 +11,10 @@
 #define TCS34725_ENABLE_AEN       (0x02)    /* RGBC Enable */
 #define TCS34725_ENABLE_PON       (0x01)    /* Power on */
 
-#define TCS34725_ATIME            (0x01)    /* Integration time */
 #define TCS34725_WTIME            (0x03)    /* Wait time (if WEN is set) */
 #define TCS34725_CONFIG           (0x0D)
 #define TCS34725_CONFIG_WLONG     (0x02)    /* Multiply wait times by 12x */
 
-#define TCS34725_CONTROL          (0x0F)    /* Set gain */
 #define TCS34725_CDATA            (0x14)    /* Clear channel data */
 #define TCS34725_CDATAH           (0x15)
 #define TCS34725_RDATA            (0x16)    /* Red channel data */
@@ -36,6 +33,14 @@
 #define TCS34725_STATUS           (0x13)
 #define TCS34725_STATUS_AINT      (0x10)    /* Clear channel interrupt state */
 #define TCS34725_STATUS_AVALID    (0x01)    /* Integration cycle complete */
+
+namespace {
+    static void delay(uint32_t ms) {
+        for (uint32_t i=0; i < ms; i++) {
+            SysCtlDelay(25000); // 1 ms delay
+        }
+    }
+}
 
 /* Constructor */
 TCS34725::TCS34725(i2cModule_t i2c_module, integrationTime_t it, gain_t gain) {
@@ -209,13 +214,13 @@ uint16_t TCS34725::read16(uint8_t reg) {
 
 void TCS34725::set_interrupt(bool enable) {
     uint8_t r = read8(TCS34725_ENABLE);
-    if (flag) {
+    if (enable) {
         r |= TCS34725_ENABLE_AIEN;
     } else {
         r &= ~TCS34725_ENABLE_AIEN;
     }
     write8(TCS34725_ENABLE, r);
-    interrupt_enable = enable;
+    interrupt_enabled = enable;
 }
 
 
@@ -233,14 +238,4 @@ void TCS34725::set_interrupt_limits(uint16_t low, uint16_t high) {
 
 void TCS34725::set_interrupt_persistence(uint8_t value) {
     write8(TCS34725_PERS, value);
-}
-
-void delay(uint32_t ms) {
-    for (uint32_t i=0; i < ms; i++) {
-        SysCtlDelay(25000); // 1 ms delay
-    }
-}
-
-float powf(const float x, const float y) {
-    return (float)(pow((double)x, (double)y));
 }

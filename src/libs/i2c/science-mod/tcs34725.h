@@ -14,8 +14,10 @@
 #ifndef TCS34725_H
 #define TCS34725_H
 
-#define TCS34725_ATIME      (0x01) /* Integration time control register */
+#include "i2c.h"
 
+#define TCS34725_CONTROL    (0x0F)    /* Gain control register */
+#define TCS34725_ATIME      (0x01)    /* Integration time control register */
 #define TCS34725_PERS_NONE  (0b0000)  /* Every RGBC cycle generates an interrupt*/
 #define TCS34725_PERS_1     (0b0001)  /* 1 clear channel value outisde limits */
 #define TCS34725_PERS_2     (0b0010)  /* 2 clean channel values outside limits  */
@@ -40,31 +42,31 @@ class TCS34725 {
          * controlled in increments of 2.4ms by manually setting the TCS34725_ATIME
          * register. 
          */
-        enum {
+        enum integrationTime_t {
             TCS34725_INTEGRATIONTIME_2_4MS  = 0xFF,   /*  2.4m  */
             TCS34725_INTEGRATIONTIME_24MS   = 0xF6,   /*  24ms  */
             TCS34725_INTEGRATIONTIME_50MS   = 0xEB,   /*  50ms  */
             TCS34725_INTEGRATIONTIME_101MS  = 0xD5,   /*  101ms */
             TCS34725_INTEGRATIONTIME_154MS  = 0xC0,   /*  154ms */
             TCS34725_INTEGRATIONTIME_700MS  = 0x00    /*  700ms */
-        } integrationTime_t;
+        };
 
         /* Gain scaling for the RGBC values */
-        enum {
+        enum gain_t {
             TCS34725_GAIN_1X                = 0x00,   /*  No gain  */
             TCS34725_GAIN_4X                = 0x01,   /*  4x gain  */
             TCS34725_GAIN_16X               = 0x02,   /*  16x gain */
             TCS34725_GAIN_60X               = 0x03    /*  60x gain */
-        } gain_t;
+        };
 
         /* Wait times are 12x longer if the WLONG bit is asserted */
-        enum {
+        enum waitTime_t {
             TCS34725_WTIME_2_4MS = 0xFF,
             TCS34725_WTIME_204MS = 0xAB,
             TCS34725_WTIME_614MS = 0x00
-        } waitTime_t;
+        };
 
-        TCS34725(i2cModule_t = I2C0, integrationTime_t = TCS34725_INTEGRATIONTIME_2_4MS, gain_t = TCS34725_GAIN_1X);
+        TCS34725(i2cModule_t, integrationTime_t = TCS34725_INTEGRATIONTIME_2_4MS, gain_t = TCS34725_GAIN_1X);
         /* 
          * Initialises the I2C module and powers on the device. The wait cycle
          * (power saving mode) and interrupt generation are disabled by default.
@@ -116,9 +118,9 @@ class TCS34725 {
 
     private:
         i2cModule_t module;
-        gain_t gain;
-        integrationTime_t integration_time;
+        gain_t tcs34725_gain;
+        integrationTime_t tcs34725_integration_time;
         bool interrupt_enabled;
-}
+};
 
 #endif

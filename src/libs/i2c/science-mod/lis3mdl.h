@@ -12,16 +12,17 @@
 #ifndef LIS3MDL_H
 #define LIS3MDL_H
 
+#include "i2c.h"
+
 class LIS3MDL {
     /* slave address is modified by the SDO/SA1 pin */
-    enum {
+    enum slaveAddrState_t {
         SLAVE_LOW, // SDO/SA1 connected to ground
         SLAVE_HIGH, // SDO/SA1 connected to supply
         SLAVE_AUTO // automatically detect the state of SDO/SA1
-    } slaveAddrState_t;
+    };
 
-    
-    enum {
+    enum lis3mdlReg_t {
         WHO_AM_I    = 0x0F,
         CTRL_REG1   = 0x20,
         CTRL_REG2   = 0x21,
@@ -40,8 +41,15 @@ class LIS3MDL {
         INT_CFG     = 0x30,
         INT_SRC     = 0x31,
         INT_THS_L   = 0x32,
-        INT_THS_H   = 0x33,
-    } lis3mdlReg_t;
+        INT_THS_H   = 0x33
+    };
+
+    enum lis3mdlScale_t {
+        LIS3MDL_SCALE_4G   = 0x00, /* +-4 gauss full scale */
+        LIS3MDL_SCALE_8G   = 0x20, /* +-8 gauss full scale */
+        LIS3MDL_SCALE_12G  = 0x40, /* +-12 gauss full scale */
+        LIS3MDL_SCALE_16G  = 0x60 /* +-16 gauss full scale */
+    };
 
     public:
         /** 
@@ -53,23 +61,29 @@ class LIS3MDL {
          */
         LIS3MDL(i2cModule_t i2c_module, slaveAddrState_t = SLAVE_AUTO);
 
-        /* Initialises the I2C module obtains the device address if necessary.*/
-        void init(void);
+        /* Initialises the I2C module and finds the device address if necessary.*/
+        bool init(void);
 
         /* Powers up the magnetometer with default settings */
-        void enable(void);
+        void enable_default(void);
 
-        /* Reads the magnetism in the x,y,z directions */
-        void read_magnetism(int16_t *x, int16_t *y, int16_t *z);
-        void write_register(uint8_t reg, uint8_t data);
+        /* Reads the magnetism scaled by the sensitivity in the x,y,z directions */
+        void read_magnetism(float *x, float *y, float *z);
 
+        /* Reads the raw magnetism in the x,y,z directions */
+        void read_raw_magnetism(int16_t *x, int16_t *y, int16_t *z);
+
+        /* Sets the full range scale */
+        void set_scale(lis3mdlScale_t scale);
+
+        void write_register(lis3mdlReg_t reg, uint8_t data);
+        uint8_t read_register(lis3mdlReg_t reg);
 
     private:
         uint8_t test_device_addr(uint8_t addr);
-
+        float sensitivity;
         i2cModule_t module;
-        slaveAddrState_t state;
         uint8_t lis3mdl_addr;
-}
+};
 
 #endif

@@ -9,6 +9,9 @@
 #include "driverlib/debug.h"
 #include "driverlib/i2c.h"
 #include "driverlib/interrupt.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/gpio.h"
+#include "driverlib/pin_map.h"
 
 struct gpio_config_struct {
     uint32_t scl;
@@ -43,7 +46,7 @@ void i2c_init(i2cModule_t module, i2cMode_t mode) {
 	// set SCL push pull
 	GPIOPinTypeI2CSCL(gpio_pin[module].base, (uint8_t) gpio_pin[module].scl); 
 	// set SDA open drain, weak pullup
-	GPIOPinTypeI2C(gpio_pin[module].base, (uint8_t) gpio_pin[module].sda; 
+	GPIOPinTypeI2C(gpio_pin[module].base, (uint8_t) gpio_pin[module].sda); 
 	// enable i2c functionality on the respective pins
 	GPIOPinConfigure(gpio_config[module].scl);
 	GPIOPinConfigure(gpio_config[module].sda);
@@ -59,31 +62,31 @@ void i2c_init(i2cModule_t module, i2cMode_t mode) {
 	}
 }
 
-void i2c_set_slave_addr(int module, uint8_t slave_addr, bool read) {
+void i2c_set_slave_addr(i2cModule_t module, uint8_t slave_addr, bool read) {
 	// set slave device to communicate with
 	I2CMasterSlaveAddrSet(i2c_module[module], slave_addr, read);
 }
 
-int i2c_stop(int module) {
+int i2c_stop(i2cModule_t module) {
 	I2CMasterControl(i2c_module[module], I2C_CMD_STOP);
 	int error = I2CMasterErr(i2c_module[module]);
 	return error;
 }
 
 
-void i2c_write(int module, uint8_t data, uint32_t command) {
+void i2c_write(i2cModule_t module, uint8_t data, uint32_t command) {
 	// put byte to transmit on bus
 	I2CMasterDataPut(i2c_module[module], data);
 	I2CMasterControl(i2c_module[module], command);
 	while(I2CMasterBusBusy(i2c_module[module]));
 }
 
-int i2c_read(int module, uint8_t *data, uint32_t command) {
+int i2c_read(i2cModule_t module, uint8_t *data, uint32_t command) {
 	I2CMasterControl(i2c_module[module], command);
 	while(I2CMasterBusBusy(i2c_module[module]));
 	int error = I2CMasterErr(i2c_module[module]);
-	if (status) { // got an error, stop transmission 
-		i2c_stop_transmission(i2c_module[module]);
+	if (error) { // got an error, stop transmission 
+		i2c_stop(i2c_module[module]);
 	} else { // no error, read data
 		*data = I2CMasterDataGet(i2c_module[module]);
 	}
@@ -91,7 +94,7 @@ int i2c_read(int module, uint8_t *data, uint32_t command) {
 }
 
 /*
-void i2c_write(int module, uint8_t msg[], size_t length) {
+void i2c_write(i2cModule_t module, uint8_t msg[], size_t length) {
 	if (length > 1) { // more than one byte to send
 		// repeated start
 		i2c_write_byte(i2c_module[module], msg[0], I2C_MASTER_CMD_BURST_SEND_START);
