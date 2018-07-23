@@ -21,7 +21,7 @@ static tCANMsgObject rx_object;
 static uint8_t can_input_buffer[CAN_MSG_LEN];
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
-void callback(const owr_messages::science &msg);
+void data_request_callback(const std_msgs::Bool &msg);
 
 
 extern "C" bool tick_irq(void) {
@@ -66,24 +66,12 @@ void task_science_fn(void) {
     lis3mdl.init();
     si7021.init();
 
-    float temp;
-    float humidity;
-    uint16_t mx, my, mz;
-    uint16_t r, g, b, c;
-    uint16_t colour_temp, illuminance;
     while(true) {
         // this causes the callbacks to be called
         nh.spin();
     }
 }
 
-void callback(const owr_messages::pwm & msg) {
-    ros_echronos::ROS_INFO("\n\nReceived Full Message %d\n", msg.from_msg_num);
-    ros_echronos::ROS_INFO("\tJoint \"%s\"\n", msg.joint.values);
-    ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
-    ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
-    ros_echronos::ROS_INFO("\ttarget pos %lf\n", msg.targetPos);
-}
 
 int main(void) {
 

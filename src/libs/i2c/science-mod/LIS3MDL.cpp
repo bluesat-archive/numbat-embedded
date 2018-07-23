@@ -88,16 +88,16 @@ void LIS3MDL::read_magnetism(float *x, float *y, float *z) {
 void LIS3MDL::set_scale(lis3mdlScale_t scale) {
     write_register(CTRL_REG2, scale);
     switch (scale) {
-        case LIS3MDL_SCALE_4G:
+        case SCALE_4G:
             sensitivity = LIS3MDL_SENSITIVITY_SCALE_4G;
             break;
-        case LIS3MDL_SCALE_8G: 
+        case SCALE_8G: 
             sensitivity = LIS3MDL_SENSITIVITY_SCALE_8G;
             break;
-        case LIS3MDL_SCALE_12G:
+        case SCALE_12G:
             sensitivity = LIS3MDL_SENSITIVITY_SCALE_12G;
             break;
-        case LIS3MDL_SCALE_16G:
+        case SCALE_16G:
             sensitivity = LIS3MDL_SENSITIVITY_SCALE_16G;
             break;
     }

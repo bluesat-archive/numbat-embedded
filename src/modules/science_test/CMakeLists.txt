@@ -2,12 +2,12 @@ project(science_test)
 cmake_minimum_required(VERSION 3.5)
 
 find_package(catkin REQUIRED
-        COMPONENTS ti i2c)
+        COMPONENTS ti tlsf i2c)
 
 catkin_package(
         INCLUDE_DIRS ./
         LIBRARIES science_test
-        CATKIN_DEPENDS ti i2c
+        CATKIN_DEPENDS ti tlsf i2c
 )
 
 include_directories(

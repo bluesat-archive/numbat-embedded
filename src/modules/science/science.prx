@@ -68,7 +68,7 @@
                     <name>can_delay_timer</name>
                     <enabled>true</enabled>
                     <reload>100</reload>
-                    <task>task_ros_sub_test</task>
+                    <task>task_science_fn</task>
                     <sig_set>can_delay</sig_set>
                 </timer>
             </timers>

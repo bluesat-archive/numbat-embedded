@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 #include "LIS3MDL.h"
@@ -14,10 +15,10 @@ void task_science_test_fn(void) {
     
     uint8_t it = tcs34725.read8(TCS34725_ATIME); 
     UARTprintf("Check integration time set\n");
-    assert (it == TCS34725_INTEGRATIONTIME_2_4MS);
+    assert (it == TCS34725::INTEGRATIONTIME_2_4MS);
     uint8_t gain = tcs34725.read8(TCS34725_CONTROL); 
     UARTprintf("Check gain set\n");
-    assert (gain == TCS34725_GAIN_1X);
+    assert (gain == TCS34725::GAIN_1X);
     UARTprintf("Initialising lis3mdl\n");
     bool result = lis3mdl.init();
     assert (result == true);
