@@ -1,9 +1,9 @@
-#include <assert.h>
+//#include <assert.h>
 #include "boilerplate.h"
 #include "rtos-kochab.h"
-#include "LIS3MDL.h"
-#include "SI7021.h"
-#include "TCS34725.h"
+#include "science-mod/LIS3MDL.h"
+#include "science-mod/SI7021.h"
+#include "science-mod/TCS34725.h"
 
 void task_science_test_fn(void) {
 
@@ -15,20 +15,20 @@ void task_science_test_fn(void) {
     
     uint8_t it = tcs34725.read8(TCS34725_ATIME); 
     UARTprintf("Check integration time set\n");
-    assert (it == TCS34725::INTEGRATIONTIME_2_4MS);
+    //assert (it == TCS34725::INTEGRATIONTIME_2_4MS);
     uint8_t gain = tcs34725.read8(TCS34725_CONTROL); 
     UARTprintf("Check gain set\n");
-    assert (gain == TCS34725::GAIN_1X);
+    //assert (gain == TCS34725::GAIN_1X);
     UARTprintf("Initialising lis3mdl\n");
     bool result = lis3mdl.init();
-    assert (result == true);
+    //assert (result == true);
     lis3mdl.enable_default();
     UARTprintf("Initialising SI7021\n");
     si7021.init();
     UARTprintf("Checking SI7021 serial number\n");
     uint32_t ser_hi, ser_lo;
     si7021.read_serial_number(&ser_hi, &ser_lo);
-    assert((ser_lo & (0xFF << 24)) == 0x15);
+    //assert((ser_lo & (0xFF << 24)) == 0x15);
     UARTprintf("Devices initialised successfully\n");
     uint32_t temp, humidity;
     float mx, my, mz;

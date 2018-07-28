@@ -15,43 +15,43 @@
 #include "i2c.h"
 
 class LIS3MDL {
-    /* slave address is modified by the SDO/SA1 pin */
-    enum slaveAddrState_t {
-        SLAVE_LOW, // SDO/SA1 connected to ground
-        SLAVE_HIGH, // SDO/SA1 connected to supply
-        SLAVE_AUTO // automatically detect the state of SDO/SA1
-    };
-
-    enum lis3mdlReg_t {
-        WHO_AM_I    = 0x0F,
-        CTRL_REG1   = 0x20,
-        CTRL_REG2   = 0x21,
-        CTRL_REG3   = 0x22,
-        CTRL_REG4   = 0x23,
-        CTRL_REG5   = 0x24,
-        STATUS_REG  = 0x27,
-        OUT_X_L     = 0x28,
-        OUT_X_H     = 0x29,
-        OUT_Y_L     = 0x2A,
-        OUT_Y_H     = 0x2B,
-        OUT_Z_L     = 0x2C,
-        OUT_Z_H     = 0x2D,
-        TEMP_OUT_L  = 0x2E,
-        TEMP_OUT_H  = 0x2F,
-        INT_CFG     = 0x30,
-        INT_SRC     = 0x31,
-        INT_THS_L   = 0x32,
-        INT_THS_H   = 0x33
-    };
-
-    enum lis3mdlScale_t {
-        SCALE_4G   = 0x00, /* +-4 gauss full scale */
-        SCALE_8G   = 0x20, /* +-8 gauss full scale */
-        SCALE_12G  = 0x40, /* +-12 gauss full scale */
-        SCALE_16G  = 0x60 /* +-16 gauss full scale */
-    };
-
     public:
+        /* slave address is modified by the SDO/SA1 pin */
+        enum slaveAddrState_t {
+            SLAVE_LOW  = 0, // SDO/SA1 connected to ground
+            SLAVE_HIGH = 1, // SDO/SA1 connected to supply
+            SLAVE_AUTO = 2 // automatically detect the state of SDO/SA1
+        };
+
+        enum lis3mdlReg_t {
+            WHO_AM_I    = 0x0F,
+            CTRL_REG1   = 0x20,
+            CTRL_REG2   = 0x21,
+            CTRL_REG3   = 0x22,
+            CTRL_REG4   = 0x23,
+            CTRL_REG5   = 0x24,
+            STATUS_REG  = 0x27,
+            OUT_X_L     = 0x28,
+            OUT_X_H     = 0x29,
+            OUT_Y_L     = 0x2A,
+            OUT_Y_H     = 0x2B,
+            OUT_Z_L     = 0x2C,
+            OUT_Z_H     = 0x2D,
+            TEMP_OUT_L  = 0x2E,
+            TEMP_OUT_H  = 0x2F,
+            INT_CFG     = 0x30,
+            INT_SRC     = 0x31,
+            INT_THS_L   = 0x32,
+            INT_THS_H   = 0x33
+        };
+
+        enum lis3mdlScale_t {
+            SCALE_4G   = 0x00, /* +-4 gauss full scale */
+            SCALE_8G   = 0x20, /* +-8 gauss full scale */
+            SCALE_12G  = 0x40, /* +-12 gauss full scale */
+            SCALE_16G  = 0x60 /* +-16 gauss full scale */
+        };
+
         /** 
          * Constructor that takes in the I2C module connected to the device and 
          * optionally the state of the SD0/SA1 pin.

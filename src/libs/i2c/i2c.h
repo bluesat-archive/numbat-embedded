@@ -10,12 +10,13 @@
 #ifndef I2C_H
 #define I2C_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdbool.h>
-#include <stdint.h>
 
 /* I2C master commands */
 #define I2C_CMD_SINGLE_SEND			0x00000007 // start -> transmit -> stop

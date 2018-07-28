@@ -5,11 +5,10 @@
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
 #include "NodeHandle.hpp"
-#include "std_msgs/Bool.hpp"
-#include "LIS3MDL.h"
-#include "SI7021.h"
-#include "TCS34725.h"
-#include "LIS3MDL.h"
+#include "std_msgs/Int16.hpp"
+#include "science-mod/LIS3MDL.h"
+#include "science-mod/SI7021.h"
+#include "science-mod/TCS34725.h"
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 

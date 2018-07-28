@@ -16,10 +16,8 @@ class SI7021 {
     public:
         /* Control registers to set the configuration of SI7021 */
         enum controlReg_t {
-            USER_REG_1,
-            // used to modify the heater current
-            // reduces the likelihood of offset accumulation of humidty sensor
-            HEATER_CTRL_REG 
+            USER_REG_1      = 0,
+            HEATER_CTRL_REG = 1 // used to modify the heater current
         };
 
         SI7021(i2cModule_t);
