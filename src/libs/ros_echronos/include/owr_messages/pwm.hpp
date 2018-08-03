@@ -36,7 +36,7 @@ class pwm_ : public ros_echronos::Message {
   ros_echronos::Message_Descriptor * desc = NULL;
   typedef  ::owr_messages::pwm_  * Ptr;
   typedef  ::owr_messages::pwm_  * const ConstPtr;
-  constexpr static char * NAME = "owr_messages/pwm";
+  constexpr static char * const NAME = "owr_messages/pwm";
 }; // class pwm
 typedef  ::owr_messages::pwm_ pwm;
 

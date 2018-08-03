@@ -36,29 +36,14 @@ namespace ros_echronos {
             /**
              * Ctrl message specific fields that are common
              */
-            constexpr CAN_Header _chan_ctrl_ctrl_fields = {
+            constexpr CAN_Header _chan_ctrl_ctrl_fields {
                 .fields = {
                     .f2_ctrl_msg_fields = {
-                        ((unsigned int)CHANNEL_CONTROL), 0
+                        ((unsigned int)CHANNEL_CONTROL), 0u
                     }
                 }
             };
 
-            /**
-             * Merged CAN Header
-             */
-            const CAN_Header SUB_CTRL_HEADER {
-                .bits = CAN_CTRL_BASE_FIELDS.bits | _chan_ctrl_ctrl_fields.bits
-            };
-
-            /**
-             * Mask for the channel_controlr ctrl header
-             */
-            constexpr Subscribe_Header SUB_CTRL_HEADER_MASK {
-                .fields = {
-                    0xF, 0xF, 0xF, 0
-                }
-            };
 
         }
 

@@ -9,11 +9,12 @@
 #include "can_impl.hpp"
 #include "boilerplate.h"
 #include "ros.hpp"
+#include "can/channel_control.hpp"
 
 #define NUM_CAN_OBJS 32
 #define CAN_FIFO_QUEUE_LENGTH 6
 // reserve 1 for sending messages
-#define CAN_ID_START 3
+#define CAN_ID_START 4
 #define CAN_DEVICE_BASE CAN0_BASE
 #define CAN_RECEIVE_FLAGS (MSG_OBJ_RX_INT_ENABLE | MSG_OBJ_USE_ID_FILTER |  MSG_OBJ_EXTENDED_ID) //| MSG_OBJ_USE_EXT_FILTER)
 /**
@@ -27,6 +28,7 @@ static uint8_t current_id = CAN_ID_START;
 
 // we only need one id for control messages as they don't happen very often
 constexpr ros_echronos::can::can_sub_id ros_echronos::can::CTRL_SUB_ID = CAN_ID_START - 1;
+constexpr ros_echronos::can::can_sub_id CHANNEL_CTRL_SUB_ID = ros_echronos::can::CTRL_SUB_ID - 1;
 
 using namespace ros_echronos::can;
 
@@ -88,6 +90,19 @@ void ros_echronos::can::clear_ctrl_sub() {
     msgs[CTRL_SUB_ID].ui32MsgID = 0;
     msgs[CTRL_SUB_ID].ui32MsgIDMask = MSG_OBJ_NO_FLAGS;
     CANMessageClear(CAN_DEVICE_BASE, CTRL_SUB_ID);
+}
+
+
+void ros_echronos::can::init_channel_ctrl_sub() {
+    using namespace control_9_channel_control;
+    msgs[CHANNEL_CTRL_SUB_ID].ui32Flags = CAN_RECEIVE_FLAGS;
+    const unsigned int a = CAN_CTRL_BASE_FIELDS.bits;
+    const unsigned int b = _chan_ctrl_ctrl_fields.bits;
+    update_and_activate_sub(
+        CHANNEL_CTRL_SUB_ID,
+        CAN_CTRL_BASE_FIELDS.bits | _chan_ctrl_ctrl_fields.bits,
+        _CTRL_HEADER_MASK_BASE_FIELDS.bits | _CTRL_HEADER_MASK_F2_FIELDS.bits
+    );
 }
 
 static int error_flag = 0;

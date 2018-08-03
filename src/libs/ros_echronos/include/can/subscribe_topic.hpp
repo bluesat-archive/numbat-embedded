@@ -35,7 +35,7 @@ namespace ros_echronos {
             constexpr CAN_Header _sub_ctrl_fields = {
                 .fields = {
                     .f2_ctrl_msg_fields = {
-                        ((unsigned int)SUBSCRIBE_TOPIC), 0
+                        ((unsigned int)SUBSCRIBE_TOPIC), 0u
                     }
                 }
             };
@@ -52,7 +52,7 @@ namespace ros_echronos {
              */
             constexpr Subscribe_Header SUB_CTRL_HEADER_MASK {
                 .fields = {
-                    0xF, 0xF, 0xF, 0
+                    0xFu, 0xFu, 0xFu, 0u
                 }
             };
 

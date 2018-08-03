@@ -60,7 +60,7 @@ namespace ros_echronos {
              */
             constexpr Subscribe_Header ADV_CTRL_HEADER_MASK {
                 .fields = {
-                    0xF, 0xF, 0xF, 0
+                    0xFu, 0xFu, 0xFu, 0u, 0u
                 }
             };
 

@@ -92,12 +92,13 @@ namespace ros_echronos {
                     unsigned int priority : 2;
                     unsigned int ros_function : 2;
                     unsigned int seq_num : 3;
+                    unsigned int remainder : 28 - 8;
                 } __attribute__((packed)) base_fields;
                 /**
                  * Header fields for ROS msgs
                  */
                 struct _ros_msg_fields {
-                    unsigned int : sizeof(base_fields);
+                    unsigned int : 8;
                     unsigned int message_num : 2;
                     unsigned int topic : 7;
                     unsigned int message_length : 8;
@@ -108,9 +109,9 @@ namespace ros_echronos {
                  * Header fields for control msgs
                  */
                 struct _ros_ctrl_fields {
-                    unsigned int : sizeof(base_fields);
+                    unsigned int : 8;
                     unsigned int mode : 4;
-                    unsigned int control_specific : 28 - sizeof(base_fields) - 4;
+                    unsigned int control_specific : 28 - 8 - 4;
                 } __attribute__((packed)) f2_ctrl_msg_fields;
             } __attribute__((packed)) fields;
         } CAN_Header;
@@ -127,24 +128,25 @@ namespace ros_echronos {
         /**
          * Standard header base for ctrl messages
          */
-        constexpr CAN_Header CAN_CTRL_BASE_FIELDS = {
+        constexpr CAN_Header CAN_CTRL_BASE_FIELDS {
             .fields = {
                 .base_fields = {
                     ((unsigned int) ROS_CAN_MODE),
-                    0,
+                    0u,
                     ((unsigned int) FN_ROS_CONTROL_MSG),
-                    0
+                    0u,
+                    0u
                 }
             }
         };
 
         /**
-         * Mask for the subscriber ctrl header base fields
+         * Mask for the ctrl header base fields
          */
         constexpr CAN_Header _CTRL_HEADER_MASK_BASE_FIELDS {
             .fields = {
                 .base_fields = {
-                    1, 0xFFFF, 0xFFFF, 0xFFF
+                    1u, 0xFFFFu, 0xFFFFu, 0xFFFu
                 }
             }
         };
@@ -152,7 +154,7 @@ namespace ros_echronos {
         constexpr CAN_Header _CTRL_HEADER_MASK_F2_FIELDS {
             .fields = {
                 .f2_ctrl_msg_fields = {
-                    0xFFF, 0xFFF
+                    0xFFFu, 0xFFFu
                 }
             }
         };
@@ -170,12 +172,12 @@ namespace ros_echronos {
 
         constexpr CAN_Header _TOPIC_BITMASK_BASE = {
             .fields = {
-                .base_fields = { 1, 0, 0xF, 0},
+                .base_fields = { 1u, 0u, 0xFu, 0u},
             }
         };
         constexpr CAN_Header _TOPIC_BITMASK_F0 = {
             .fields = {
-                .f0_ros_msg_fields = { 0, 0xFFFF, 0, 0, 0}
+                .f0_ros_msg_fields = { 0u, 0xFFFFu, 0u, 0u, 0u}
             }
         };
 

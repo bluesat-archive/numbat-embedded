@@ -39,6 +39,7 @@ void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_
     can::node_handle_ready = true;
     nh_ptr = this;
 
+    can::init_channel_ctrl_sub();
     // we do this here so we won't be waiting infinetly for ourselves
     do_register_node(node_name, register_node_signal);
 }
@@ -110,14 +111,14 @@ void NodeHandle::spin() {
                     can::send_can(msg);
                 }
             } while (has_next);
-        } while (current = (_Publisher *) current->next);
+        } while ((current = (_Publisher *) current->next));
     }
 
     _Subscriber * current_sub = subscribers;
     if(current_sub) {
         do {
             current_sub->call_callback();
-        } while(current_sub = (_Subscriber *)current_sub->next);
+        } while((current_sub = (_Subscriber *)current_sub->next));
     }
     // TODO: receive
 }
@@ -182,7 +183,16 @@ void NodeHandle::handle_channel_msg(ros_echronos::can::CAN_ROS_Message msg) {
         // reboot the machine
         SysCtlReset();
     } else if(header.fields.chan_ctrl_mode == HEARTBEAT) {
-        //TODO: do a heartbeat
+        can::CAN_ROS_Message msg;
+        msg.head.bits = can::CAN_CTRL_BASE_FIELDS.bits | _chan_ctrl_ctrl_fields.bits;
+        const Channel_Control_Header ctrlHead = {
+            .fields = {
+                HEARTBEAT, get_node_id()
+            }
+        };
+        msg.head.bits |= ctrlHead.bits;
+        msg.body_bytes = 0;
+        can::send_can(msg);
     }
 }
 
