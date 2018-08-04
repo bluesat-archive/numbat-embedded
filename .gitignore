@@ -10,6 +10,10 @@ Project.cbp
 *.swo
 *.orig
 
+# kdevelop
+src/.kdev4
+*.kdev4
+
 # clion ide files
 .idea
 cmake-build-debug
