@@ -23,7 +23,7 @@
             <external_irqs>
                 <external_irq>
                     <number>39</number>
-                    <handler>can0_int_handler</handler>
+                    <handler>ros_can_interupt_handler</handler>
                 </external_irq>
                 <external_irq>
                     <number>5</number>
