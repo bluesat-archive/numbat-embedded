@@ -157,6 +157,7 @@ extern "C" void task_retransmitter_fn(void) {
         buf_ready = buf_reading;
         rtos_mutex_unlock(RTOS_MUTEX_ID_BUF);
         is_buffer_ready = true;
+        rtos_signal_wait(RTOS_SIGNAL_ID_UART_RECEIVE_SIGNAL);
         UARTwrite((const char*)startMagic, 4);
     }
 }
