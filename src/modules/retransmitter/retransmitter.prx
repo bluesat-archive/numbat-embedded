@@ -54,7 +54,7 @@
                     <name>task_publish_buffer</name>
                     <function>task_publish_buffer_fn</function>
                     <priority>31</priority>
-                    <stack_size>4096</stack_size>
+                    <stack_size>1024</stack_size>
                 </task>
             </tasks>
 
