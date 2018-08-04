@@ -65,6 +65,9 @@
                 <signal_label>
                     <name>can_receive_signal</name>
                 </signal_label>
+                <signal_label>
+                    <name>uart_receive_signal</name>
+                </signal_label>
             </signal_labels>
 
             <timers>
@@ -92,6 +95,11 @@
                 <interrupt_event>
                     <name>can_receive_event</name>
                     <sig_set>can_receive_signal</sig_set>
+                    <task>task_retransmitter</task>
+                </interrupt_event>
+                <interrupt_event>
+                    <name>uart_interrupt</name>
+                    <sig_set>uart_receive_signal</sig_set>
                     <task>task_retransmitter</task>
                 </interrupt_event>
             </interrupt_events>
