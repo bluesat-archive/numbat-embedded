@@ -152,7 +152,7 @@ void NodeHandle::run_handle_message_loop() {
             continue;
         }
 
-        if (msg.head.fields.base_fields.mode == (unsigned int)FN_ROS_MESSAGE_TRANSMISSION) {
+        if (msg.head.fields.base_fields.ros_function == (unsigned int)FN_ROS_MESSAGE_TRANSMISSION) {
             _Subscriber *current;
             for (current = subscribers; current; current = (_Subscriber *) current->next) {
                 if (msg.head.fields.f0_ros_msg_fields.topic == current->topic_id) {
@@ -164,7 +164,7 @@ void NodeHandle::run_handle_message_loop() {
                 }
 
             }
-        } else if (msg.head.fields.base_fields.mode == (unsigned int)FN_ROS_CONTROL_MSG) {
+        } else if (msg.head.fields.base_fields.ros_function == (unsigned int)FN_ROS_CONTROL_MSG) {
             if(msg.head.fields.f2_ctrl_msg_fields.mode == (unsigned int)CHANNEL_CONTROL) {
                 handle_channel_msg(msg);
             }

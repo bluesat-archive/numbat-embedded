@@ -96,8 +96,8 @@ void ros_echronos::can::clear_ctrl_sub() {
 void ros_echronos::can::init_channel_ctrl_sub() {
     using namespace control_9_channel_control;
     msgs[CHANNEL_CTRL_SUB_ID].ui32Flags = CAN_RECEIVE_FLAGS;
-    const unsigned int a = CAN_CTRL_BASE_FIELDS.bits;
-    const unsigned int b = _chan_ctrl_ctrl_fields.bits;
+//    const CAN_Header a = CAN_CTRL_BASE_FIELDS;
+//    const CAN_Header  b = _chan_ctrl_ctrl_fields;
     update_and_activate_sub(
         CHANNEL_CTRL_SUB_ID,
         CAN_CTRL_BASE_FIELDS.bits | _chan_ctrl_ctrl_fields.bits,

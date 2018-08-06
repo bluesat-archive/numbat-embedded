@@ -154,7 +154,7 @@ namespace ros_echronos {
         constexpr CAN_Header _CTRL_HEADER_MASK_F2_FIELDS {
             .fields = {
                 .f2_ctrl_msg_fields = {
-                    0xFFFu, 0xFFFu
+                    0xFFFu, 0x0
                 }
             }
         };
