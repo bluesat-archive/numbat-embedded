@@ -19,7 +19,7 @@ include_directories(
 set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
-set(CPP_FILES right_locomotion.cpp can_wait_task.cpp)
+set(CPP_FILES right_locomotion.cpp)
 add_module(right_locomotion 3 1 0 "${CPP_FILES}")
 target_link_libraries(right_locomotion pwm servo m)
 generate_msgs(std_msgs Float64)

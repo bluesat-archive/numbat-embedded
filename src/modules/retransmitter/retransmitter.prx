@@ -23,7 +23,7 @@
             <external_irqs>
                 <external_irq>
                     <number>39</number>
-                    <handler>can0_int_handler</handler>
+                    <handler>ros_can_interupt_handler</handler>
                 </external_irq>
                 <external_irq>
                     <number>5</number>
@@ -49,6 +49,12 @@
                     <function>task_retransmitter_fn</function>
                     <priority>30</priority>
                     <stack_size>4096</stack_size>
+                </task>
+		 <task>
+                    <name>task_can_wait</name>
+                    <function>task_can_wait_fn</function>
+                    <priority>31</priority>
+                    <stack_size>512</stack_size>
                 </task>
             </tasks>
 
@@ -86,7 +92,7 @@
                 <interrupt_event>
                     <name>can_receive_event</name>
                     <sig_set>can_receive_signal</sig_set>
-                    <task>task_retransmitter</task>
+                    <task>task_can_wait</task>
                 </interrupt_event>
             </interrupt_events>
         </module>

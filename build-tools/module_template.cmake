@@ -6,6 +6,7 @@ set(BOILERPLATE_DIR ../boilerplate)
 
 set(MODULE_DEP_FILES
     ${BOILERPLATE_DIR}/boilerplate.c
+    ${BOILERPLATE_DIR}/can_wait_task.cpp
 )
 # NOTE: we don't include crtn or crti in the above because order is important
 

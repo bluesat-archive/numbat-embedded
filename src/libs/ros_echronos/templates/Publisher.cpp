@@ -21,7 +21,7 @@ template <class T> Publisher<T>::Publisher(
         T * const write_buffer,
         uint8_t buffer_size,
         bool latch
-    ) : buffer(write_buffer, buffer_size) {
+    ) : buffer(write_buffer, buffer_size), topic_name(topic_name) {
 
 
 }

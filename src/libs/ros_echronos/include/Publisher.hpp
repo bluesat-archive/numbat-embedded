@@ -38,7 +38,7 @@ namespace ros_echronos {
             /**
              * Stores the topic "number" on the can bus
              */
-            uint8_t topic_id;
+            uint8_t topic_id : 6;
     };
 
     /**
@@ -102,7 +102,7 @@ namespace ros_echronos {
             /**
              * Stores the header for this topic
              */
-             can::CAN_Header header;
+            can::CAN_Header header;
 
             /**
              * the message currently being published
@@ -127,10 +127,6 @@ namespace ros_echronos {
              */
             Transmission_Mode mode = DROP_MISSING;
 
-            /**
-             * The publisher's topic id
-             */
-            uint8_t topic_id;
 
             /**
              * Register this topic with the controller
