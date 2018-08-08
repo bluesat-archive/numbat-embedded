@@ -2,8 +2,7 @@
  * Date Started: 3/7/18
  * Original Author: [Original Author's Name]
  * Editors: [Editor 1], [Editor 2]
- * Purpose: This is example code, that demonstrates how to write a header comment
- * in the appropriate format!
+ * Purpose: I2C library
  * This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2017
  */
 

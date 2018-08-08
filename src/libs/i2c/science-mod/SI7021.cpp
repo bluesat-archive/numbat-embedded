@@ -19,14 +19,20 @@ SI7021::SI7021(i2cModule_t i2c_module) {
     module = i2c_module;
 }
 
-void SI7021::init(void) {
+bool SI7021::init(void) {
     i2c_init(module, FAST);
+    uint32_t ser_lo = read_serial32(SI7021_ID2_CMD);
+    if ((ser_lo >> 24) == 0x15) { // SI7021 msb is 0x15
+        return true;
+    } else {
+        return false;
+    }
 }
 
 uint32_t SI7021::read_temperature(void) {
     i2c_set_slave_addr(module, SI7021_ADDR, false);
     // perform temperature measurement
-    i2c_write(module, TEMP_MEAS_HOLD_CMD, I2C_CMD_SEND_START); 
+    i2c_write(module, TEMP_MEAS_HOLD_CMD, I2C_CMD_SEND_START);
     i2c_set_slave_addr(module, SI7021_ADDR, true);
     uint8_t msb;
     uint8_t lsb;
@@ -44,7 +50,7 @@ uint32_t SI7021::read_temperature(void) {
 uint32_t SI7021::read_humidity(void) {
     i2c_set_slave_addr(module, SI7021_ADDR, false);
     // perform temperature measurement
-    i2c_write(module, HUMID_MEAS_HOLD_CMD, I2C_CMD_SEND_START); 
+    i2c_write(module, HUMID_MEAS_HOLD_CMD, I2C_CMD_SEND_START);
     i2c_set_slave_addr(module, SI7021_ADDR, true);
     uint8_t msb;
     uint8_t lsb;
@@ -59,8 +65,8 @@ uint32_t SI7021::read_humidity(void) {
 
 void SI7021::reset(void) {
     i2c_set_slave_addr(module, SI7021_ADDR, false);
-    i2c_write(module, SI7021_RESET_CMD, I2C_CMD_SINGLE_SEND); 
-} 
+    i2c_write(module, SI7021_RESET_CMD, I2C_CMD_SINGLE_SEND);
+}
 
 void SI7021::read_serial_number(uint32_t *ser_hi, uint32_t *ser_lo) {
     *ser_hi = read_serial32(SI7021_ID1_CMD);
@@ -119,12 +125,12 @@ uint8_t SI7021::read_register(controlReg_t reg) {
     } else if (reg == HEATER_CTRL_REG) {
         cmd = HEATER_CTRL_REG_READ_CMD;
     }
-    i2c_set_slave_addr(module, SI7021_ADDR, false); 
+    i2c_set_slave_addr(module, SI7021_ADDR, false);
     i2c_write(module, cmd, I2C_CMD_SEND_START); // read cmd
     i2c_set_slave_addr(module, SI7021_ADDR, true); // switch to read
     uint8_t data;
-    // read then nack 
-    i2c_read(module, &data, I2C_CMD_RECEIVE_NACK_START); 
+    // read then nack
+    i2c_read(module, &data, I2C_CMD_RECEIVE_NACK_START);
     i2c_stop(module);
     return data;
 }

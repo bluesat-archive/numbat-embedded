@@ -1,9 +1,8 @@
-# TODO: change this to your module name (must match package.xml)
 project(science)
 cmake_minimum_required(VERSION 3.5)
 
 find_package(catkin REQUIRED
-        COMPONENTS ti i2c tlsf)
+        COMPONENTS ti tlsf i2c)
 
 catkin_package(
         INCLUDE_DIRS ./
@@ -20,9 +19,11 @@ include_directories(
 set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
-#TODO: add all your module cpp files to this list
 set(CPP_FILES science.cpp can_wait_task.cpp)
 add_module(science 7 1 0 "${CPP_FILES}")
-target_link_libraries(science science-mod)
-
-
+target_link_libraries(science i2c)
+link_science_library(science)
+generate_msgs(std_msgs Int16)
+generate_msgs(owr_messages science)
+depend_msgs(science std_msgs Int16)
+depend_msgs(science owr_messages science)

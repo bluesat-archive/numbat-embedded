@@ -1,11 +1,10 @@
-/* Ported from Polulu implementation with some slight modifications
- * https://github.com/pololu/lis3mdl-arduino */
-
 /*
  * Date Started: 6/7/18
  * Original Author: [Original Author's Name]
  * Editors: [Editor 1], [Editor 2]
- * Purpose: 
+ * Purpose: Library for LIS3MDL magnetometer
+ * Ported from Polulu's implementation with some slight modifications
+ * https://github.com/pololu/lis3mdl-arduino
  * This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2017
  */
 
@@ -52,10 +51,10 @@ class LIS3MDL {
             SCALE_16G  = 0x60 /* +-16 gauss full scale */
         };
 
-        /** 
-         * Constructor that takes in the I2C module connected to the device and 
+        /**
+         * Constructor that takes in the I2C module connected to the device and
          * optionally the state of the SD0/SA1 pin.
-         * 
+         *
          * The state determines the I2C slave address. If not specified, the
          * address will be detected automatically.
          */

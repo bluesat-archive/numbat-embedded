@@ -1,10 +1,10 @@
 #include <rtos-kochab.h>
 #include "boilerplate.h"
 #include "ros.hpp"
-#include "owr_messages/science.hpp"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
 #include "NodeHandle.hpp"
+#include "owr_messages/science.hpp"
 #include "std_msgs/Int16.hpp"
 #include "science-mod/LIS3MDL.h"
 #include "science-mod/SI7021.h"
@@ -20,7 +20,7 @@ static tCANMsgObject rx_object;
 static uint8_t can_input_buffer[CAN_MSG_LEN];
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
-void data_request_callback(const std_msgs::Bool &msg);
+void data_request_callback(const std_msgs::Int16 &msg);
 
 
 extern "C" bool tick_irq(void) {
@@ -32,38 +32,58 @@ bool sent_message;
 
 static uint32_t error_flag;
 
-static TCS34725 tcs34725(I2C0);
-static LIS3MDL lis3mdl(I2C0);
-static SI7021 si7021(I2C0);
-static ros_echronos::Publisher<owr_messages::science> *science_pub;
+static TCS34725 *tcs34725_ptr;
+static LIS3MDL *lis3mdl_ptr;
+static SI7021 *si7021_ptr;
+static ros_echronos::Publisher<owr_messages::science> *science_pub_ptr;
 
-void task_science_fn(void) {
+extern "C" void task_science_fn(void) {
     // this creates a node handle
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
     nh.init("science_fn", "science_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
-    ros_echronos::ROS_INFO("Done init\n");
     
     nh_ptr = &nh;
 
     // Create the subscriber
     ros_echronos::ROS_INFO("Data request sub init\n");
-    std_msgs::Bool science_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Bool> science_sub("science/request", 
-                                    (std_msgs::Bool*) science_buffer_in, 5, data_request_callback);
+    std_msgs::Int16 science_buffer_in[5];
+    ros_echronos::Subscriber<std_msgs::Int16> science_sub("science/request", science_buffer_in, 5, data_request_callback);
     science_sub.set_topic_id(1);
     science_sub.init(nh);
     
     // Create the publisher
     ros_echronos::ROS_INFO("Data pub init\n");
     owr_messages::science science_buffer_out[5];
-    science_pub = new ros_echronos::Publisher<owr_messages::science>("science/data", 
-                                    (owr_messages::science*) science_buffer_out, 5, false);
-    science_pub->init(nh);
-
-    tcs34725.init();
-    lis3mdl.init();
-    si7021.init();
+    ros_echronos::Publisher<owr_messages::science> science_pub("science/data", science_buffer_out, 5, false);
+    science_pub_ptr = &science_pub;
+    science_pub_ptr->init(nh);
+    ros_echronos::ROS_INFO("Sensors init\n");
+    TCS34725 tcs34725(I2C0);
+    tcs34725_ptr = &tcs34725;
+    LIS3MDL lis3mdl(I2C0);
+    lis3mdl_ptr = &lis3mdl;
+    SI7021 si7021(I2C0);
+    si7021_ptr = &si7021;
+    bool success = false;
+    tcs34725_ptr->init();
+    if (success) {
+        UARTprintf("TCS34725 successfully initialised\n");
+    } else {
+        UARTprintf("TCS34725 failed to initialise\n");
+    }
+    lis3mdl_ptr->init();
+    if (success) {
+        UARTprintf("LIS3MDL successfully initialised\n");
+    } else {
+        UARTprintf("LIS3MDL failed to initialise\n");
+    }
+    si7021_ptr->init();
+    if (success) {
+        UARTprintf("SI7021 successfully initialised\n");
+    } else {
+        UARTprintf("SI7021 failed to initialise\n");
+    }
 
     while(true) {
         // this causes the callbacks to be called
@@ -131,18 +151,19 @@ void init_can(void) {
 
 }
 
-void data_request_callback(const std_msgs::Bool &msg) {
+// accept other commands for changing sensor settings?
+void data_request_callback(const std_msgs::Int16 &msg) {
     // create a message containing sensor data
     owr_messages::science data_msg;
-    data_msg.temperature = si7021.read_temperature();
-    data_msg.humidity = si7021.read_humidity();
-    lis3mdl.read_magnetism(&data_msg.m.x, &data_msg.m.y, &data_msg.m.z)
+    data_msg.temperature = si7021_ptr->read_temperature();
+    data_msg.humidity = si7021_ptr->read_humidity();
+    lis3mdl_ptr->read_magnetism(&data_msg.mag_x, &data_msg.mag_y, &data_msg.mag_z);
     uint16_t r, g, b, c;
-    tcs34725.read_raw_data(&r, &g, &b, &c);
-    data_msg.colour_temperature = tcs34725.calculate_colour_temperature(r, g, b);
-    data_msg.illuminance = tcs34725.calculate_lux(r, g, b);
+    tcs34725_ptr->read_raw_data(&r, &g, &b, &c);
+    data_msg.colour_temperature = tcs34725_ptr->calculate_colour_temperature(r, g, b);
+    data_msg.illuminance = tcs34725_ptr->calculate_lux(r, g, b);
     // publish data
-    science_pub->publish(data_msg, 0);
+    science_pub_ptr->publish(data_msg, 0);
 }
 
 

@@ -1,13 +1,10 @@
-
-
-/* LIBRARY PORTED FROM ARDUINO IMPLEMENTATION 
- * https://github.com/adafruit/Adafruit_Si7021/blob/master/Adafruit_Si7021.h */
-
 /*
  * Date Started: 6/7/18
  * Original Author: [Original Author's Name]
  * Editors: [Editor 1], [Editor 2]
- * Purpose: 
+ * Purpose: Library for TCS34725 RGB colour sensor
+ * Ported from Adafruit's implementation with some slight modifications
+ * https://github.com/adafruit/Adafruit_TCS34725
  * This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2017
  */
 
@@ -66,12 +63,12 @@ class TCS34725 {
             WTIME_614MS = 0x00
         };
 
-        TCS34725(i2cModule_t, integrationTime_t = INTEGRATIONTIME_2_4MS, gain_t = GAIN_1X);
+        TCS34725(i2cModule_t, integrationTime_t = INTEGRATIONTIME_50MS, gain_t = GAIN_4X);
         /* 
          * Initialises the I2C module and powers on the device. The wait cycle
          * (power saving mode) and interrupt generation are disabled by default.
          */
-        void init(void);
+        bool init(void);
         void set_integration_time(integrationTime_t it);
         void set_gain(gain_t gain);
         void read_raw_data(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);

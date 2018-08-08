@@ -6,7 +6,7 @@ find_package(catkin REQUIRED
 
 catkin_package(
         INCLUDE_DIRS ./
-        LIBRARIES i2c science-mod
+        LIBRARIES i2c #science-mod
         CATKIN_DEPENDS ti
 )
 
@@ -20,11 +20,11 @@ target_include_directories(i2c PUBLIC
         ${catkin_INCLUDE_DIRS}
 )
 
-FILE(GLOB science-mod_files science-mod/*.cpp)
-add_library(science-mod STATIC ${science-mod_files})
-target_include_directories(science-mod PUBLIC
-        ${CMAKE_INCLUDE_PATH}
-        ./
-        ${catkin_INCLUDE_DIRS}
-)
-target_link_libraries(science-mod i2c)
+#FILE(GLOB science-mod_files science-mod/*.cpp)
+#add_library(science-mod STATIC ${science-mod_files})
+#target_include_directories(science-mod PUBLIC
+#        ${CMAKE_INCLUDE_PATH}
+#        ./
+#        ${catkin_INCLUDE_DIRS}
+#)
+#target_link_libraries(science-mod i2c)

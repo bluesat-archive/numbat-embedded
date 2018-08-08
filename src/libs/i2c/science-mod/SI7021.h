@@ -2,8 +2,9 @@
  * Date Started: 6/7/18
  * Original Author: [Original Author's Name]
  * Editors: [Editor 1], [Editor 2]
- * Purpose: This is example code, that demonstrates how to write a header comment
- * in the appropriate format!
+ * Purpose: Library for SI7021 temperature/humidity sensor
+ * Ported from Adafruit's implementation with some slight modifications
+ * https://github.com/adafruit/Adafruit_Si7021 
  * This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2017
  */
 
@@ -21,7 +22,7 @@ class SI7021 {
         };
 
         SI7021(i2cModule_t);
-        void init(void);
+        bool init(void);
         uint32_t read_temperature(void);
         uint32_t read_humidity(void);
         void write_register(controlReg_t reg, uint8_t data);
@@ -33,9 +34,7 @@ class SI7021 {
     private:
         uint32_t read_serial32(uint32_t cmd);
 
-        i2cModule_t module;     
+        i2cModule_t module;
 };
 
 #endif
-
-

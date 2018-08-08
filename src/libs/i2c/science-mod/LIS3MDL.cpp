@@ -91,7 +91,7 @@ void LIS3MDL::set_scale(lis3mdlScale_t scale) {
         case SCALE_4G:
             sensitivity = LIS3MDL_SENSITIVITY_SCALE_4G;
             break;
-        case SCALE_8G: 
+        case SCALE_8G:
             sensitivity = LIS3MDL_SENSITIVITY_SCALE_8G;
             break;
         case SCALE_12G:
@@ -114,9 +114,9 @@ uint8_t LIS3MDL::read_register(lis3mdlReg_t reg) {
     i2c_set_slave_addr(module, lis3mdl_addr, false);
     i2c_write(module, reg, I2C_CMD_SEND_START);
     i2c_set_slave_addr(module, lis3mdl_addr, true);
-    uint8_t data;
-    // read then nack 
-    i2c_read(module, &data, I2C_CMD_RECEIVE_NACK_START); 
+    uint8_t data = 0;
+    // read then nack
+    i2c_read(module, &data, I2C_CMD_RECEIVE_NACK_START);
     i2c_stop(module);
     return data;
 }
@@ -127,9 +127,9 @@ uint8_t LIS3MDL::test_device_addr(uint8_t addr) {
     i2c_write(module, WHO_AM_I, I2C_CMD_SEND_START);
     if (i2c_stop(module) != 0) {
         return TEST_ADDR_ERROR;
-    } 
+    }
     i2c_set_slave_addr(module, addr, true);
-    uint8_t data;
+    uint8_t data = 0;
     if (i2c_read(module, &data, I2C_CMD_SINGLE_RECEIVE)) {
         return TEST_ADDR_ERROR;
     } else {

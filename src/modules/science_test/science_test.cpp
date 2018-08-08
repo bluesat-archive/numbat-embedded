@@ -1,54 +1,97 @@
-//#include <assert.h>
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 #include "science-mod/LIS3MDL.h"
 #include "science-mod/SI7021.h"
 #include "science-mod/TCS34725.h"
 
-void task_science_test_fn(void) {
+void ftoa(float f,char *buf) {
+    int pos=0,ix,dp,num;
+    if (f<0) {
+        buf[pos++]='-';
+        f = -f;
+    }
+    dp=0;
+    while (f>=10.0) {
+        f=f/10.0;
+        dp++;
+    }
+    for (ix=1;ix<8;ix++) {
+            num = (int)f;
+            f=f-num;
+            if (num>9)
+                buf[pos++]='#';
+            else
+                buf[pos++]='0'+num;
+            if (dp==0) buf[pos++]='.';
+            f=f*10.0;
+            dp--;
+    }
+}
 
+extern "C" void task_science_test_fn(void) {
     UARTprintf("Entered science test task\n");
-    TCS34725 tcs34725(I2C0);
+    bool success = false;
     LIS3MDL lis3mdl(I2C0);
-    SI7021 si7021(I2C0);
-    UARTprintf("Initialising tcs34725\n");
-    
-    uint8_t it = tcs34725.read8(TCS34725_ATIME); 
-    UARTprintf("Check integration time set\n");
-    //assert (it == TCS34725::INTEGRATIONTIME_2_4MS);
+    success = lis3mdl.init();
+    if (success) {
+        UARTprintf("LIS3MDL successfully initialised\n");
+    } else {
+        UARTprintf("LIS3MDL failed to initialise\n");
+    }
+    TCS34725 tcs34725(I2C0);
+    success = tcs34725.init();
+    if (success) {
+        UARTprintf("TCS34725 successfully initialised\n");
+    } else {
+        UARTprintf("TCS34725 failed to initialise\n");
+    }
+    uint8_t it = tcs34725.read8(TCS34725_ATIME);    
+    UARTprintf("Check integration time set %d\n", it);
     uint8_t gain = tcs34725.read8(TCS34725_CONTROL); 
-    UARTprintf("Check gain set\n");
-    //assert (gain == TCS34725::GAIN_1X);
-    UARTprintf("Initialising lis3mdl\n");
-    bool result = lis3mdl.init();
-    //assert (result == true);
-    lis3mdl.enable_default();
-    UARTprintf("Initialising SI7021\n");
-    si7021.init();
+    UARTprintf("Check gain set %d\n", gain); 
+    
+    SI7021 si7021(I2C0);    
+    success = si7021.init();
+    if (success) {
+        UARTprintf("SI7021 successfully initialised\n");
+    } else {
+        UARTprintf("SI7021 failed to initialise\n");
+    }
     UARTprintf("Checking SI7021 serial number\n");
-    uint32_t ser_hi, ser_lo;
+    uint32_t ser_hi = 0;
+    uint32_t ser_lo = 0;
     si7021.read_serial_number(&ser_hi, &ser_lo);
-    //assert((ser_lo & (0xFF << 24)) == 0x15);
-    UARTprintf("Devices initialised successfully\n");
+    UARTprintf("ser = %x %x\n", ser_hi, ser_lo);
+    uint16_t r, g, b, c;
+    uint16_t colour_temp, illuminance;  
     uint32_t temp, humidity;
     float mx, my, mz;
-    uint16_t r, g, b, c;
-    uint16_t colour_temp, illuminance;
-
+    char mx_buf[10];
+    char my_buf[10];
+    char mz_buf[10];
     while (1) {
-        temp = si7021.read_temperature();
-        UARTprintf("Temperature = %d Kelvin\n", temp);
-        humidity = si7021.read_humidity();
-        UARTprintf("Humidity = %d\n", humidity);
         lis3mdl.read_magnetism(&mx, &my, &mz);
-        UARTprintf("Magnetic strength: x=%d, y=%d, z=%d gauss\n", (int) mx, (int) my, (int) mz);
+        ftoa(mx, mx_buf);
+        ftoa(my, my_buf);
+        ftoa(mz, mz_buf);
+        UARTprintf("Scaled magnetism: x = %s y = %s z = %s gauss\n", mx_buf, my_buf, mz_buf);
+
+        temp = si7021.read_temperature();
+        UARTprintf("Temperature = %d degrees Celsius\n", temp);
+        humidity = si7021.read_humidity();
+        UARTprintf("Humidity = %d percent\n", humidity);
+
         tcs34725.read_raw_data(&r, &g, &b, &c);
         UARTprintf("Raw light sensor values: r=%d, g=%d, b=%d, c=%d\n", r, g, b, c);
         colour_temp = tcs34725.calculate_colour_temperature(r, g, b);
         UARTprintf("Colour temperature = %d Kelvin\n", colour_temp);
         illuminance = tcs34725.calculate_lux(r, g, b);
         UARTprintf("Illuminance = %d lux\n", illuminance);
-        rtos_sleep(2000);
+  
+        // delay 1 s
+        for (uint32_t i=0; i < 1000; i++) {
+            SysCtlDelay(25000); // 1 ms delay
+        }
     }                           
 }
 

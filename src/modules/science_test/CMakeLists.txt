@@ -20,5 +20,6 @@ set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
 add_module(science_test 6 1 0 science_test.cpp)
-target_link_libraries(science_test science-mod)
+target_link_libraries(science_test i2c)
+link_science_library(science_test)
 

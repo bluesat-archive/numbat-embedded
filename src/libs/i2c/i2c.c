@@ -33,39 +33,59 @@ const struct gpio_pin_struct gpio_pin[] = {
     {GPIO_PORTB_BASE, GPIO_PIN_2, GPIO_PIN_3}, {GPIO_PORTA_BASE, GPIO_PIN_6, GPIO_PIN_7},
 	{GPIO_PORTE_BASE, GPIO_PIN_4, GPIO_PIN_5}, {GPIO_PORTD_BASE, GPIO_PIN_0, GPIO_PIN_1}};
 
+
+
 const struct gpio_config_struct gpio_config[] = {
-	{GPIO_PB2_I2C0SCL, GPIO_PB3_I2C0SDA}, {GPIO_PA6_I2C1SCL, GPIO_PA7_I2C1SDA}, 
+	{GPIO_PB2_I2C0SCL, GPIO_PB3_I2C0SDA}, {GPIO_PA6_I2C1SCL, GPIO_PA7_I2C1SDA},
 	{GPIO_PE4_I2C2SCL, GPIO_PE5_I2C2SDA}, {GPIO_PD0_I2C3SCL, GPIO_PD1_I2C3SDA}};
+
+static bool initialised[4] = {false};
 
 // 0 - 100 Kbps, 1 - 400 Kbps, 2 - 1 Mbps (fast mode plus)
 void i2c_init(i2cModule_t module, i2cMode_t mode) {
-	SysCtlPeripheralEnable(sysctl_module[module]);
-	while (!SysCtlPeripheralReady(sysctl_module[module]));
+    // if this module has already been intialised, do nothing
+    if (initialised[module]) {
+        return;
+    }
+    if (SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB) == false) {
+	    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB));
+    }
+    
+    // if i2c module not enabled
+    if (SysCtlPeripheralReady(sysctl_module[module]) == false) {
+	    SysCtlPeripheralEnable(sysctl_module[module]);
+	    while (!SysCtlPeripheralReady(sysctl_module[module]));
+        SysCtlPeripheralReset(sysctl_module[module]);
+    }
+    
 	//GPIOIntRegister(i2c_module[module], i2cIntHandler) // might do interrupts later
 	// only module 0 defaults to the i2c function, need to configure for the other gpios
 	// set SCL push pull
-	GPIOPinTypeI2CSCL(gpio_pin[module].base, (uint8_t) gpio_pin[module].scl); 
+	GPIOPinTypeI2CSCL(gpio_pin[module].base, (uint8_t) gpio_pin[module].scl);
 	// set SDA open drain, weak pullup
-	GPIOPinTypeI2C(gpio_pin[module].base, (uint8_t) gpio_pin[module].sda); 
+	GPIOPinTypeI2C(gpio_pin[module].base, (uint8_t) gpio_pin[module].sda);
 	// enable i2c functionality on the respective pins
 	GPIOPinConfigure(gpio_config[module].scl);
 	GPIOPinConfigure(gpio_config[module].sda);
 
 	uint32_t i2c_clk = SysCtlClockGet();
 	// initialise master
-	I2CMasterInitExpClk(i2c_module[module], i2c_clk, mode > 0); 
+	I2CMasterInitExpClk(i2c_module[module], i2c_clk, mode > 0);
 	if (mode == FAST_PLUS) {
 		uint32_t scl_freq = 1000000;
 		uint32_t tpr = ((i2c_clk + (2 * 10 * scl_freq) - 1) /
                (2 * 10 * scl_freq)) - 1;
 		HWREG(i2c_module[module] + I2C_O_MTPR) = tpr;
 	}
+    initialised[module] = true;
 }
 
 void i2c_set_slave_addr(i2cModule_t module, uint8_t slave_addr, bool read) {
 	// set slave device to communicate with
 	I2CMasterSlaveAddrSet(i2c_module[module], slave_addr, read);
 }
+
 
 int i2c_stop(i2cModule_t module) {
 	I2CMasterControl(i2c_module[module], I2C_CMD_STOP);
@@ -78,18 +98,30 @@ void i2c_write(i2cModule_t module, uint8_t data, uint32_t command) {
 	// put byte to transmit on bus
 	I2CMasterDataPut(i2c_module[module], data);
 	I2CMasterControl(i2c_module[module], command);
-	while(I2CMasterBusBusy(i2c_module[module]));
+	while(I2CMasterBusy(i2c_module[module]));
+    uint32_t err = I2CMasterErr(i2c_module[module]);
+    if (err & I2C_MASTER_ERR_ADDR_ACK) {  
+        UARTprintf("ADDR ACK ERROR = %d\n", err);
+    } 
+    if (err & I2C_MASTER_ERR_DATA_ACK) {
+        UARTprintf("DATA ACK ERROR = %d\n", err);
+    }
 }
 
 int i2c_read(i2cModule_t module, uint8_t *data, uint32_t command) {
 	I2CMasterControl(i2c_module[module], command);
-	while(I2CMasterBusBusy(i2c_module[module]));
+	while(I2CMasterBusy(i2c_module[module]));
 	int error = I2CMasterErr(i2c_module[module]);
-	if (error) { // got an error, stop transmission 
+	if (error) { // got an error, stop transmission
+        if (error & I2C_MASTER_ERR_ADDR_ACK) {  
+            UARTprintf("READ ADDR ACK ERROR = %d\n", error);
+        } 
+        *data = I2CMasterDataGet(i2c_module[module]);
 		i2c_stop(i2c_module[module]);
+        UARTprintf("read error = %d data= %d\n", error, *data);
 	} else { // no error, read data
 		*data = I2CMasterDataGet(i2c_module[module]);
-	}
+	}    
 	return error;
 }
 

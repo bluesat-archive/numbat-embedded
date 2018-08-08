@@ -1,4 +1,4 @@
-#include <math.h>
+//#include <math.h>
 #include "TCS34725.h"
 #include "driverlib/sysctl.h"
 
@@ -26,13 +26,15 @@
 #define TCS34725_AILTL            (0x04)    /* Clear channel lower threshold */
 #define TCS34725_AILTH            (0x05)
 #define TCS34725_AIHTL            (0x06)    /* Clear channel upper threshold */
-#define TCS34725_AIHTH            (0x07) 
+#define TCS34725_AIHTH            (0x07)
 
 #define TCS34725_PERS             (0x0C)    /* Persistence register */
 
 #define TCS34725_STATUS           (0x13)
 #define TCS34725_STATUS_AINT      (0x10)    /* Clear channel interrupt state */
 #define TCS34725_STATUS_AVALID    (0x01)    /* Integration cycle complete */
+
+#define TCS34725_ID               0x12
 
 namespace {
     static void delay(uint32_t ms) {
@@ -41,6 +43,11 @@ namespace {
         }
     }
 }
+
+/*
+float powf(const float x, const float y) {
+  return (float)(pow((double)x, (double)y));
+}*/
 
 /* Constructor */
 TCS34725::TCS34725(i2cModule_t i2c_module, integrationTime_t it, gain_t gain) {
@@ -51,11 +58,16 @@ TCS34725::TCS34725(i2cModule_t i2c_module, integrationTime_t it, gain_t gain) {
 }
 
 
-void TCS34725::init(void) {
+bool TCS34725::init(void) {
     i2c_init(module, FAST);
+    uint8_t id = read8(TCS34725_ID);
+    if (id != 0x44) {
+        return false;
+    }
     set_integration_time(tcs34725_integration_time);
     set_gain(tcs34725_gain);
     power_on();
+    return true;
 }
 
 void TCS34725::set_integration_time(integrationTime_t it) {
@@ -70,7 +82,7 @@ void TCS34725::set_gain(gain_t gain) {
 }
 
 void TCS34725::read_raw_data(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c) {
-    // if interrupts are not enabled, we have to poll the status register 
+    // if interrupts are not enabled, we have to poll the status register
     // until the integration cycle is complete
     if (!interrupt_enabled) {
         uint8_t status = 0;
@@ -83,35 +95,12 @@ void TCS34725::read_raw_data(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c)
     *r = read16(TCS34725_RDATA);
     *g = read16(TCS34725_GDATA);
     *b = read16(TCS34725_BDATA);
-
-    /* Set a delay for the integration time */
-    /*
-    switch (tcs34725_integration_time) {
-        case TCS34725_INTEGRATIONTIME_2_4MS:
-            delay(3);
-            break;
-        case TCS34725_INTEGRATIONTIME_24MS:
-            delay(24);
-            break;
-        case TCS34725_INTEGRATIONTIME_50MS:
-            delay(50);
-            break;
-        case TCS34725_INTEGRATIONTIME_101MS:
-            delay(101);
-            break;
-        case TCS34725_INTEGRATIONTIME_154MS:
-            delay(154);
-            break;
-        case TCS34725_INTEGRATIONTIME_700MS:
-            delay(700);
-            break;
-    }*/
 }
 
 uint16_t TCS34725::calculate_colour_temperature(uint16_t r, uint16_t g, uint16_t b) {
     float X, Y, Z;      /* RGB to XYZ correlation      */
     float xc, yc;       /* Chromaticity co-ordinates   */
-    float n;            /* McCamy's formula            */
+    double n;            /* McCamy's formula            */
     float cct;
 
     /* 1. Map RGB values to their XYZ counterparts.    */
@@ -130,8 +119,8 @@ uint16_t TCS34725::calculate_colour_temperature(uint16_t r, uint16_t g, uint16_t
     n = (xc - 0.3320F) / (0.1858F - yc);
 
     /* Calculate the final CCT */
-    cct = (449.0F * powf(n, 3)) + (3525.0F * powf(n, 2)) + (6823.3F * n) + 5520.33F;
-
+    //cct = (449.0F * powf(n, 3)) + (3525.0F * powf(n, 2)) + (6823.3F * n) + 5520.33F;
+    cct = (449.0F * n*n*n) + (3525.0F * n*n) + (6823.3F * n) + 5520.33F;
     /* Return the results in degrees Kelvin */
     return (uint16_t) cct;
 }
@@ -169,7 +158,6 @@ void TCS34725::disable_wait(void) {
 void TCS34725::power_on(void) {
     write8(TCS34725_ENABLE, TCS34725_ENABLE_PON);
     // delay 3 ms
-
     delay(3);
     write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);
 }
@@ -184,15 +172,14 @@ void TCS34725::power_down(void) {
 void TCS34725::write8(uint8_t reg, uint8_t data) {
     i2c_set_slave_addr(module, TCS34725_ADDRESS, false);
     i2c_write(module, TCS34725_COMMAND_BIT | reg, I2C_CMD_SEND_START);
-    i2c_write(module, TCS34725_COMMAND_BIT | data, I2C_CMD_SEND_FINISH);
-    i2c_stop(module);
+    i2c_write(module, data, I2C_CMD_SEND_FINISH);
 }
 
 uint8_t TCS34725::read8(uint8_t reg) {
     i2c_set_slave_addr(module, TCS34725_ADDRESS, false);
     i2c_write(module, TCS34725_COMMAND_BIT | reg, I2C_CMD_SEND_START);
     i2c_set_slave_addr(module, TCS34725_ADDRESS, true);
-    uint8_t data;
+    uint8_t data = 0;
     i2c_read(module, &data, I2C_CMD_RECEIVE_NACK_START);
     i2c_stop(module);
     return data;
@@ -202,12 +189,13 @@ uint16_t TCS34725::read16(uint8_t reg) {
     i2c_set_slave_addr(module, TCS34725_ADDRESS, false);
     i2c_write(module, TCS34725_COMMAND_BIT | reg, I2C_CMD_SEND_START);
     i2c_set_slave_addr(module, TCS34725_ADDRESS, true);
-    uint16_t data;
-    uint8_t tmp;
-    i2c_read(module, &tmp, I2C_CMD_RECEIVE_START);
-    data = tmp;
-    i2c_read(module, &tmp, I2C_CMD_RECEIVE_FINISH);
-    data = (data << 8) | tmp;
+    uint16_t data = 0;
+    uint8_t lsb = 0;
+    uint8_t msb = 0;
+    // lsb is read first
+    i2c_read(module, &lsb, I2C_CMD_RECEIVE_START);
+    i2c_read(module, &msb, I2C_CMD_RECEIVE_FINISH);
+    data = (msb << 8) | lsb;
     return data;
 }
 
