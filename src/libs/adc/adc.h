@@ -3,8 +3,8 @@
  *
  * NB: This library provides a vastly simplified interface to the ADC
  *     module. If more features or greater performance is required then
- *     direct usage of the module through the Tiva libraries is 
- *     recommended. 
+ *     direct usage of the module through the Tiva libraries is
+ *     recommended.
  */
 
 #ifndef ADC_H
@@ -17,6 +17,7 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
 #include "inc/hw_memmap.h"
+#include "inc/hw_ints.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/debug.h"
 
@@ -24,14 +25,14 @@
 /* ADC Pins, using ADC Pin names. See ./PIN_MAPPING for the other names
  * for these pins. */
 enum adc_pin {
-    AIN0,
-    AIN1,
-    AIN2,
-    AIN3,
-    AIN4,
-    AIN5,
-    AIN6,
-    AIN7,
+    AIN0 = 0x0,
+    AIN1 = 0x1,
+    AIN2 = 0x2,
+    AIN3 = 0x3,
+    AIN4 = 0x4,
+    AIN5 = 0x5,
+    AIN6 = 0x6,
+    AIN7 = 0x7,
 };
 
 /* Possible return values for the ADC functions. */
@@ -52,44 +53,49 @@ extern "C" {
 #endif
 
 //----------------------------FUNCTIONS-------------------------------//
-/* Must be configured in a module's PRX file if the interrupt mode is 
+/* Must be configured in a module's PRX file if the interrupt mode is
  * used.
- */ 
+ */
 void adc_irq_handler(void);
 
 /* INITIALISATION */
 /* Initialises the ADC module, configures the needed GPIO pins, and
- * configures and enables the needed ADC pins.
+ * configures,enables the needed ADC pins, and configures the ADC for interrupt
+ * or polling mode.
  *
  * This function should ONLY BE RUN ONCE during I/O setup.
  *
  * The maximum number of pins currently supported is 8. This function
  * should fail if num_pins > 8. */
-enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins);
+enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins, bool interrupt_mode);
 
 /* INTERRUPT CAPTURE INTERFACE */
 /* Sets up an ADC capture using its hardware capture interrupt. That is,
- * it registers the buffer and callback such that when the capture 
+ * it registers the buffer and callback such that when the capture
  * completes, an interrupt occurs, the capture data is copied to the
- * buffer, and the callback is called. */
-enum adc_return adc_capture_interrupt(uint32_t *buffer, 
+ * buffer, and the callback is called.
+ *
+ * The ADC module must be initialised in interrupt mode, or interrupts can be
+ * enabled manually via adc_interrupt_enable() for this to function properly.
+ */
+enum adc_return adc_capture_interrupt(uint32_t *buffer,
     void (*callback)(void));
 
 /* POLLING CAPTURE INTERFACE */
-/* Sets up the ADC capture without enabling the interrupt. A capture
- * will occur without creating any signals, so the status must be 
- * probed with adc_capture_status(). */
-enum adc_return adc_capture_polling();
+/* Initiates an ADC capture sequence in polling mode. The status register is
+ * polled until a capture sequence is complete and the result is stored in the
+ * specified buffer.
+ *
+ * The ADC module must be intiialised in polling mode, or interrupts can be
+ * disbled manually via adc_interrupt_disable() for this to function properly.
+ *
+ * Returns the number of samples captured in the sequence.
+ */
+uint32_t adc_capture_polling(uint32_t *buffer);
 
-/* Checks the adc capture status. Will return ADC_COMPLETE if the ADC
- * is not currently busy, but does not guarentee that new data is 
- * available. */
-enum adc_status adc_capture_status();
+enum adc_return adc_interrupt_disable();
 
-/* Transfers ADC capture data from the sequence registers to the given
- * buffer. Must be called between captures, else new data will be
- * dropped. */
-enum adc_status adc_get_capture(uint32_t *buffer);
+enum adc_return adc_interrupt_enable();
 
 #ifdef __cplusplus
 }

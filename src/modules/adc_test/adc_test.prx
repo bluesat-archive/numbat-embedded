@@ -3,7 +3,14 @@
     <modules>
         <module name="machine-tm4c.build" />
         <module name="armv7m.ctxt-switch-preempt" />
-        <module name="armv7m.exception-preempt" />
+        <module name="armv7m.exception-preempt">
+            <trampolines>
+                <trampoline>
+                    <name>systick</name>
+                    <handler>tick_irq</handler>
+                </trampoline>
+            </trampolines>
+        </module>
         <module name="armv7m.vectable">
             <flash_load_addr>0x0000000</flash_load_addr>
             <nmi>nmi</nmi>
@@ -12,6 +19,7 @@
             <usagefault>usagefault</usagefault>
             <busfault>busfault</busfault>
             <preemption>true</preemption>
+            <systick>exception_preempt_trampoline_systick</systick>
             <external_irqs>
                 <external_irq>
                     <number>39</number>
@@ -40,12 +48,6 @@
                     <function>task_adc_test_fn</function>
                     <priority>30</priority>
                     <stack_size>1024</stack_size>
-                </task>
-                <task>
-                    <name>task_can_wait</name>
-                    <function>task_can_wait_fn</function>
-                    <priority>31</priority>
-                    <stack_size>512</stack_size>
                 </task>
             </tasks>
             <signal_labels>
@@ -81,7 +83,7 @@
                 <interrupt_event>
                     <name>can_receive_event</name>
                     <sig_set>can_receive_signal</sig_set>
-                    <task>task_can_wait</task>
+                    <task>task_adc_test</task>
                 </interrupt_event>
             </interrupt_events>
         </module>
