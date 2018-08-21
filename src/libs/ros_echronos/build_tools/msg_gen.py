@@ -179,7 +179,7 @@ def write_includes(s, spec):
     for field in spec.parsed_fields():
         if (not field.is_builtin):
             if (field.is_header):
-                s.write('#include "std_msgs/Header.h"\n')
+                s.write('#include "std_msgs/Header.hpp"\n')
             else:
                 (pkg, name) = roslib.names.package_resource_name(field.base_type)
                 pkg = pkg or spec.package # convert '' to package
