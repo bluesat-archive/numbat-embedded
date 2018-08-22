@@ -13,6 +13,7 @@
 #include <cstdarg>
 #include "boilerplate.h"
 #include "alloc.hpp"
+#include "time.hpp"
 
 #define ROS_STR_LEN 15
 
@@ -287,7 +288,7 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
     size = new_value.size;
     if(size!=0) {
         bytes = size * sizeof(T);
-        values = (char*) alloc::malloc(bytes);
+        values = (T*) alloc::malloc(bytes);
         memcpy(values, new_value.values, size);
     }
     return *this;

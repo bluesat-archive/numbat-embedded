@@ -71,8 +71,8 @@ MSG_TYPE_TO_CPP = {'byte': 'int8_t', 'char': 'uint8_t',
                    'float32': 'float',
                    'float64': 'double',
                    'string': 'ros_echronos::String',
-                   'time': 'ros::Time',
-                   'duration': 'ros::Duration'}
+                   'time': 'ros_echronos::Time',
+                   'duration': 'ros_echronos::Duration'}
 
 def msg_type_to_cpp(type):
     """
@@ -179,11 +179,11 @@ def write_includes(s, spec):
     for field in spec.parsed_fields():
         if (not field.is_builtin):
             if (field.is_header):
-                s.write('#include "std_msgs/Header.h"\n')
+                s.write('#include "std_msgs/Header.hpp"\n')
             else:
                 (pkg, name) = roslib.names.package_resource_name(field.base_type)
                 pkg = pkg or spec.package # convert '' to package
-                s.write('#include "%s/%s.h"\n'%(pkg, name))
+                s.write('#include "%s/%s.hpp"\n'%(pkg, name))
                 
     s.write('\n') 
 
@@ -537,8 +537,8 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
         if is_array:
             sizes.append("%s.bytes+2" % field.name)
-            output+='      memcpy(block+offset, sizeof(short), %s.size);\n' % (field.name)
-            output+='      memcpy(block+offset+sizeof(short), %s.values, %s.bytes);\n' % (field.name, field.name)
+            output+='      memcpy(block+offset, &%s.size, sizeof(short));\n' % (field.name)
+            output+='      memcpy(block+offset+sizeof(short), &%s.values, %s.bytes);\n' % (field.name, field.name)
             output+='      offset+=%s.bytes+sizeof(short);\n' % (field.name)
         else:
             sizes.append("sizeof(%s)" % field.name)
