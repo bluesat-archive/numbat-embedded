@@ -4,7 +4,6 @@ The code is dual licensed under the BSD License and LGPLv3 license.
 Copyright of code written after 13/05/2017 is BLUEsat UNSW, 2017.
 
 
-
 This program was based on msg_gen.py from the ros project U{https://github.com/ros/ros_comm/}
 The original source code was released under the BSD License below. This license is compatible with
 the AGPLv3 License used in this project. See: https://www.gnu.org/licenses/license-compatibility.en.html

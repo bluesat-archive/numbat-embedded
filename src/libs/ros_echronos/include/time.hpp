@@ -32,7 +32,8 @@ namespace ros_echronos {
     } __attribute__((packed));
 
     /**
-     * Represents that the controller should
+     * Represents that the controller should set this to the value of ros::Time::now()
+     * when it receives the message (it can try to account for transmission lag if possible)
      */
     constexpr Time CTRL_NOW = {
         ULONG_MAX, ULONG_MAX
