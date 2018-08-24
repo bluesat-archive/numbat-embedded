@@ -416,7 +416,7 @@ def declare_virtual_functions(s, spec, cpp_name_prefix):
 
     # Default functions
     s.write('%svirtual void generate_block_impl();\n' % CPP_INDENT)
-    s.write('%svirtual ros_echronos::Message_Descriptor * generate_descriptor();\n' % CPP_INDENT)
+    s.write('%svirtual ros_echronos::Message_Descriptor * generate_descriptor() const;\n' % CPP_INDENT)
     s.write('%sinline const size_t calc_size() const;\n' % CPP_INDENT)
     s.write('%sconst size_t populate_block(uint8_t * block) const;\n'% (CPP_INDENT))
 
