@@ -22,5 +22,7 @@ include(${BUILD_TOOLS_DIR}/module_template.cmake)
 set(CPP_FILES ros_sub_test.cpp can_wait_task.cpp)
 add_module(ros_sub_test 4 1 0 "${CPP_FILES}")
 target_link_libraries(ros_sub_test pwm servo m)
+generate_msgs(owr_messages pwm)
+depend_msgs(ros_sub_test owr_messages pwm)
 
 

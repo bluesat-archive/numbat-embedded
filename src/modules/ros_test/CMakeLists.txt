@@ -22,5 +22,11 @@ include(${BUILD_TOOLS_DIR}/module_template.cmake)
 set(CPP_FILES ros_test.cpp)
 add_module(ros_test 5 1 0 "${CPP_FILES}")
 target_link_libraries(ros_test pwm servo m)
+generate_msgs(owr_messages board)
+depend_msgs(ros_test owr_messages board)
+generate_msgs(owr_messages pwm)
+depend_msgs(ros_test owr_messages pwm)
+generate_msgs(std_msgs Header)
+depend_msgs(ros_test std_msgs Header)
 
 

@@ -57,10 +57,13 @@ import roslib.packages
 import roslib.gentools
 from rospkg import RosPack
 
+
 try:
     from cStringIO import StringIO #Python 2.x
 except ImportError:
     from io import StringIO #Python 3.x
+
+CPP_INDENT = "    "
 
 MSG_TYPE_TO_CPP = {'byte': 'int8_t', 'char': 'uint8_t',
                    'bool': 'uint8_t',
@@ -412,8 +415,10 @@ def declare_virtual_functions(s, spec, cpp_name_prefix):
     msg = spec.short_name
 
     # Default functions
-    s.write('  virtual void generate_block_impl();\n')
-    s.write('  virtual ros_echronos::Message_Descriptor * generate_descriptor();\n')
+    s.write('%svirtual void generate_block_impl();\n' % CPP_INDENT)
+    s.write('%svirtual ros_echronos::Message_Descriptor * generate_descriptor();\n' % CPP_INDENT)
+    s.write('%sinline const size_t calc_size() const;\n' % CPP_INDENT)
+    s.write('%sconst size_t populate_block(uint8_t * block) const;\n'% (CPP_INDENT))
 
 def write_member(s, field):
     """
@@ -480,7 +485,7 @@ def write_deserialiser(s, spec, cpp_name_prefix):
     index = 0
     for field in spec.parsed_fields():
 
-        (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+        (base_type, is_array, array_len) = parse_type(field.type)
 
         if is_array:
 
@@ -529,42 +534,64 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     """
 
     msg = spec.short_name
-    s.write('  void %s%s_::generate_block_impl() {\n' % (cpp_name_prefix, msg))
+    s.write('void %s%s_::generate_block_impl() {\n' % (cpp_name_prefix, msg))
     output = ""
     sizes=[]
     for field in spec.parsed_fields():
 
-        (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+        (base_type, is_array, array_len) = parse_type(field.type)
         if is_array:
             sizes.append("%s.bytes+2" % field.name)
-            output+='      memcpy(block+offset, &%s.size, sizeof(short));\n' % (field.name)
-            output+='      memcpy(block+offset+sizeof(short), &%s.values, %s.bytes);\n' % (field.name, field.name)
-            output+='      offset+=%s.bytes+sizeof(short);\n' % (field.name)
+            output+='%smemcpy(block+offset, &%s.size, sizeof(short));\n' % (CPP_INDENT, field.name)
+            if roslib.msgs.is_builtin(base_type):
+                output+='%smemcpy(block+offset+sizeof(short), &%s.values, %s.bytes);\n' % (CPP_INDENT, field.name, field.name)
+                output+='%soffset+=%s.bytes+sizeof(short);\n' % (CPP_INDENT, field.name)
+            else:
+                output+='%sfor(int j = 0; j < %s.size; ++j) {\n' % (CPP_INDENT, field.name)
+                output+="%soffset+=%s.values[j].populate_block(block+offset);\n" % (CPP_INDENT*2, field.name)
+                output+='%s}\n' % (CPP_INDENT)
+        elif not roslib.msgs.is_builtin(base_type):
+            # if we are converting a message within a message we need another approach
+            sizes.append("%s.calc_size()\n" % (field.name))
+            output+="%soffset+=%s.populate_block(block+offset);\n" % (CPP_INDENT, field.name)
         else:
             sizes.append("sizeof(%s)" % field.name)
-            output+='      memcpy(block+offset, &%s, sizeof(%s));\n' % (field.name, field.name)
-            output+='      offset+=sizeof(%s);\n' % (field.name)
-    s.write('      size_t offset = 0;\n')
-    s.write('      size = %s;\n' %("+".join(sizes)))
-    s.write('      block = (uint8_t *) alloc::malloc(size);\n')
+            output+='%smemcpy(block+offset, &%s, sizeof(%s));\n' % (CPP_INDENT, field.name, field.name)
+            output+='%soffset+=sizeof(%s);\n' % (CPP_INDENT, field.name)
+    s.write('%ssize = calc_size();\n' % (CPP_INDENT))
+    s.write('%sblock = (uint8_t *) alloc::malloc(size);\n' % (CPP_INDENT))
+    s.write('%spopulate_block(block);\n' % (CPP_INDENT));
+    s.write('} // generate_block\n\n')
+
+    # function to fill the values of the block
+    # and return the offset added
+    s.write('const size_t %s%s_::populate_block(uint8_t * block) const {\n' % (cpp_name_prefix, msg))
+    s.write('%ssize_t offset = 0;\n' % (CPP_INDENT))
     s.write(output);
-    s.write('  } // generate_block\n')
+    s.write('%sreturn offset;\n' % (CPP_INDENT))
+    s.write('} // populate_block\n\n')
+
+    # calculates the size of the message
+    s.write('const size_t %s%s_::calc_size() const {\n' % (cpp_name_prefix, msg))
+    s.write('%sreturn  %s;\n' %(CPP_INDENT, "+".join(sizes)))
+    s.write('}\n\n')
 
     num_fields = len(spec.parsed_fields())
-    s.write('  ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {\n' % (cpp_name_prefix, msg))
-    s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));\n' % num_fields)
-    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>();\n' % (num_fields, num_fields))
+    s.write('ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {\n' % (cpp_name_prefix, msg))
+    s.write('%svoid * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));\n' % (CPP_INDENT, num_fields))
+    s.write('%sros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>();\n' % (CPP_INDENT, num_fields, num_fields))
     i = 0
     for field in spec.parsed_fields():
-        (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
-        s.write('    descriptor->fixed_field_ptrs[%d] = &%s;\n' % (i, field.name))
+        (base_type, is_array, array_len) = parse_type(field.type)
+        s.write('%sdescriptor->fixed_field_ptrs[%d] = &%s;\n' % (CPP_INDENT, i, field.name))
         if is_array:
-            s.write('    descriptor->fixed_field_sizes[%d] = 0;\n' % (i))
+            s.write('%sdescriptor->fixed_field_sizes[%d] = 0;\n' % (CPP_INDENT, i))
         else:
-            s.write('    descriptor->fixed_field_sizes[%d] = sizeof(%s);\n' % (i, field.name))
+            s.write('%sdescriptor->fixed_field_sizes[%d] = sizeof(%s);\n' % (CPP_INDENT, i, field.name))
         i+=1
-    s.write('    return descriptor;\n')
-    s.write('  }\n')
+    s.write('%sreturn descriptor;\n' % (CPP_INDENT))
+    s.write('}\n')
+
 
 def escape_string(str):
     str = str.replace('\\', '\\\\')
@@ -627,44 +654,6 @@ def is_fixed_length(spec):
             return False
         
     return True
-    
-def write_deprecated_member_functions(s, spec, traits):
-    """
-    Writes the deprecated member functions for backwards compatibility
-    """
-    for field in spec.parsed_fields():
-        if (field.is_array):
-            s.write('  ROS_DEPRECATED uint32_t get_%s_size() const { return (uint32_t)%s.size(); }\n'%(field.name, field.name))
-            
-            if (field.array_len is None):
-                s.write('  ROS_DEPRECATED void set_%s_size(uint32_t size) { %s.resize((size_t)size); }\n'%(field.name, field.name))
-                s.write('  ROS_DEPRECATED void get_%s_vec(%s& vec) const { vec = this->%s; }\n'%(field.name, msg_type_to_cpp(field.type), field.name))
-                s.write('  ROS_DEPRECATED void set_%s_vec(const %s& vec) { this->%s = vec; }\n'%(field.name, msg_type_to_cpp(field.type), field.name))
-    
-    for k, v in traits.items():
-        s.write('private:\n')
-        s.write('  static const char* __s_get%s_() { return "%s"; }\n'%(k, v))
-        s.write('public:\n')
-        s.write('  ROS_DEPRECATED static const std::string __s_get%s() { return __s_get%s_(); }\n\n'%(k, k))
-        s.write('  ROS_DEPRECATED const std::string __get%s() const { return __s_get%s_(); }\n\n'%(k, k))
-    
-    s.write('  ROS_DEPRECATED virtual uint8_t *serialize(uint8_t *write_ptr, uint32_t seq) const\n  {\n')
-    s.write('    ros::serialization::OStream stream(write_ptr, 1000000000);\n')
-    for field in spec.parsed_fields():
-        s.write('    ros::serialization::serialize(stream, %s);\n'%(field.name))
-    s.write('    return stream.getData();\n  }\n\n')
-    
-    s.write('  ROS_DEPRECATED virtual uint8_t *deserialize(uint8_t *read_ptr)\n  {\n')
-    s.write('    ros::serialization::IStream stream(read_ptr, 1000000000);\n');
-    for field in spec.parsed_fields():
-        s.write('    ros::serialization::deserialize(stream, %s);\n'%(field.name))
-    s.write('    return stream.getData();\n  }\n\n')
-    
-    s.write('  ROS_DEPRECATED virtual uint32_t serializationLength() const\n  {\n')
-    s.write('    uint32_t size = 0;\n');
-    for field in spec.parsed_fields():
-        s.write('    size += ros::serialization::serializationLength(%s);\n'%(field.name))
-    s.write('    return size;\n  }\n\n')
 
 def compute_full_text_escaped(gen_deps_dict):
     """
@@ -785,6 +774,27 @@ def generate(package, msg_name):
         f.write(cpp.getvalue() + "\n")
     
     header.close()
+
+
+def parse_type(field_type):
+    """
+    Parse ROS message field type, mirrors `parse_type` but marks strings as arrays
+    @param type_: ROS field type
+    @type  type_: str
+    @return: base_type, is_array, array_length
+    @rtype: str, bool, int
+    @raise MsgSpecException: if type_ cannot be parsed
+    @see: parse_type
+    """
+
+    (base_type, is_array, array_len) = roslib.msgs.parse_type(field_type)
+
+    if base_type == 'string':
+        is_array = True
+        array_len = None # ros strings are variable length
+
+    return base_type, is_array, array_len
+
 
 def generate_messages(argv):
     assert(len(argv) >= 3)
