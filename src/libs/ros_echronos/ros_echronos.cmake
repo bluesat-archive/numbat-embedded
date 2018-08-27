@@ -57,16 +57,16 @@ function(build_ros_echronos echronos_build_dir module_name echronos_target node_
     )
     set_property(TARGET ${module_name} APPEND_STRING  PROPERTY COMPILE_FLAGS "-DROS_NODE_ID=${node_id} -DROS_INFO_SERIAL=${serial_on} ")
     add_dependencies(${module_name} ${echronos_target})
-    
+
 #    add_dependencies(ros_echronos_${module_name} ${ROS_BUILD_DIR})
 endfunction()
 
-function(link_science_library module_name) 
+function(link_science_library module_name)
     set(SCIENCE_BUILD_DIR ../../libs/i2c/science-mod)
     FILE(GLOB science-mod_files ${SCIENCE_BUILD_DIR}/*.cpp)
     FILE(GLOB science-mod_headers ${SCIENCE_BUILD_DIR}/*.hpp)
-    target_sources(${module_name} 
-        PRIVATE 
+    target_sources(${module_name}
+        PRIVATE
             ${science-mod_files}
         PUBLIC
             ${science-mod_headers}
