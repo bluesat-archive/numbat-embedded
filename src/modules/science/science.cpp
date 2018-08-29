@@ -9,6 +9,7 @@
 #include "science-mod/LIS3MDL.h"
 #include "science-mod/SI7021.h"
 #include "science-mod/TCS34725.h"
+#include "adc.h"
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 

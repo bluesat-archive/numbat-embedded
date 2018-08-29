@@ -46,6 +46,8 @@
     <run_depend>tlsf</run_depend>
     <build_depend>i2c</build_depend>
     <run_depend>i2c</run_depend>
+    <build_depend>adc</build_depend>
+    <run_depend>adc</run_depend>
     <!-- You may not need all of these -->
 
     <!-- The export tag contains other, unspecified, tags -->

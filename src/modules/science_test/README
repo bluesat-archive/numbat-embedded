@@ -1,0 +1,13 @@
+I2C sensors (colour, temperature, magnetism):
+SCL - PB2
+SDA - PB3
+SCL and SDA both must be connected to supply via pullup resistors (2-10K)
+
+Moisture sensor:
+SIG - AIN0 (PE3)
+
+Weight amplifier:
+CLK - PA6
+DOUT - PA7
+Weight sensor needs to be calibrated - tare to zero out reading.
+Find difference in reading between two known weights to determine the scaling factor for units. 

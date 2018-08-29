@@ -47,6 +47,8 @@
     <run_depend>tlsf</run_depend>
     <build_depend>i2c</build_depend>
     <run_depend>i2c</run_depend>
+    <build_depend>adc</build_depend>
+    <run_depend>adc</run_depend>
     <!-- The export tag contains other, unspecified, tags -->
     <export>
         <!-- You can specify that this package is a metapackage here: -->

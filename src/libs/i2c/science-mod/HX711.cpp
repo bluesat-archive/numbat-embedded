@@ -14,13 +14,9 @@ HX711::HX711(port_t dout_port, pinNum_t dout_pin, port_t sck_port, pinNum_t sck_
     tare_offset = 0;
 }
 
-void HX711::init(void) {
-    GPIOPinTypeGPIOInput(DOUT_PORT, DOUT_PIN);
-    GPIOPinTypeGPIOOutput(SCK_PORT, SCK_PIN);
-    set_gain(CHANNEL_A_128);
-}
-
 void HX711::init(gain_t gain) {
+    enable_gpio(DOUT_PORT);
+    enable_gpio(SCK_PORT);
     GPIOPinTypeGPIOInput(DOUT_PORT, DOUT_PIN);
     GPIOPinTypeGPIOOutput(SCK_PORT, SCK_PIN);
     set_gain(gain);
@@ -51,20 +47,20 @@ bool HX711::is_ready(void) {
 int32_t HX711::read(void) {
     while(!is_ready()); // poll until the device is ready
     /*
-	uint8_t data[3] = {0};
-	uint8_t filler = 0x00;
+    uint8_t data[3] = {0};
+    uint8_t filler = 0x00;
 
-	// pulse the clock pin 24 times to read the data
-	data[2] = read_byte();
-	data[1] = read_byte();;
-	data[0] = read_byte();;
+    // pulse the clock pin 24 times to read the data
+    data[2] = read_byte();
+    data[1] = read_byte();;
+    data[0] = read_byte();;
 
-	for (unsigned int i = 0; i < GAIN_CYCLES; i++) {
-		GPIOPinWrite(SCK_PORT, SCK_PIN, SCK_PIN);
+    for (unsigned int i = 0; i < GAIN_CYCLES; i++) {
+        GPIOPinWrite(SCK_PORT, SCK_PIN, SCK_PIN);
         SysCtlDelay(25); // approximately 1us delay
         GPIOPinWrite(SCK_PORT, SCK_PIN, 0);
         SysCtlDelay(25);
-	}*/
+    }*/
 
     int32_t value = 0;
     // read each bit by toggling the clock for a total of 24 bits
@@ -74,40 +70,40 @@ int32_t HX711::read(void) {
         GPIOPinWrite(SCK_PORT, SCK_PIN, 0);
         value <<= 1;
         if (GPIOPinRead(DOUT_PORT, DOUT_PIN)) {
-            value++; // incremnet if pin high
+            value++; // increment if pin high
         }
         SysCtlDelay(25);
     }
 
     // set the channel and the gain factor for the next conversion
     for (uint8_t i = 0; i < GAIN_CYCLES; i++) {
-		GPIOPinWrite(SCK_PORT, SCK_PIN, SCK_PIN);
+        GPIOPinWrite(SCK_PORT, SCK_PIN, SCK_PIN);
         SysCtlDelay(25); //( approximately 1us delay
         GPIOPinWrite(SCK_PORT, SCK_PIN, 0);
         SysCtlDelay(25);
-	}
+    }
 
     if (value & 0x800000) { // if msb is set, then it is negative so extend sign
         value |= (0xFF << NUM_DATA_BITS);
     }
 
-	return value;
+    return value;
 }
 
 int32_t HX711::read_avg(uint8_t num_samples) {
-	int32_t sum = 0;
-	for (uint8_t i = 0; i < num_samples; i++) {
-		sum += read();
-	}
-	return sum / num_samples;
+    int32_t sum = 0;
+    for (uint8_t i = 0; i < num_samples; i++) {
+        sum += read();
+    }
+    return sum / num_samples;
 }
 
 double HX711::read_scaled(void) {
-	return (double) (read() - tare_offset) / scale;
+    return (double) (read() - tare_offset) / scale;
 }
 
 double HX711::read_scaled_avg(void) {
-	return (double) (read() - tare_offset) / scale;
+    return (double) (read() - tare_offset) / scale;
 }
 
 void HX711::tare(uint8_t num_samples) {
@@ -116,15 +112,15 @@ void HX711::tare(uint8_t num_samples) {
 
 
 int32_t HX711::get_tare_offset(void) {
-	return tare_offset;
+    return tare_offset;
 }
 
 void HX711::set_tare_offset(int32_t offset) {
-	tare_offset = offset;
+    tare_offset = offset;
 }
 
 float HX711::get_scale(void) {
-	return scale;
+    return scale;
 }
 
 void HX711::set_scale(float scaling_factor) {
@@ -161,4 +157,33 @@ void HX711::power_down(void) {
 
 void HX711::power_up(void) {
     GPIOPinWrite(SCK_PORT, SCK_PIN, 0);
+}
+
+void HX711::enable_gpio(port_t port) {
+    switch(port) {
+        case PORTA:
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+            while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA)) {};
+            break;
+        case PORTB:
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+            while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB)) {};
+            break;
+        case PORTC:
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+            while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOC)) {};
+            break;
+        case PORTD:
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+            while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOD)) {};
+            break;
+        case PORTE:
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+            while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE)) {};
+            break;
+        case PORTF:
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+            while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF)) {};
+            break;
+    }
 }

@@ -63,7 +63,7 @@ class TCS34725 {
             WTIME_614MS = 0x00
         };
 
-        TCS34725(i2cModule_t, integrationTime_t = INTEGRATIONTIME_50MS, gain_t = GAIN_4X);
+        TCS34725(i2cModule_t, integrationTime_t = INTEGRATIONTIME_50MS, gain_t = GAIN_1X);
         /* 
          * Initialises the I2C module and powers on the device. The wait cycle
          * (power saving mode) and interrupt generation are disabled by default.
