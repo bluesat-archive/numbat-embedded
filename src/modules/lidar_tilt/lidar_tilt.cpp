@@ -12,7 +12,7 @@
 //#include "sensor_msgs/JointState.hpp"
 
 
-#define LIDAR_TILT_PIN PWM6
+#define LIDAR_TILT_PIN PWM1
 #define SECONDS_DELAY 0.02876707662
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
