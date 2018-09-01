@@ -102,8 +102,8 @@ double HX711::read_scaled(void) {
     return (double) (read() - tare_offset) / scale;
 }
 
-double HX711::read_scaled_avg(void) {
-    return (double) (read() - tare_offset) / scale;
+double HX711::read_scaled_avg(uint8_t num_samples) {
+    return (double) (read_avg(num_samples) - tare_offset) / scale;
 }
 
 void HX711::tare(uint8_t num_samples) {

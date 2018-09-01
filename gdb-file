@@ -4,4 +4,5 @@ monitor reset halt
 b main
 b hardfault
 b alloc.cpp : 56
+b task_science_test_fn
 c

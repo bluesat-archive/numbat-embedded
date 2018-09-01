@@ -68,7 +68,7 @@ class HX711 {
         int32_t read_avg(uint8_t num_samples);
         /* Read tare calibrated and scaled A/D value */
         double read_scaled(void);
-        double read_scaled_avg(void);
+        double read_scaled_avg(uint8_t num_samples);
         /* Set the scaling factor for the read_scaled() function */
         void set_scale(float scaling_factor);
         float get_scale(void);
