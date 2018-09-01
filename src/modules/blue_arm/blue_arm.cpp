@@ -55,7 +55,9 @@ void armTopCallback(const std_msgs::Float64 & msgs);
 void armBottomCallback(const std_msgs::Float64 & msg);
 void clawRotateCallback(const std_msgs::Float64 & msg);
 void clawGripCallback(const std_msgs::Float64 & msg);
-
+static duty_pct speed_to_duty_pct(double speed);
+static float claw_grip_convert (int clawGripPos);
+static double wheel_to_servo_angle(double wheel_angle);
 
 extern "C" bool tick_irq(void) {
     rtos_timer_tick();
@@ -102,24 +104,26 @@ extern "C" void task_blue_arm_fn(void) {
     clawGripSub.init(nh);
 
     
-    //servo_init(HS_785HB, ARM_ROTATE_PIN);
+    pwm_init(ARM_ROTATE_PIN);
     //servo_init(HS_785HB, CLAW_ROTATE_PIN);
 
-    //pwm_init(ARM_TOP_PIN);
-    //pwm_init(ARM_BOTTOM_PIN);
-    //pwm_init(CLAW_GRIP_PIN);
+    pwm_init(ARM_TOP_PIN);
+    pwm_init(ARM_BOTTOM_PIN);
+    pwm_init(CLAW_GRIP_PIN);
 
 
-    /* pwm_set_period(PWM_PAIR0, PWM_PERIOD); //not 100% about this one
+    pwm_set_period(PWM_PAIR0, PWM_PERIOD); //not 100% about this one
+    pwm_set_period(PWM_PAIR1, PWM_PERIOD); //not 100% about this one
+    pwm_set_period(PWM_PAIR2, PWM_PERIOD); //not 100% about this one
     pwm_set_duty(ARM_TOP_PIN,15.0); //or these... is 15 a standard #?
     pwm_set_duty(ARM_BOTTOM_PIN,15.0);
-    pwm_set_duty(CLAW_GRIP_PIN,15.0); */
+    //pwm_set_duty(CLAW_GRIP_PIN,15.0); 
+    pwm_set_duty(ARM_ROTATE_PIN, 15.0);
 
-
-    //pwm_enable(ARM_TOP_PIN);
-    //pwm_enable(ARM_BOTTOM_PIN);
+    pwm_enable(ARM_TOP_PIN);
+    pwm_enable(ARM_BOTTOM_PIN);
     //pwm_enable(CLAW_GRIP_PIN);
-
+    pwm_enable(ARM_ROTATE_PIN);
 
     ros_echronos::ROS_INFO("starting the main loop\n");
     owr_messages::pwm msg;
@@ -226,7 +230,7 @@ static float claw_grip_convert (int clawGripPos) {
 
 //callback for the base rotation of the arm
 void armRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, ARM_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+    pwm_set_duty(ARM_ROTATE_PIN, speed_to_duty_pct(msg.data));
     UARTprintf("Arm rotate received.\n");
 }
 
@@ -242,11 +246,11 @@ void armBottomCallback(const std_msgs::Float64 & msg) {
 
 // needs arduino code?
 void clawRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, CLAW_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+    //servo_write_rads(HS_785HB, CLAW_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Claw rotate received.\n");
 }
 //arduino code instead of duty
 void clawGripCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(CLAW_GRIP_PIN, msg.data);
+    //pwm_set_duty(CLAW_GRIP_PIN, msg.data);
     UARTprintf("Claw grip received.\n");
 }
