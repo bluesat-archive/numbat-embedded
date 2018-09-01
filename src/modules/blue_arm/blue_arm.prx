@@ -44,7 +44,7 @@
                     <name>task_blue_arm</name>
                     <function>task_blue_arm_fn</function>
                     <priority>30</priority>
-                    <stack_size>512</stack_size>
+                    <stack_size>4092</stack_size>
                 </task>
                 <task>
                     <name>task_can_wait</name>

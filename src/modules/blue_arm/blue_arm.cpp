@@ -50,16 +50,13 @@ static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 void callback(const owr_messages::pwm & msg);
 //more functions
-/*
-static void init_can(void);
-static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
-static duty_pct speed_to_duty_pct(double speed);
-static double wheel_to_servo_angle(double wheel_angle);
-void frontLeftDriveCallback(const std_msgs::Float64 & msg);
-void frontLeftRotateCallback(const std_msgs::Float64 & msg);
-void backLeftDriveCallback(const std_msgs::Float64 & msg);
-void backLeftRotateCallback(const std_msgs::Float64 & msg);
-*/
+void armRotateCallback(const std_msgs::Float64 & msgs);
+void armTopCallback(const std_msgs::Float64 & msgs);
+void armBottomCallback(const std_msgs::Float64 & msg);
+void clawRotateCallback(const std_msgs::Float64 & msg);
+void clawGripCallback(const std_msgs::Float64 & msg);
+
+
 extern "C" bool tick_irq(void) {
     rtos_timer_tick();
     return true;
@@ -83,19 +80,19 @@ extern "C" void task_blue_arm_fn(void) {
     // Creating the subscribers
 
     std_msgs::Float64 arm_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> armRotateSub("arm_rotate_controller/command", arm_rotate_buffer_in, 5, armRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> armRotateSub("/arm_base_rotate_controller/command", arm_rotate_buffer_in, 5, armRotateCallback);
     armRotateSub.set_topic_id(0);
     std_msgs::Float64 arm_top_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> armTopSub("arm_top_controller/command", arm_top_buffer_in, 5, armTopCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> armTopSub("/arm_top_controller/command", arm_top_buffer_in, 5, armTopCallback);
     armTopSub.set_topic_id(1);
     std_msgs::Float64 arm_bottom_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> armBottomSub("arm_bottom_controller/command", arm_bottom_buffer_in, 5, armBottomCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> armBottomSub("/arm_bottom_controller/command", arm_bottom_buffer_in, 5, armBottomCallback);
     armBottomSub.set_topic_id(2);
     std_msgs::Float64 claw_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> clawRotateSub("claw_rotate_controller/command", claw_rotate_buffer_in, 5, clawRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> clawRotateSub("/claw_rotate_controller/command", claw_rotate_buffer_in, 5, clawRotateCallback);
     clawRotateSub.set_topic_id(3);
     std_msgs::Float64 claw_grip_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> clawGripSub("claw_grip_controller/command", claw_grip_buffer_in, 5, clawGripCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> clawGripSub("/claw_grip_controller/command", claw_grip_buffer_in, 5, clawGripCallback);
     clawGripSub.set_topic_id(4);
 
     armRotateSub.init(nh);
@@ -105,19 +102,23 @@ extern "C" void task_blue_arm_fn(void) {
     clawGripSub.init(nh);
 
     
-    servo_init(HS_785HB, ARM_ROTATE_PIN);
-    servo_init(HS_785HB, CLAW_ROTATE_PIN);
+    //servo_init(HS_785HB, ARM_ROTATE_PIN);
+    //servo_init(HS_785HB, CLAW_ROTATE_PIN);
 
-    pwm_init(ARM_TOP_PIN);
-    pwm_init(ARM_BOTTOM_PIN);
-    pwm_init(CLAW_GRIP_PIN);
+    //pwm_init(ARM_TOP_PIN);
+    //pwm_init(ARM_BOTTOM_PIN);
+    //pwm_init(CLAW_GRIP_PIN);
+
+
     /* pwm_set_period(PWM_PAIR0, PWM_PERIOD); //not 100% about this one
     pwm_set_duty(ARM_TOP_PIN,15.0); //or these... is 15 a standard #?
     pwm_set_duty(ARM_BOTTOM_PIN,15.0);
     pwm_set_duty(CLAW_GRIP_PIN,15.0); */
-    pwm_enable(ARM_TOP_PIN);
-    pwm_enable(ARM_BOTTOM_PIN);
-    pwm_enable(CLAW_GRIP_PIN);
+
+
+    //pwm_enable(ARM_TOP_PIN);
+    //pwm_enable(ARM_BOTTOM_PIN);
+    //pwm_enable(CLAW_GRIP_PIN);
 
 
     ros_echronos::ROS_INFO("starting the main loop\n");
@@ -219,15 +220,15 @@ static double wheel_to_servo_angle(double wheel_angle) {
 
 //make a better function name
 // valid claw grip values range 1200 - 1700, 1500 is default/neutral
-static float claw_grip_convert (int clawAng) {
-    float clawGrip = (float)clawAng/(float)CLAW_ROTATION_MAX)*1000.0 + 1000;
+static float claw_grip_convert (int clawGripPos) {
+    float clawGrip = (float)clawGripPos/(float)CLAW_ROTATION_MAX*1000.0 + 1000;
 }
 
 //callback for the base rotation of the arm
-void armRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, ARM_ROTATE_PIN, wheel_to_servo_angle(msg.data));
-    UARTprintf("Arm rotate received.\n");
-}
+//void armRotateCallback(const std_msgs::Float64 & msg) {
+    //servo_write_rads(HS_785HB, ARM_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+//    UARTprintf("Arm rotate received.\n");
+//}
 
 void armTopCallback(const std_msgs::Float64 & msg) {
     pwm_set_duty(ARM_TOP_PIN, speed_to_duty_pct(msg.data));
