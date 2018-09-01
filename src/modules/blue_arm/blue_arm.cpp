@@ -225,10 +225,10 @@ static float claw_grip_convert (int clawGripPos) {
 }
 
 //callback for the base rotation of the arm
-//void armRotateCallback(const std_msgs::Float64 & msg) {
-    //servo_write_rads(HS_785HB, ARM_ROTATE_PIN, wheel_to_servo_angle(msg.data));
-//    UARTprintf("Arm rotate received.\n");
-//}
+void armRotateCallback(const std_msgs::Float64 & msg) {
+    servo_write_rads(HS_785HB, ARM_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+    UARTprintf("Arm rotate received.\n");
+}
 
 void armTopCallback(const std_msgs::Float64 & msg) {
     pwm_set_duty(ARM_TOP_PIN, speed_to_duty_pct(msg.data));
@@ -247,6 +247,6 @@ void clawRotateCallback(const std_msgs::Float64 & msg) {
 }
 //arduino code instead of duty
 void clawGripCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(CLAW_GRIP_PIN, claw_grip_convert(msg.data));
+    pwm_set_duty(CLAW_GRIP_PIN, msg.data);
     UARTprintf("Claw grip received.\n");
 }
