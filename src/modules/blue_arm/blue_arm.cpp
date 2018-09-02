@@ -24,12 +24,12 @@
 #define PWM_PERIOD 10.0
 #define MAX 2.0 // ms 20%
 #define MIN 1.0 // ms 10%
-#define DUTY_RANGE (100*(MAX + MIN)/PWM_PERIOD) // 30%
-#define DUTY_NEUTRAL (DUTY_RANGE/2) // 15%
-#define MAX_SPEED 3 // m/s
+#define DUTY_RANGE (100*(MAX - MIN)/PWM_PERIOD) // 10%
+#define DUTY_NEUTRAL ((1.5 * 100) / PWM_PERIOD) // 15%
+//#define MAX_SPEED 1 // m/s
 #define MAP_SPEED_TO_DUTY_PCT ((MAX*100)/PWM_PERIOD - DUTY_NEUTRAL) // (20-15)% = 5%
 
-#define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
+#define SERVO_ANGLE_CONVERSION_FACTOR 0.5 // 180 deg. / 360 deg.
 
 #define SYSTICKS_PER_SECOND 100 //ask about this
 
@@ -83,19 +83,19 @@ extern "C" void task_blue_arm_fn(void) {
 
     std_msgs::Float64 arm_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> armRotateSub("/arm_base_rotate_controller/command", arm_rotate_buffer_in, 5, armRotateCallback);
-    armRotateSub.set_topic_id(0);
+    armRotateSub.set_topic_id(8);
     std_msgs::Float64 arm_top_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> armTopSub("/arm_top_controller/command", arm_top_buffer_in, 5, armTopCallback);
-    armTopSub.set_topic_id(1);
+    armTopSub.set_topic_id(9);
     std_msgs::Float64 arm_bottom_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> armBottomSub("/arm_bottom_controller/command", arm_bottom_buffer_in, 5, armBottomCallback);
-    armBottomSub.set_topic_id(2);
+    armBottomSub.set_topic_id(10);
     std_msgs::Float64 claw_rotate_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> clawRotateSub("/claw_rotate_controller/command", claw_rotate_buffer_in, 5, clawRotateCallback);
-    clawRotateSub.set_topic_id(3);
+    clawRotateSub.set_topic_id(11);
     std_msgs::Float64 claw_grip_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> clawGripSub("/claw_grip_controller/command", claw_grip_buffer_in, 5, clawGripCallback);
-    clawGripSub.set_topic_id(4);
+    clawGripSub.set_topic_id(12);
 
     armRotateSub.init(nh);
     armTopSub.init(nh);
@@ -103,18 +103,19 @@ extern "C" void task_blue_arm_fn(void) {
     clawRotateSub.init(nh);
     clawGripSub.init(nh);
 
-    
+    servo_init(GENERIC, CLAW_ROTATE_PIN);
+    servo_init(GENERIC, CLAW_GRIP_PIN);
+   
+ 
     pwm_init(ARM_ROTATE_PIN);
-    //servo_init(HS_785HB, CLAW_ROTATE_PIN);
-
     pwm_init(ARM_TOP_PIN);
     pwm_init(ARM_BOTTOM_PIN);
-    pwm_init(CLAW_GRIP_PIN);
 
+    //pwm_set_prescaler(DIV8);
 
     pwm_set_period(PWM_PAIR0, PWM_PERIOD); //not 100% about this one
     pwm_set_period(PWM_PAIR1, PWM_PERIOD); //not 100% about this one
-    pwm_set_period(PWM_PAIR2, PWM_PERIOD); //not 100% about this one
+    //pwm_set_period(PWM_PAIR2, PWM_PERIOD); //not 100% about this one
     pwm_set_duty(ARM_TOP_PIN,15.0); //or these... is 15 a standard #?
     pwm_set_duty(ARM_BOTTOM_PIN,15.0);
     //pwm_set_duty(CLAW_GRIP_PIN,15.0); 
@@ -202,7 +203,7 @@ void init_can(void) {
 // finds the duty cycle of the motors in terms of a percentage
 // 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = DUTY_NEUTRAL + (speed / MAX_SPEED * MAP_SPEED_TO_DUTY_PCT);
+    duty_pct duty = DUTY_NEUTRAL + (speed * MAP_SPEED_TO_DUTY_PCT);
 
     return duty;
 }
@@ -246,11 +247,12 @@ void armBottomCallback(const std_msgs::Float64 & msg) {
 
 // needs arduino code?
 void clawRotateCallback(const std_msgs::Float64 & msg) {
-    //servo_write_rads(HS_785HB, CLAW_ROTATE_PIN, wheel_to_servo_angle(msg.data));
+    servo_write_rads(GENERIC, CLAW_ROTATE_PIN, msg.data);
     UARTprintf("Claw rotate received.\n");
 }
 //arduino code instead of duty
 void clawGripCallback(const std_msgs::Float64 & msg) {
     //pwm_set_duty(CLAW_GRIP_PIN, msg.data);
+    servo_write_rads(GENERIC, CLAW_GRIP_PIN, msg.data);
     UARTprintf("Claw grip received.\n");
 }
