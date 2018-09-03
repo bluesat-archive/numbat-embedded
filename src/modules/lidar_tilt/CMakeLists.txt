@@ -19,7 +19,7 @@ include_directories(
 set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 set(CPP_FILES lidar_tilt.cpp can_wait_task.cpp)
-add_module(lidar_tilt 9 1 0 "${CPP_FILES}")
+add_module(lidar_tilt 2 1 0 "${CPP_FILES}")
 target_link_libraries(lidar_tilt pwm servo m)
 generate_msgs(std_msgs Float64)
 #generate_msgs(std_msgs Header)

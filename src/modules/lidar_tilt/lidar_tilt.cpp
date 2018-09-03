@@ -63,6 +63,7 @@ extern "C" void task_lidar_tilt_fn(void) {
 
     pwm_init(LIDAR_TILT_PIN); // redundant but needed to link driver library
     servo_init(LIDAR_TILT, LIDAR_TILT_PIN);
+    servo_write_rads(LIDAR_TILT, LIDAR_TILT_PIN, 0.0);
 
     ros_echronos::ROS_INFO("starting the main loop\n");
     while(true) {
