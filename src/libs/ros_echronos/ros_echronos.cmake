@@ -16,25 +16,22 @@ FILE(GLOB ros_files ${ROS_ECHRONOS_DIR}/arch/tm4c/*.cpp ${ROS_ECHRONOS_DIR}/*.cp
 FILE(GLOB ros_include_files ${ROS_INCLUDE_DIR}/*.hpp ${ROS_INCLUDE_DIR}/templates/*.hpp )
 
 # define the doxygen target if there isn't one already
-if(NOT TARGET ros-echronos-docs)
-
-    find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
-    if( COMMAND doxygen_add_docs )
-        set(DOXYGEN_OUTPUT_DIRECTORY ../../../docs/doxygen)
-        doxygen_add_docs(
-                ros-echronos-docs
-                ${ros_files}
-                ${ros_include_files}
-
-        )
-        add_custom_target(
-                ros-echronos-doc-gen ALL
-                COMMAND doxygen Doxyfile.ros-echronos-docs
-                COMMAND cp -r html ../../../docs/doxygen
-                DEPENDS ros-echronos-docs
-        )
-    endif()
-endif()
+#if(NOT TARGET ros-echronos-docs)
+#    find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
+#    set(DOXYGEN_OUTPUT_DIRECTORY ../../../docs/doxygen)
+#    doxygen_add_docs(
+#            ros-echronos-docs
+#            ${ros_files}
+#            ${ros_include_files}
+#
+#    )
+#    add_custom_target(
+#            ros-echronos-doc-gen ALL
+#            COMMAND doxygen Doxyfile.ros-echronos-docs
+#            COMMAND cp -r html ../../../docs/doxygen
+#            DEPENDS ros-echronos-docs
+#    )
+#endif()
 
 function(build_ros_echronos echronos_build_dir module_name echronos_target node_id serial_on)
     set(ROS_BUILD_DIR ${echronos_build_dir}/lib/ros-echronos)
