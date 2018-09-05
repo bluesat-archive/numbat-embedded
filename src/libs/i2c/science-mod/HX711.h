@@ -58,7 +58,7 @@ class HX711 {
         void init(gain_t gain = CHANNEL_A_128);
         void set_gain(gain_t gain);
         /* Calibrate tare weight based on number of samples */
-        void tare(uint8_t num_samples = 10);
+        void tare(uint8_t num_samples = 30);
         /* Set tare value manually */
         void set_tare_offset(int32_t offset);
         int32_t get_tare_offset(void);
@@ -68,7 +68,7 @@ class HX711 {
         int32_t read_avg(uint8_t num_samples);
         /* Read tare calibrated and scaled A/D value */
         double read_scaled(void);
-        double read_scaled_avg(void);
+        double read_scaled_avg(uint8_t num_samples);
         /* Set the scaling factor for the read_scaled() function */
         void set_scale(float scaling_factor);
         float get_scale(void);
