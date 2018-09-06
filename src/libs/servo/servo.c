@@ -1,8 +1,8 @@
 #include "servo.h"
 
-static const period_ms period[SERVO_COUNT] = {10.0};
-static const duty_pct neutral[SERVO_COUNT] = {15.0};
-static const double conversion[SERVO_COUNT] = {155.0};
+static const period_ms period[SERVO_COUNT] = {10.0, 10};
+static const duty_pct neutral[SERVO_COUNT] = {15.0, 15.78};
+static const double conversion[SERVO_COUNT] = {155.0, 154.1};
 
 // initialise servo signal and set to neutral
 void servo_init(enum servos servo, enum pwm_pin pin) {

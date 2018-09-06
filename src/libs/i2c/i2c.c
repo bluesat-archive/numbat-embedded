@@ -18,18 +18,18 @@ struct gpio_config_struct {
     uint32_t sda;
 };
 
-struct gpio_pin_struct {
+struct gpio_pin_i2c_struct {
     uint32_t base;
     uint32_t scl;
     uint32_t sda;
 };
 
-const uint32_t sysctl_module[] = {SYSCTL_PERIPH_I2C0, SYSCTL_PERIPH_I2C1,
+const uint32_t sysctl_module_i2c[] = {SYSCTL_PERIPH_I2C0, SYSCTL_PERIPH_I2C1,
                                 SYSCTL_PERIPH_I2C2, SYSCTL_PERIPH_I2C3};
 
 const uint32_t i2c_module[] = {I2C0_BASE, I2C1_BASE, I2C2_BASE, I2C3_BASE};
 
-const struct gpio_pin_struct gpio_pin[] = {
+const struct gpio_pin_i2c_struct gpio_pin_i2c[] = {
     {GPIO_PORTB_BASE, GPIO_PIN_2, GPIO_PIN_3}, {GPIO_PORTA_BASE, GPIO_PIN_6, GPIO_PIN_7},
     {GPIO_PORTE_BASE, GPIO_PIN_4, GPIO_PIN_5}, {GPIO_PORTD_BASE, GPIO_PIN_0, GPIO_PIN_1}};
 
@@ -53,18 +53,18 @@ void i2c_init(i2cModule_t module, i2cMode_t mode) {
     }
 
     // if i2c module not enabled
-    if (SysCtlPeripheralReady(sysctl_module[module]) == false) {
-        SysCtlPeripheralEnable(sysctl_module[module]);
-        while (!SysCtlPeripheralReady(sysctl_module[module]));
-        SysCtlPeripheralReset(sysctl_module[module]);
+    if (SysCtlPeripheralReady(sysctl_module_i2c[module]) == false) {
+        SysCtlPeripheralEnable(sysctl_module_i2c[module]);
+        while (!SysCtlPeripheralReady(sysctl_module_i2c[module]));
+        SysCtlPeripheralReset(sysctl_module_i2c[module]);
     }
 
     //GPIOIntRegister(i2c_module[module], i2cIntHandler) // might do interrupts later
     // only module 0 defaults to the i2c function, need to configure for the other gpios
     // set SCL push pull
-    GPIOPinTypeI2CSCL(gpio_pin[module].base, (uint8_t) gpio_pin[module].scl);
+    GPIOPinTypeI2CSCL(gpio_pin_i2c[module].base, (uint8_t) gpio_pin_i2c[module].scl);
     // set SDA open drain, weak pullup
-    GPIOPinTypeI2C(gpio_pin[module].base, (uint8_t) gpio_pin[module].sda);
+    GPIOPinTypeI2C(gpio_pin_i2c[module].base, (uint8_t) gpio_pin_i2c[module].sda);
     // enable i2c functionality on the respective pins
     GPIOPinConfigure(gpio_config[module].scl);
     GPIOPinConfigure(gpio_config[module].sda);

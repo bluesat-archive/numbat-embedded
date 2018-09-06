@@ -1,3 +1,23 @@
+---DEPENDENCIES---
+Custom message "science.msg" defined in owr_software/rover/src/owr_messages with the fields:
+    uint32 temperature
+    uint32 humidity
+    float32 mag_x
+    float32 mag_y
+    float32 mag_z
+    uint32 illuminance
+    uint32 colour_temperature
+    uint32 moisture
+    float64 weight
+
+---Subscribers---
+TOPIC               Type      Function
+science/request     Int16     Take measurements from a module (1-4) and publish to science/data
+science/servo       Int16     Rotate the servo to open a desired module (1-4) or close all (0)
+science/tare        Int16     Resets the zero weight reference (message value is irrelevant)
+
+
+---PIN CONNECTIONS---
 I2C multiplexer:
 A0, A1, A2 - GND
 RST - Vcc via pullup resistor

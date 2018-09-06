@@ -4,11 +4,18 @@
 #include "science-mod/SI7021.h"
 #include "science-mod/TCS34725.h"
 #include "science-mod/HX711.h"
-#include "TCA9548A.h"
+#include "science-mod/TCA9548A.h"
 #include "adc.h"
+#include "servo.h"
 
-#define NUM_PINS 1 
 #define NUM_MODULES 4
+#define SCIENCE_SERVO_PIN PWM0
+
+#define NEUTRAL_POS  0
+#define MODULE_1_POS 52.5
+#define MODULE_2_POS 126.4 // (should be 135) - will need to recalibrate if mech issues are fixed
+#define MODULE_3_POS -132.5 // (should be -135)
+#define MODULE_4_POS -52.5
 
 void ftoa(float f,char *buf) {
     int pos=0,ix,dp,num;
@@ -36,12 +43,16 @@ void ftoa(float f,char *buf) {
 
 extern "C" void task_science_test_fn(void) {
     UARTprintf("Entered science test task\n");
-    //for (int i = 0; i < NUM_MODULES; i++)
-    //i2c_select(0); // select multiplexer output
+    i2c_init(I2C0, FAST);
+    // i2c_select(I2C0, 0); // select multiplexer output
+    UARTprintf("Initialising science servo to neutral position\n");
+    servo_init(SCIENCE_SERVO, SCIENCE_SERVO_PIN);
+    servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, NEUTRAL_POS);
+
     UARTprintf("Initialising adc in polling mode\n");
-    uint32_t adc_buffer[NUM_PINS] = {0};
-    enum adc_pin pins[NUM_PINS] = {AIN0};
-    adc_init_pins(pins, NUM_PINS, false);
+    uint32_t adc_buffer[NUM_MODULES] = {0};
+    enum adc_pin pins[NUM_MODULES] = {AIN0, AIN1, AIN2, AIN3};
+    adc_init_pins(pins, NUM_MODULES, false);
     UARTprintf("ADC initialised\n");
     bool success = false;
     LIS3MDL lis3mdl(I2C0);
@@ -115,7 +126,8 @@ extern "C" void task_science_test_fn(void) {
         UARTprintf("Illuminance = %d lux\n", illuminance);
   
         adc_capture_polling(adc_buffer);
-        UARTprintf("Moisture reading = %d\n", adc_buffer[0]);
+        UARTprintf("Moisture readings = %d %d %d %d\n", adc_buffer[0], adc_buffer[1],
+                    adc_buffer[2], adc_buffer[3]);
 
         weight_raw = hx711.read();
         UARTprintf("Raw weight value = %d\n", weight_raw);
@@ -129,6 +141,7 @@ extern "C" void task_science_test_fn(void) {
         for (uint32_t i=0; i < 1000; i++) {
             SysCtlDelay(25000); // 1 ms delay
         }
+        servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_1_POS);
     }                           
 }
 

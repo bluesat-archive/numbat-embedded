@@ -48,6 +48,10 @@
     <run_depend>i2c</run_depend>
     <build_depend>adc</build_depend>
     <run_depend>adc</run_depend>
+    <build_depend>pwm</build_depend>
+    <run_depend>pwm</run_depend>
+    <build_depend>servo</build_depend>
+    <run_depend>servo</run_depend>>
     <!-- You may not need all of these -->
 
     <!-- The export tag contains other, unspecified, tags -->
