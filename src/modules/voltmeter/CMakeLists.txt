@@ -21,7 +21,7 @@ include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
 #TODO: add all your module cpp files to this list
 set(CPP_FILES voltmeter.cpp can_wait_task.cpp)
-add_module(voltmeter 5 1 0 "${CPP_FILES}")
+add_module(voltmeter 6 1 0 "${CPP_FILES}")
 target_link_libraries(voltmeter adc m)
 
 generate_msgs(std_msgs Float64)

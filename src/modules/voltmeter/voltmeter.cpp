@@ -50,7 +50,7 @@ extern "C" void task_voltmeter_fn(void) {
 
     // publisher
     ros_echronos::ROS_INFO("pub init\n");
-    ros_echronos::Publisher<std_msgs::Float64> _pub("voltmeter", (std_msgs::Float64*)vm_buffer, 5, false);
+    ros_echronos::Publisher<std_msgs::Float64> _pub("/sensor/voltmeter", (std_msgs::Float64*)vm_buffer, 5, false);
     pub = &_pub;
     pub->init(nh);
 
