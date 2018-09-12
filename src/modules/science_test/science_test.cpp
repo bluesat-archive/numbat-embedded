@@ -8,14 +8,14 @@
 #include "adc.h"
 #include "servo.h"
 
-#define NUM_MODULES 4
+#define NUM_MODULES 3
 #define SCIENCE_SERVO_PIN PWM0
 
 #define NEUTRAL_POS  0
 #define MODULE_1_POS 52.5
 #define MODULE_2_POS 126.4 // (should be 135) - will need to recalibrate if mech issues are fixed
 #define MODULE_3_POS -132.5 // (should be -135)
-#define MODULE_4_POS -52.5
+// #define MODULE_4_POS -52.5
 
 void ftoa(float f,char *buf) {
     int pos=0,ix,dp,num;
@@ -44,60 +44,67 @@ void ftoa(float f,char *buf) {
 extern "C" void task_science_test_fn(void) {
     UARTprintf("Entered science test task\n");
     i2c_init(I2C0, FAST);
-    // i2c_select(I2C0, 0); // select multiplexer output
-    UARTprintf("Initialising science servo to neutral position\n");
-    servo_init(SCIENCE_SERVO, SCIENCE_SERVO_PIN);
-    servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, NEUTRAL_POS);
-
-    UARTprintf("Initialising adc in polling mode\n");
-    uint32_t adc_buffer[NUM_MODULES] = {0};
-    enum adc_pin pins[NUM_MODULES] = {AIN0, AIN1, AIN2, AIN3};
-    adc_init_pins(pins, NUM_MODULES, false);
-    UARTprintf("ADC initialised\n");
-    bool success = false;
+    int failure_counter = 0;
     LIS3MDL lis3mdl(I2C0);
-    success = lis3mdl.init();
-    if (success) {
-        UARTprintf("LIS3MDL successfully initialised\n");
-    } else {
-        UARTprintf("LIS3MDL failed to initialise\n");
-    }
     TCS34725 tcs34725(I2C0);
-    success = tcs34725.init();
-    if (success) {
-        UARTprintf("TCS34725 successfully initialised\n");
-    } else {
-        UARTprintf("TCS34725 failed to initialise\n");
+    SI7021 si7021(I2C0);
+    for (int module_num = 0; module_num < NUM_MODULES; module_num += 1) {
+        i2c_select(I2C0, module_num);  // select multiplexer output
+        // UARTprintf("Initialising science servo to neutral position\n");
+        // servo_init(SCIENCE_SERVO, SCIENCE_SERVO_PIN);
+        // servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, NEUTRAL_POS);
+
+        UARTprintf("Initialising adc in polling mode\n");
+        uint32_t adc_buffer[NUM_MODULES] = {0};
+        // enum adc_pin pins[NUM_MODULES] = {AIN0, AIN1, AIN2, AIN3};
+        // adc_init_pins(pins, NUM_MODULES, false);
+        // UARTprintf("ADC initialised\n");
+        bool success = false;
+        success = lis3mdl.init();
+        if (success) {
+            UARTprintf("LIS3MDL successfully initialised\n");
+        } else {
+            failure_counter += 1;
+            UARTprintf("LIS3MDL failed to initialise\n");
+        }
+        success = tcs34725.init();
+        if (success) {
+            UARTprintf("TCS34725 successfully initialised\n");
+        } else {
+            failure_counter += 1;
+            UARTprintf("TCS34725 failed to initialise\n");
+        }
+        uint8_t it = tcs34725.read8(TCS34725_ATIME);
+        UARTprintf("Check integration time set %d\n", it);
+        uint8_t gain = tcs34725.read8(TCS34725_CONTROL);
+        UARTprintf("Check gain set %d\n", gain);
+
+        success = si7021.init();
+        if (success) {
+            UARTprintf("SI7021 successfully initialised\n");
+        } else {
+            failure_counter += 1;
+            UARTprintf("SI7021 failed to initialise\n");
+        }
+        UARTprintf("Checking SI7021 serial number\n");
+        uint32_t ser_hi = 0;
+        uint32_t ser_lo = 0;
+        si7021.read_serial_number(&ser_hi, &ser_lo);
+        UARTprintf("ser = %x %x\n", ser_hi, ser_lo);
+        // HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
+        // hx711.init(); // init to default gain = 128
+        // UARTprintf("HX711 initialised\n");
+        // hx711.tare(50);
+        // UARTprintf("Zero out HX711 with 50 samples\n");
+
+        // change this to scale raw value to appropriate units
+        // float scale = -67.29;
+        // hx711.set_scale(scale);
+        // UARTprintf("HX711 scaling factor set to %d\n", (int) scale);
     }
-    uint8_t it = tcs34725.read8(TCS34725_ATIME);    
-    UARTprintf("Check integration time set %d\n", it);
-    uint8_t gain = tcs34725.read8(TCS34725_CONTROL); 
-    UARTprintf("Check gain set %d\n", gain); 
-    
-    SI7021 si7021(I2C0);    
-    success = si7021.init();
-    if (success) {
-        UARTprintf("SI7021 successfully initialised\n");
-    } else {
-        UARTprintf("SI7021 failed to initialise\n");
-    }
-    UARTprintf("Checking SI7021 serial number\n");
-    uint32_t ser_hi = 0;
-    uint32_t ser_lo = 0;
-    si7021.read_serial_number(&ser_hi, &ser_lo);
-    UARTprintf("ser = %x %x\n", ser_hi, ser_lo);
-    HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
-    hx711.init(); // init to default gain = 128
-    UARTprintf("HX711 initialised\n");
-    hx711.tare(50);
-    UARTprintf("Zero out HX711 with 50 samples\n");
-    
-    float scale = -67.29; // change this to scale raw value to appropriate units
-    hx711.set_scale(scale); 
-    UARTprintf("HX711 scaling factor set to %d\n", (int) scale); 
-    
+    i2c_select(I2C0, 0); // select multiplexer output
     uint16_t r, g, b, c;
-    uint16_t colour_temp, illuminance;  
+    uint16_t colour_temp, illuminance;
     uint32_t temp, humidity;
     float mx, my, mz;
     char mx_buf[10];
@@ -118,31 +125,31 @@ extern "C" void task_science_test_fn(void) {
         humidity = si7021.read_humidity();
         UARTprintf("Humidity = %d percent\n", humidity);
 
-        tcs34725.read_raw_data(&r, &g, &b, &c);
-        UARTprintf("Raw light sensor values: r=%d, g=%d, b=%d, c=%d\n", r, g, b, c);
-        colour_temp = tcs34725.calculate_colour_temperature(r, g, b);
-        UARTprintf("Colour temperature = %d Kelvin\n", colour_temp);
-        illuminance = tcs34725.calculate_lux(r, g, b);
-        UARTprintf("Illuminance = %d lux\n", illuminance);
+        // tcs34725.read_raw_data(&r, &g, &b, &c);
+        // UARTprintf("Raw light sensor values: r=%d, g=%d, b=%d, c=%d\n", r, g, b, c);
+        // colour_temp = tcs34725.calculate_colour_temperature(r, g, b);
+        // UARTprintf("Colour temperature = %d Kelvin\n", colour_temp);
+        // illuminance = tcs34725.calculate_lux(r, g, b);
+        // UARTprintf("Illuminance = %d lux\n", illuminance);
   
-        adc_capture_polling(adc_buffer);
-        UARTprintf("Moisture readings = %d %d %d %d\n", adc_buffer[0], adc_buffer[1],
-                    adc_buffer[2], adc_buffer[3]);
+        // adc_capture_polling(adc_buffer);
+        // UARTprintf("Moisture readings = %d %d %d %d\n", adc_buffer[0], adc_buffer[1],
+        //             adc_buffer[2], adc_buffer[3]);
 
-        weight_raw = hx711.read();
-        UARTprintf("Raw weight value = %d\n", weight_raw);
-        weight_raw = hx711.read_avg(30);
-        UARTprintf("Raw weight value averaged (30 samples) = %d\n", weight_raw);
-        weight = (float) hx711.read_scaled_avg(30);
-        ftoa(weight, weight_buf);
-        UARTprintf("Tare calibrated and scaled weight = %s\n", weight_buf);
+        // weight_raw = hx711.read();
+        // UARTprintf("Raw weight value = %d\n", weight_raw);
+        // weight_raw = hx711.read_avg(30);
+        // UARTprintf("Raw weight value averaged (30 samples) = %d\n", weight_raw);
+        // weight = (float) hx711.read_scaled_avg(30);
+        // ftoa(weight, weight_buf);
+        // UARTprintf("Tare calibrated and scaled weight = %s\n", weight_buf);
 
         // delay 1 s
         for (uint32_t i=0; i < 1000; i++) {
             SysCtlDelay(25000); // 1 ms delay
         }
-        servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_1_POS);
-    }                           
+        // servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_1_POS);
+    }
 }
 
 int main(void) {
