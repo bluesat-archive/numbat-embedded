@@ -48,17 +48,18 @@ extern "C" void task_science_test_fn(void) {
     LIS3MDL lis3mdl(I2C0);
     TCS34725 tcs34725(I2C0);
     SI7021 si7021(I2C0);
+    UARTprintf("Initialising adc in polling mode\n");
+    uint32_t adc_buffer[NUM_MODULES] = {0};
+    enum adc_pin pins[NUM_MODULES] = {AIN0, AIN1, AIN2};
+    adc_init_pins(pins, NUM_MODULES, false);
+    UARTprintf("ADC initialised\n");
+    HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
     for (int module_num = 0; module_num < NUM_MODULES; module_num += 1) {
         i2c_select(I2C0, module_num);  // select multiplexer output
         // UARTprintf("Initialising science servo to neutral position\n");
         // servo_init(SCIENCE_SERVO, SCIENCE_SERVO_PIN);
         // servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, NEUTRAL_POS);
 
-        UARTprintf("Initialising adc in polling mode\n");
-        uint32_t adc_buffer[NUM_MODULES] = {0};
-        // enum adc_pin pins[NUM_MODULES] = {AIN0, AIN1, AIN2, AIN3};
-        // adc_init_pins(pins, NUM_MODULES, false);
-        // UARTprintf("ADC initialised\n");
         bool success = false;
         success = lis3mdl.init();
         if (success) {
@@ -91,16 +92,15 @@ extern "C" void task_science_test_fn(void) {
         uint32_t ser_lo = 0;
         si7021.read_serial_number(&ser_hi, &ser_lo);
         UARTprintf("ser = %x %x\n", ser_hi, ser_lo);
-        // HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
-        // hx711.init(); // init to default gain = 128
-        // UARTprintf("HX711 initialised\n");
-        // hx711.tare(50);
-        // UARTprintf("Zero out HX711 with 50 samples\n");
+        hx711.init(); // init to default gain = 128
+        UARTprintf("HX711 initialised\n");
+        hx711.tare(50);
+        UARTprintf("Zero out HX711 with 50 samples\n");
 
-        // change this to scale raw value to appropriate units
-        // float scale = -67.29;
-        // hx711.set_scale(scale);
-        // UARTprintf("HX711 scaling factor set to %d\n", (int) scale);
+        //change this to scale raw value to appropriate units
+        float scale = -67.29;
+        hx711.set_scale(scale);
+        UARTprintf("HX711 scaling factor set to %d\n", (int) scale);
     }
     i2c_select(I2C0, 0); // select multiplexer output
     uint16_t r, g, b, c;
@@ -125,24 +125,24 @@ extern "C" void task_science_test_fn(void) {
         humidity = si7021.read_humidity();
         UARTprintf("Humidity = %d percent\n", humidity);
 
-        // tcs34725.read_raw_data(&r, &g, &b, &c);
-        // UARTprintf("Raw light sensor values: r=%d, g=%d, b=%d, c=%d\n", r, g, b, c);
-        // colour_temp = tcs34725.calculate_colour_temperature(r, g, b);
-        // UARTprintf("Colour temperature = %d Kelvin\n", colour_temp);
-        // illuminance = tcs34725.calculate_lux(r, g, b);
-        // UARTprintf("Illuminance = %d lux\n", illuminance);
-  
-        // adc_capture_polling(adc_buffer);
-        // UARTprintf("Moisture readings = %d %d %d %d\n", adc_buffer[0], adc_buffer[1],
-        //             adc_buffer[2], adc_buffer[3]);
+        tcs34725.read_raw_data(&r, &g, &b, &c);
+        UARTprintf("Raw light sensor values: r=%d, g=%d, b=%d, c=%d\n", r, g, b, c);
+        colour_temp = tcs34725.calculate_colour_temperature(r, g, b);
+        UARTprintf("Colour temperature = %d Kelvin\n", colour_temp);
+        illuminance = tcs34725.calculate_lux(r, g, b);
+        UARTprintf("Illuminance = %d lux\n", illuminance);
 
-        // weight_raw = hx711.read();
-        // UARTprintf("Raw weight value = %d\n", weight_raw);
-        // weight_raw = hx711.read_avg(30);
-        // UARTprintf("Raw weight value averaged (30 samples) = %d\n", weight_raw);
-        // weight = (float) hx711.read_scaled_avg(30);
-        // ftoa(weight, weight_buf);
-        // UARTprintf("Tare calibrated and scaled weight = %s\n", weight_buf);
+        adc_capture_polling(adc_buffer);
+        UARTprintf("Moisture readings = %d %d %d %d\n", adc_buffer[0], adc_buffer[1],
+                    adc_buffer[2], adc_buffer[3]);
+
+        weight_raw = hx711.read();
+        UARTprintf("Raw weight value = %d\n", weight_raw);
+        weight_raw = hx711.read_avg(30);
+        UARTprintf("Raw weight value averaged (30 samples) = %d\n", weight_raw);
+        weight = (float) hx711.read_scaled_avg(30);
+        ftoa(weight, weight_buf);
+        UARTprintf("Tare calibrated and scaled weight = %s\n", weight_buf);
 
         // delay 1 s
         for (uint32_t i=0; i < 1000; i++) {
