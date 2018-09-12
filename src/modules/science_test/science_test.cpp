@@ -15,7 +15,6 @@
 #define MODULE_1_POS 52.5
 #define MODULE_2_POS 126.4 // (should be 135) - will need to recalibrate if mech issues are fixed
 #define MODULE_3_POS -132.5 // (should be -135)
-// #define MODULE_4_POS -52.5
 
 void ftoa(float f,char *buf) {
     int pos=0,ix,dp,num;
@@ -50,7 +49,7 @@ extern "C" void task_science_test_fn(void) {
     SI7021 si7021(I2C0);
     UARTprintf("Initialising adc in polling mode\n");
     uint32_t adc_buffer[NUM_MODULES] = {0};
-    enum adc_pin pins[NUM_MODULES] = {AIN0, AIN1, AIN2};
+    enum adc_pin pins[NUM_MODULES] = {AIN0, AIN3, AIN2};
     adc_init_pins(pins, NUM_MODULES, false);
     UARTprintf("ADC initialised\n");
     HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
@@ -132,9 +131,8 @@ extern "C" void task_science_test_fn(void) {
         illuminance = tcs34725.calculate_lux(r, g, b);
         UARTprintf("Illuminance = %d lux\n", illuminance);
 
-        adc_capture_polling(adc_buffer);
-        UARTprintf("Moisture readings = %d %d %d %d\n", adc_buffer[0], adc_buffer[1],
-                    adc_buffer[2], adc_buffer[3]);
+        UARTprintf("Moisture readings = %d %d %d, poll res: %d\n",
+                    adc_buffer[0], adc_buffer[1], adc_buffer[2]);
 
         weight_raw = hx711.read();
         UARTprintf("Raw weight value = %d\n", weight_raw);
@@ -144,8 +142,8 @@ extern "C" void task_science_test_fn(void) {
         ftoa(weight, weight_buf);
         UARTprintf("Tare calibrated and scaled weight = %s\n", weight_buf);
 
-        // delay 1 s
-        for (uint32_t i=0; i < 1000; i++) {
+        // delay 0.1s
+        for (uint32_t i=0; i < 100; i++) {
             SysCtlDelay(25000); // 1 ms delay
         }
         // servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_1_POS);
