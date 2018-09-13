@@ -32,7 +32,7 @@
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
-#define SYSTICKS_PER_SECOND     100
+#define SYSTICKS_PER_SECOND 100
 #define CAN_BITRATE 500000
 #define CAN_MSG_LEN 8
 
@@ -222,7 +222,8 @@ void data_request_callback(const std_msgs::Int16 &msg) {
         return;
     }
     // switch multiplexer output to the desired module
-    i2c_select(I2C0, msg.data-1); // subtract 1 since multiplexer output starts from 0
+    // subtract 1 since multiplexer output starts from 0
+    i2c_select(I2C0, msg.data-1);
     // create a message containing sensor data
     owr_messages::science data_msg;
     // read temperature and humidity
