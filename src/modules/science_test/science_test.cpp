@@ -131,6 +131,7 @@ extern "C" void task_science_test_fn(void) {
         illuminance = tcs34725.calculate_lux(r, g, b);
         UARTprintf("Illuminance = %d lux\n", illuminance);
 
+        adc_capture_polling(adc_buffer);
         UARTprintf("Moisture readings = %d %d %d, poll res: %d\n",
                     adc_buffer[0], adc_buffer[1], adc_buffer[2]);
 
