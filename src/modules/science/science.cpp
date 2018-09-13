@@ -99,7 +99,7 @@ extern "C" void task_science_fn(void) {
     servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, NEUTRAL_POS);
 
     ros_echronos::ROS_INFO("ADC init\n");
-    enum adc_pin moisture_pins[NUM_MODULES] = {AIN0, AIN1, AIN2, AIN3};
+    enum adc_pin moisture_pins[NUM_MODULES] = {AIN0, AIN1, AIN2};
     adc_init_pins(moisture_pins, NUM_MODULES, false);
 
     TCS34725 tcs34725(I2C0);
@@ -217,7 +217,7 @@ void init_can(void) {
  * with the servo position module number)
  */
 void data_request_callback(const std_msgs::Int16 &msg) {
-    if (msg.data <= 0 || msg.data >= 4) {
+    if (msg.data <= 0 || msg.data > NUM_MODULES) {
         UARTprintf("Message value should be between 1-3\n");
         return;
     }
@@ -265,9 +265,9 @@ void servo_position_callback(const std_msgs::Int16 &msg) {
         case 3:
             servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_3_POS);
             break;
-        case 4:
-            servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_4_POS);
-            break;
+        // case 4:
+        //     servo_write(SCIENCE_SERVO, SCIENCE_SERVO_PIN, MODULE_4_POS);
+        //     break;
     }
 }
 
