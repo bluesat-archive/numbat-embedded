@@ -21,14 +21,14 @@
 #include "adc.h"
 #include "servo.h"
 
-#define NUM_MODULES 4
+#define NUM_MODULES 3
 #define SCIENCE_SERVO_PIN PWM0
 
 #define NEUTRAL_POS  0
 #define MODULE_1_POS 52.5
 #define MODULE_2_POS 126.4 // (should be 135) - will need to recalibrate if mech issues are fixed
 #define MODULE_3_POS -132.5 // (should be -135)
-#define MODULE_4_POS -52.5
+// #define MODULE_4_POS -52.5
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
@@ -217,8 +217,8 @@ void init_can(void) {
  * with the servo position module number)
  */
 void data_request_callback(const std_msgs::Int16 &msg) {
-    if (msg.data <= 0) {
-        UARTprintf("Message value should be between 1-4\n");
+    if (msg.data <= 0 || msg.data >= 4) {
+        UARTprintf("Message value should be between 1-3\n");
         return;
     }
     // switch multiplexer output to the desired module
