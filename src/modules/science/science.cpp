@@ -2,7 +2,7 @@
  * Date Started: 8/9/18
  * @author: (Original Author) Alan Nguyen, Edward Dai
  * @description: Science module, see readme for usage
- * @copyright: This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2017
+ * @copyright: This code is released under the MIT [GPL for embeded] License. Copyright BLUEsat UNSW, 2018
  */
 
 #include <rtos-kochab.h>
