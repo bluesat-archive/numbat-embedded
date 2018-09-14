@@ -62,7 +62,8 @@ static SI7021 *si7021_ptr;
 static HX711 *hx711_ptr;
 uint32_t moisture_buffer[NUM_MODULES] = {0};
 
-std_msgs::Float64 my_data;
+// std_msgs::Float64 my_data;
+std_msgs::Float64 science_request;
 
 extern "C" void task_science_fn(void) {
     // this creates a node handle
@@ -140,16 +141,22 @@ extern "C" void task_science_fn(void) {
         }
     }
 
-    my_data.data = 1.0;
+    // my_data.data = 1.0;
     HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
     hx711_ptr = &hx711;
     hx711_ptr->init();
     float scale = -67.29; // CALIBRATE THIS
     hx711_ptr->set_scale(scale);
     ros_echronos::ROS_INFO("HX711 weight sensor initialised\n");
-
+    int board_num = 0;
     while(true) {
         // this causes the callbacks to be called
+        if(board_num > NUM_MODULES) {
+            board_num = 0;
+        }
+        science_request.data = board_num;
+        data_request_callback(science_request);
+        board_num += 1;
         nh.spin();
     }
 }
