@@ -1,0 +1,9 @@
+Pin map:
+    I2C0SCL => PB2
+    I2C0SDA => PB3
+    I2C1SCL => PA6
+    I2C1SDA => PA7
+    I2C2SCL => PF6
+    I2C2SDA => PF7
+    I2C3SCL => PD0
+    I2C3SDA => PD1

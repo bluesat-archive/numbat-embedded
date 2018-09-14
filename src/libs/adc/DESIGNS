@@ -1,0 +1,12 @@
+Initialisation:
+    1. Enable ADC clock if not enabled
+    2. Enable GPIO clock if not enabled
+    3. Set GPIO AFSEL bit ?
+    4. Clear GPIO DEN bit in GPIODEN
+    5. Disable analogue isolation via GPIOAMSEL
+    6. Disable sample sequencer via ASENn in ADCACTSS
+    7. Append new source to sequencer via ADCSSCTLn
+    8. Enable sample sequencer via ASENn in ADCACTSS
+
+Notes
+    - ADC should use PIOSC for clock at 1 divider for clock
