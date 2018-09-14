@@ -1,0 +1,33 @@
+I2C multiplexer:
+A0, A1, A2 - GND
+RST - Vcc via pullup resistor
+SCL - PB2
+SDA - PB3
+SCL and SDA both must be connected to Vcc via pullup resistors (2-10K)
+
+
+I2C sensors (colour, temperature, magnetism):
+Connect each set of sensors to the multiplexer outputs:
+Module 1: SC0 and SD0
+Module 2: SC1 and SD1
+Module 3: SC2 and SD2
+Module 4: SC3 and SD3
+Pullup resistors to Vcc for all SC* and SD*
+
+Magnetism sensors:
+CS - Vcc (enable i2c mode)
+
+Moisture sensors:
+Module 1: AIN0 (PE3)
+Module 2: AIN1 (PE2)
+Module 3: AIN2 (PE1)
+Module 4: AIN3 (PE0)
+
+Weight amplifier:
+CLK - PA6
+DATA - PA7
+Make sure to calibrate the scaling factor to scale to the appropriate units.
+    - Set scale to 1 (defaults to 1 automatically)
+    - Call tare() with zero load on sensor
+    - Add known weight
+    - read_scaled_avg() and divide result by the known weight to obtain the scaling factor
