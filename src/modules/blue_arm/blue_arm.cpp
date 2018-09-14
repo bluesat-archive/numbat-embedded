@@ -15,11 +15,11 @@
 #include "rtos-kochab.h"
 #include "driverlib/can.h"
 
-#define ARM_ROTATE_PIN PWM0
+#define ARM_ROTATE_PIN PWM4
 #define ARM_TOP_PIN PWM1
 #define ARM_BOTTOM_PIN PWM2
 #define CLAW_ROTATE_PIN PWM3
-#define CLAW_GRIP_PIN PWM4
+#define CLAW_GRIP_PIN PWM0
 
 #define PWM_PERIOD 10.0
 #define MAX 2.0 // ms 20%
@@ -50,10 +50,7 @@ static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 void callback(const owr_messages::pwm & msg);
 //more functions
-void armRotateCallback(const std_msgs::Float64 & msgs);
-void armTopCallback(const std_msgs::Float64 & msgs);
-void armBottomCallback(const std_msgs::Float64 & msg);
-void clawRotateCallback(const std_msgs::Float64 & msg);
+
 void clawGripCallback(const std_msgs::Float64 & msg);
 static duty_pct speed_to_duty_pct(double speed);
 static float claw_grip_convert (int clawGripPos);
@@ -81,50 +78,16 @@ extern "C" void task_blue_arm_fn(void) {
     ros_echronos::ROS_INFO("Initalising BlueTongue arm subscribers\n");
     // Creating the subscribers
 
-    std_msgs::Float64 arm_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> armRotateSub("/arm_base_rotate_controller/command", arm_rotate_buffer_in, 5, armRotateCallback);
-    armRotateSub.set_topic_id(8);
-    std_msgs::Float64 arm_top_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> armTopSub("/arm_top_controller/command", arm_top_buffer_in, 5, armTopCallback);
-    armTopSub.set_topic_id(9);
-    std_msgs::Float64 arm_bottom_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> armBottomSub("/arm_bottom_controller/command", arm_bottom_buffer_in, 5, armBottomCallback);
-    armBottomSub.set_topic_id(10);
-    std_msgs::Float64 claw_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> clawRotateSub("/claw_rotate_controller/command", claw_rotate_buffer_in, 5, clawRotateCallback);
-    clawRotateSub.set_topic_id(11);
+
     std_msgs::Float64 claw_grip_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Float64> clawGripSub("/claw_grip_controller/command", claw_grip_buffer_in, 5, clawGripCallback);
-    clawGripSub.set_topic_id(12);
+    clawGripSub.set_topic_id(15);
 
-    armRotateSub.init(nh);
-    armTopSub.init(nh);
-    armBottomSub.init(nh);
-    clawRotateSub.init(nh);
     clawGripSub.init(nh);
 
-    servo_init(GENERIC, CLAW_ROTATE_PIN);
     servo_init(GENERIC, CLAW_GRIP_PIN);
    
- 
-    pwm_init(ARM_ROTATE_PIN);
-    pwm_init(ARM_TOP_PIN);
-    pwm_init(ARM_BOTTOM_PIN);
 
-    //pwm_set_prescaler(DIV8);
-
-    pwm_set_period(PWM_PAIR0, PWM_PERIOD); //not 100% about this one
-    pwm_set_period(PWM_PAIR1, PWM_PERIOD); //not 100% about this one
-    //pwm_set_period(PWM_PAIR2, PWM_PERIOD); //not 100% about this one
-    pwm_set_duty(ARM_TOP_PIN,15.0); //or these... is 15 a standard #?
-    pwm_set_duty(ARM_BOTTOM_PIN,15.0);
-    //pwm_set_duty(CLAW_GRIP_PIN,15.0); 
-    pwm_set_duty(ARM_ROTATE_PIN, 15.0);
-
-    pwm_enable(ARM_TOP_PIN);
-    pwm_enable(ARM_BOTTOM_PIN);
-    //pwm_enable(CLAW_GRIP_PIN);
-    pwm_enable(ARM_ROTATE_PIN);
 
     ros_echronos::ROS_INFO("starting the main loop\n");
     owr_messages::pwm msg;
@@ -229,27 +192,7 @@ static float claw_grip_convert (int clawGripPos) {
     float clawGrip = (float)clawGripPos/(float)CLAW_ROTATION_MAX*1000.0 + 1000;
 }
 
-//callback for the base rotation of the arm
-void armRotateCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(ARM_ROTATE_PIN, speed_to_duty_pct(msg.data));
-    UARTprintf("Arm rotate received.\n");
-}
 
-void armTopCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(ARM_TOP_PIN, speed_to_duty_pct(msg.data));
-    UARTprintf("Arm top received.\n");
-}
-
-void armBottomCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(ARM_BOTTOM_PIN, speed_to_duty_pct(msg.data));
-    UARTprintf("Arm bottom received.\n");
-}
-
-// needs arduino code?
-void clawRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(GENERIC, CLAW_ROTATE_PIN, msg.data);
-    UARTprintf("Claw rotate received.\n");
-}
 //arduino code instead of duty
 void clawGripCallback(const std_msgs::Float64 & msg) {
     //pwm_set_duty(CLAW_GRIP_PIN, msg.data);
