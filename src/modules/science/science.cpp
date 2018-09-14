@@ -149,6 +149,7 @@ extern "C" void task_science_fn(void) {
     hx711_ptr->set_scale(scale);
     ros_echronos::ROS_INFO("HX711 weight sensor initialised\n");
     int board_num = 0;
+    // ros::Rate r(0.5);
     while(true) {
         // this causes the callbacks to be called
         if(board_num > NUM_MODULES) {
@@ -157,7 +158,8 @@ extern "C" void task_science_fn(void) {
         science_request.data = board_num;
         data_request_callback(science_request);
         board_num += 1;
-        nh.spin();
+        rtos_sleep(1);
+        // nh.spin();
     }
 }
 
