@@ -62,6 +62,7 @@ static SI7021 *si7021_ptr;
 static HX711 *hx711_ptr;
 uint32_t moisture_buffer[NUM_MODULES] = {0};
 
+std_msgs::Float64 my_data;
 
 extern "C" void task_science_fn(void) {
     // this creates a node handle
@@ -82,7 +83,7 @@ extern "C" void task_science_fn(void) {
     ros_echronos::Subscriber<std_msgs::Int16> servo_pos_sub("/science/servo", servo_buffer_in, 5, servo_position_callback);
     servo_pos_sub.set_topic_id(14);
     servo_pos_sub.init(nh);
-    
+
     std_msgs::Int16 tare_buffer_in[5];
     ros_echronos::Subscriber<std_msgs::Int16> weight_tare_sub("/science/tare", tare_buffer_in, 5, tare_callback);
     weight_tare_sub.set_topic_id(15);
@@ -139,6 +140,7 @@ extern "C" void task_science_fn(void) {
         }
     }
 
+    my_data.data = 1.0;
     HX711 hx711(PORTA, PIN_7, PORTA, PIN_6);
     hx711_ptr = &hx711;
     hx711_ptr->init();
