@@ -253,6 +253,8 @@ void clawRotateCallback(const std_msgs::Float64 & msg) {
 //arduino code instead of duty
 void clawGripCallback(const std_msgs::Float64 & msg) {
     //pwm_set_duty(CLAW_GRIP_PIN, msg.data);
-    servo_write_rads(GENERIC, CLAW_GRIP_PIN, msg.data);
+    if(msg.data != 0.0){
+        servo_write_rads(GENERIC, CLAW_GRIP_PIN, msg.data);
+    }
     UARTprintf("Claw grip received.\n");
 }
