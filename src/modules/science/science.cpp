@@ -13,6 +13,7 @@
 #include "NodeHandle.hpp"
 #include "owr_messages/science.hpp"
 #include "std_msgs/Int16.hpp"
+#include "std_msgs/Float64.hpp"
 #include "science-mod/LIS3MDL.h"
 #include "science-mod/SI7021.h"
 #include "science-mod/TCS34725.h"
@@ -41,7 +42,7 @@ static tCANMsgObject rx_object;
 static uint8_t can_input_buffer[CAN_MSG_LEN];
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
-void data_request_callback(const std_msgs::Int16 &msg);
+void data_request_callback(const std_msgs::Float64 &msg);
 void servo_position_callback(const std_msgs::Int16 &msg);
 void tare_callback(const std_msgs::Int16 &msg);
 
@@ -71,26 +72,27 @@ extern "C" void task_science_fn(void) {
 
     // Create the subscriber
     ros_echronos::ROS_INFO("Data request sub init\n");
-    std_msgs::Int16 request_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Int16> request_sub("science/request", request_buffer_in, 5, data_request_callback);
-    request_sub.set_topic_id(0);
+    std_msgs::Float64 request_buffer_in[5];
+    ros_echronos::Subscriber<std_msgs::Float64> request_sub("/science/request", request_buffer_in, 5, data_request_callback);
+    request_sub.set_topic_id(13);
     request_sub.init(nh);
 
     ros_echronos::ROS_INFO("Servo position sub init\n");
     std_msgs::Int16 servo_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Int16> servo_pos_sub("science/servo", servo_buffer_in, 5, servo_position_callback);
-    servo_pos_sub.set_topic_id(1);
+    ros_echronos::Subscriber<std_msgs::Int16> servo_pos_sub("/science/servo", servo_buffer_in, 5, servo_position_callback);
+    servo_pos_sub.set_topic_id(14);
     servo_pos_sub.init(nh);
     
     std_msgs::Int16 tare_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Int16> weight_tare_sub("science/tare", tare_buffer_in, 5, tare_callback);
-    weight_tare_sub.set_topic_id(2);
+    ros_echronos::Subscriber<std_msgs::Int16> weight_tare_sub("/science/tare", tare_buffer_in, 5, tare_callback);
+    weight_tare_sub.set_topic_id(15);
     weight_tare_sub.init(nh);
 
     // Create the publisher
     ros_echronos::ROS_INFO("Data pub init\n");
     owr_messages::science science_buffer_out[5];
-    ros_echronos::Publisher<owr_messages::science> science_pub("science/data", science_buffer_out, 5, false);
+    ros_echronos::Publisher<owr_messages::science> science_pub("/science/data", science_buffer_out, 5, false);
+    // science_pub.set_topic_id(16);
     science_pub_ptr = &science_pub;
     science_pub_ptr->init(nh);
 
@@ -216,14 +218,15 @@ void init_can(void) {
  * Module number should be an integer between 1-4 (zero not included to be consistent
  * with the servo position module number)
  */
-void data_request_callback(const std_msgs::Int16 &msg) {
-    if (msg.data <= 0 || msg.data > NUM_MODULES) {
-        UARTprintf("Message value should be between 1-3\n");
-        return;
-    }
+void data_request_callback(const std_msgs::Float64 &msg) {
+    // if (msg.data <= 0 || msg.data > NUM_MODULES) {
+    //     UARTprintf("Message value should be between 1-3\n");
+    //     return;
+    // }
     // switch multiplexer output to the desired module
     // subtract 1 since multiplexer output starts from 0
-    i2c_select(I2C0, msg.data-1);
+    int board_num = (int) msg.data;
+    i2c_select(I2C0, board_num);
     // create a message containing sensor data
     owr_messages::science data_msg;
     // read temperature and humidity
@@ -239,7 +242,7 @@ void data_request_callback(const std_msgs::Int16 &msg) {
     // moisture
     adc_capture_polling(moisture_buffer);
     // get the moisture value corresponding to the desired module
-    data_msg.moisture = moisture_buffer[msg.data-1]; // index starts from 0
+    data_msg.moisture = moisture_buffer[board_num]; // index starts from 0
     // weight (averaging 30 samples)
     data_msg.weight = hx711_ptr->read_scaled_avg(30);
 
