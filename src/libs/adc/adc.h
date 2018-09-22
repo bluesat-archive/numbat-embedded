@@ -20,8 +20,10 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/debug.h"
 
-/* ADC Pins, using ADC Pin names. See docs/adc/PIN_MAPPING for the other 
- * names for these pins. */
+/** 
+ *ADC Pins, using ADC Pin names. See docs/adc/PIN_MAPPING for the other 
+ * names for these pins. 
+ */
 enum adc_pin {
     AIN0 = 0x0,
     AIN1 = 0x1,
@@ -33,14 +35,18 @@ enum adc_pin {
     AIN7 = 0x7,
 };
 
-/* Possible return values for the ADC functions. */
+/**
+ * Possible return values for the ADC functions. 
+ */
 enum adc_return {
     ADC_SUCCESS,
     ADC_FAILURE
 };
 
-/* Used as a return status indicating whether an ADC capture has
- * completed. */
+/** 
+ * Used as a return status indicating whether an ADC capture has
+ * completed. 
+ */
 enum adc_status {
     ADC_COMPLETE,
     ADC_BUSY
@@ -50,23 +56,26 @@ enum adc_status {
 extern "C" {
 #endif
 
-/* Must be configured in a module's PRX file if the interrupt mode is
- * used. */
+/**
+ * Must be configured in a module's PRX file if the interrupt mode is
+ * used. 
+ */
 void adc_irq_handler(void);
 
-/* INITIALISATION */
-/* Initialises the ADC module, configures the needed GPIO pins, and
+/** 
+ * Initialises the ADC module, configures the needed GPIO pins, and
  * configures,enables the needed ADC pins, and configures the ADC for interrupt
  * or polling mode.
  *
  * This function should ONLY BE RUN ONCE during I/O setup.
  *
  * The maximum number of pins currently supported is 8. This function
- * should fail if num_pins > 8. */
+ * should fail if num_pins > 8. 
+ */
 enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins, bool interrupt_mode);
 
-/* INTERRUPT CAPTURE INTERFACE */
-/* Sets up an ADC capture using its hardware capture interrupt. That is,
+/** 
+ * Sets up an ADC capture using its hardware capture interrupt. That is,
  * it registers the buffer and callback such that when the capture
  * completes, an interrupt occurs, the capture data is copied to the
  * buffer, and the callback is called.
@@ -76,8 +85,8 @@ enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins, bool interru
  */
 enum adc_return adc_capture_interrupt(uint32_t *buffer, void (*callback)(void));
 
-/* POLLING CAPTURE INTERFACE */
-/* Initiates an ADC capture sequence in polling mode. The status register is
+/** 
+ * Initiates an ADC capture sequence in polling mode. The status register is
  * polled until a capture sequence is complete and the result is stored in the
  * specified buffer.
  *
@@ -88,10 +97,14 @@ enum adc_return adc_capture_interrupt(uint32_t *buffer, void (*callback)(void));
  */
 uint32_t adc_capture_polling(uint32_t *buffer);
 
-// Enable the ADC interrupt; required for ADC functionality.
+/**
+ * Enable the ADC interrupt; required for ADC functionality.
+ */
 enum adc_return adc_interrupt_disable();
 
-// Disable the ADC interrupt that is required for ADC functionality.
+/** 
+ * Disable the ADC interrupt that is required for ADC functionality.
+ */
 enum adc_return adc_interrupt_enable();
 
 #ifdef __cplusplus
