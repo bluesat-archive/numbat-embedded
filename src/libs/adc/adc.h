@@ -1,7 +1,6 @@
 /* Author: William Miles
- * Date: 2018-03-03
  *
- * NB: This library provides a vastly simplified interface to the ADC
+ * NB: This library provides a simplified interface to the ADC
  *     module. If more features or greater performance is required then
  *     direct usage of the module through the Tiva libraries is
  *     recommended.
@@ -21,9 +20,8 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/debug.h"
 
-//------------------------------ENUMS---------------------------------//
-/* ADC Pins, using ADC Pin names. See ./PIN_MAPPING for the other names
- * for these pins. */
+/* ADC Pins, using ADC Pin names. See docs/adc/PIN_MAPPING for the other 
+ * names for these pins. */
 enum adc_pin {
     AIN0 = 0x0,
     AIN1 = 0x1,
@@ -52,10 +50,8 @@ enum adc_status {
 extern "C" {
 #endif
 
-//----------------------------FUNCTIONS-------------------------------//
 /* Must be configured in a module's PRX file if the interrupt mode is
- * used.
- */
+ * used. */
 void adc_irq_handler(void);
 
 /* INITIALISATION */
@@ -78,8 +74,7 @@ enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins, bool interru
  * The ADC module must be initialised in interrupt mode, or interrupts can be
  * enabled manually via adc_interrupt_enable() for this to function properly.
  */
-enum adc_return adc_capture_interrupt(uint32_t *buffer,
-    void (*callback)(void));
+enum adc_return adc_capture_interrupt(uint32_t *buffer, void (*callback)(void));
 
 /* POLLING CAPTURE INTERFACE */
 /* Initiates an ADC capture sequence in polling mode. The status register is
@@ -93,8 +88,10 @@ enum adc_return adc_capture_interrupt(uint32_t *buffer,
  */
 uint32_t adc_capture_polling(uint32_t *buffer);
 
+// Enable the ADC interrupt; required for ADC functionality.
 enum adc_return adc_interrupt_disable();
 
+// Disable the ADC interrupt that is required for ADC functionality.
 enum adc_return adc_interrupt_enable();
 
 #ifdef __cplusplus
