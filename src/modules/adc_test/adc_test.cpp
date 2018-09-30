@@ -8,7 +8,7 @@
  * serial out indefinitely.
  *
  * @copyright: This code is released under the AGPL and BSD  Licenses. Copyright 
- * BLUEsat UNSW, 2017
+ * BLUEsat UNSW, 2018
  */
 
 #include "boilerplate.h"

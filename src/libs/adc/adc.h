@@ -9,7 +9,7 @@
  * module through the Tiva libraries is recommended.
  *
  * @copyright: This code is released under the BSD and AGPL Licenses. Copyright 
- * BLUEsat UNSW, 2017
+ * BLUEsat UNSW, 2018
  */
 
 #ifndef ADC_H
