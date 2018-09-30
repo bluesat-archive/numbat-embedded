@@ -38,43 +38,6 @@ extern "C" bool tick_irq(void) {
     return true;
 }
 
-bool sent_message;
-
-static uint32_t error_flag;
-
-/**
- * Used to handle interups from can0
- */
-extern "C" void can0_int_handler(void) {
-    uint32_t can_status = 0;
-
-    // read the register
-    can_status = CANIntStatus(CAN0_BASE, CAN_INT_STS_CAUSE);
-
-    // in this case we are reciving a status interupt
-    if(can_status == CAN_INT_INTID_STATUS) {
-        // read the error status and store it to be handled latter
-        error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
-        // clear so we can continue
-        CANIntClear(CAN0_BASE, 1);
-    } else {
-        // we are reciving a message, TODO: handle this
-        // for now we clear the interup so we can continue
-        CANIntClear(CAN0_BASE, 1);
-
-        // clear the error flag (otherwise we will store recive or write statuses)
-        error_flag = 0;
-
-        // if we haven't just sent a message read.
-        if(!sent_message) {
-            CANMessageGet(CAN0_BASE, can_status, &rx_object, 0);
-        }
-        sent_message = false;
-    }
-
-    //UARTprintf("A Error Code %x\n", can_status);
-}
-
 static void wait_for_msg() {
     while (true) {
         //while (UARTgetc() != startMagic[0]) {
@@ -99,12 +62,21 @@ static void wait_for_msg() {
         }
     }
 }
+
+struct messageAdapter serial;
+ros_echronos::NodeHandle * shared_nh;
+ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
+
+union Data buf_reading;
+union Data buf_ready;
+union Data buf_sending;
+
+volatile bool is_buffer_ready = false;
+
 extern "C" void task_retransmitter_fn(void) {
-
     ros_echronos::NodeHandle nh;
-
+    shared_nh = &nh;
     nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
-    ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
     // you would have to use the new operator to initialise these in a loop and we can't do that
     std_msgs::Float64 msg_buf_front_left_a[BUF_SIZE];
@@ -132,36 +104,45 @@ extern "C" void task_retransmitter_fn(void) {
     ros_echronos::Publisher<std_msgs::Float64> back_right_s(topics[6], (std_msgs::Float64*)msg_buf_back_right_s, BUF_SIZE, false);
     publishers[7] = &back_right_s;
 
-
     for (size_t i = 0; i < NUM_MSG; i++) {
         publishers[i]->init(nh);
     }
-    
-    std_msgs::Float64 msg;
-    struct messageAdapter serial;
-    int counter = 0;
+
     while(true) {
+
         wait_for_msg();
-
         for (size_t i = 0; i < sizeof(struct message); i++) {
-            serial.data.structBytes[i] = (uint8_t)UARTgetc();
+            serial.data.structBytes[i] = (uint8_t) UARTgetc();
+            buf_reading.structBytes[i] = serial.data.structBytes[i];
         }
+        rtos_mutex_lock(RTOS_MUTEX_ID_BUF);
+        buf_ready = buf_reading;
+        rtos_mutex_unlock(RTOS_MUTEX_ID_BUF);
+        is_buffer_ready = true;
+        rtos_signal_wait(RTOS_SIGNAL_ID_UART_RECEIVE_SIGNAL);
+        UARTwrite((const char*)startMagic, 4);
+    }
+}
 
-        /*if (serial.data.msg.endMagic != endMagic) {
-            continue;
-        }*/
+extern "C" void task_publish_buffer_fn(void) {
+    ros_echronos::NodeHandle nh = *shared_nh;
+    std_msgs::Float64 msg;
 
-
+    while(true) {
+        // wait for buffer to fill up
+        while (!is_buffer_ready);
+        rtos_mutex_lock(RTOS_MUTEX_ID_BUF);
+        buf_sending = buf_ready;
+        rtos_mutex_unlock(RTOS_MUTEX_ID_BUF);
         for (size_t i = 0; i < NUM_MSG; i++) {
-            msg.data = serial.data.msg.data[i];
+            msg.data = buf_sending.msg.data[i];
             publishers[i]->publish(msg);
         }
-        UARTwrite((const char*)startMagic, 4);
+        is_buffer_ready = false;
 #ifdef UART_BUFFERED
         UARTFlushTx(false);
 #endif
         nh.spin();
-        counter++;
     }
 }
 

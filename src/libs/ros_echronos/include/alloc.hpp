@@ -10,8 +10,10 @@
 #ifndef NUMBAT_EMBEDDED_ALLOC_HPP
 #define NUMBAT_EMBEDDED_ALLOC_HPP
 
-//#define ALLOC_BUFFER_SIZE 4096
-#define ALLOC_BUFFER_SIZE 8192
+// Heap size reduced because new tasks have been added
+// and a larger stack is needed
+#define ALLOC_BUFFER_SIZE 5827
+// #define ALLOC_BUFFER_SIZE 8192
 #define ALLOC_MIN_ALLOC 16
 
 #include "rtos-kochab.h"

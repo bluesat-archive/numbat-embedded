@@ -1,4 +1,5 @@
 #include "boilerplate.h"
+#include "rtos-kochab.h"
 
 void nmi() { for(;;); }
 
@@ -78,5 +79,6 @@ void InitializeUARTStdio(void) {
 void uart0_int_handler(void) {
 #ifdef UART_BUFFERED
     UARTStdioIntHandler();
+    rtos_interrupt_event_raise(RTOS_SIGNAL_ID_UART_RECEIVE_SIGNAL);
 #endif
 }
