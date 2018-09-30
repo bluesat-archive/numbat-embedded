@@ -1,9 +1,15 @@
-/* Author: William Miles
+/**
+ * Date Started: 05/2018
  *
- * NB: This library provides a simplified interface to the ADC
- *     module. If more features or greater performance is required then
- *     direct usage of the module through the Tiva libraries is
- *     recommended.
+ * @author: wmpmiles [William Miles]
+ * @authors: burrrrrr [Alan Nguyen]
+ *
+ * @description: This library provides a simplified interface to the ADC module. 
+ * If more features or greater performance is required then direct usage of the
+ * module through the Tiva libraries is recommended.
+ *
+ * @copyright: This code is released under the BSD and AGPL Licenses. Copyright 
+ * BLUEsat UNSW, 2017
  */
 
 #ifndef ADC_H

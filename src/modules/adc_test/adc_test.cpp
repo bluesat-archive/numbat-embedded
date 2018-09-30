@@ -1,3 +1,16 @@
+/**
+ * Date Started: 05/18
+ *
+ * @author: wmpmiles [William Miles]
+ *
+ * @description: This is a test file for the adc library. It initialise the ADC
+ * module, sets up some inputs, and then captures and prints the values to 
+ * serial out indefinitely.
+ *
+ * @copyright: This code is released under the AGPL and BSD  Licenses. Copyright 
+ * BLUEsat UNSW, 2017
+ */
+
 #include "boilerplate.h"
 #include "rtos-kochab.h"
 #include "ros.hpp"
@@ -23,7 +36,6 @@ extern "C" void adc_callback_fn(void) {
 extern "C" void task_adc_test_fn(void) {
     UARTprintf("Entered ADC Test task. Initializing...\n");
 
-    //enum adc_pin pins[NUM_PINS] = {AIN0, AIN1, AIN2, AIN3, AIN4, AIN5, AIN6, AIN7};
     enum adc_pin pins[NUM_PINS] = {AIN0,AIN1,AIN2,AIN3};
     adc_init_pins(pins, NUM_PINS, true);
     while(1) {
@@ -31,8 +43,6 @@ extern "C" void task_adc_test_fn(void) {
             capture = false;
             adc_capture_interrupt(out, adc_callback_fn);
         }
-        //adc_capture_polling(out);
-        //UARTprintf("out = %d %d %d %d\n", out[0], out[1], out[2], out[3]);
     }
 }
 

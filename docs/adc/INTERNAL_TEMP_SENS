@@ -1,6 +1,0 @@
-The internal temperature sensor can be accessed as part of a sample
-sequence by setting the relevant TSn bit in ADCSSCTLn register.
-
-The sample can be converted into a temperature with:
-    TEMP = 147.5 - ((75 * (VREFP - VREFN) × ADC CODE ) / 4096)
-Accuracy is +- 5 degrees celsius.

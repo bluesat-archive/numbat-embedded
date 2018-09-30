@@ -1,6 +1,9 @@
-Pin count = 9
+The GPCB v2 has 8 total accessible ADC inputs. The following is a list
+that describes the mapping from the enums used in the ADC library to the
+GPIO port/pin label. Cross referencing this with the GPCB schematic should
+allow you to identify the physical locations of the input pins and connectors.
 
-Pin map:
+Generic PCB:
     AIN0 => PE3
     AIN1 => PE2
     AIN2 => PE1
@@ -9,25 +12,14 @@ Pin map:
     AIN5 => PD6
     AIN6 => PD5
     AIN7 => PD4
-    AIN20 => PE7
 
-Pin inputs:
-    GPIO
-        AIN0
-        AIN1
-        AIN2
-        AIN3
-        AIN4
-        AIN5
-        AIN6
-        AIN7
-        AIN20
-    Filtered input?
-        AIN0
-        AIN1
-        AIN2
-        AIN3
-    Current sensor
-        AIN7
-    Temperature sensor
-        AIN20
+Tiva test boards:
+    AIN0 => PE3
+    AIN1 => PE2
+    AIN2 => PE1
+    AIN3 => PE0
+    AIN4 => PB7
+    AIN5 => PB6
+    AIN6 => PB5
+    AIN7 => PB4
+
