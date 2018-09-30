@@ -16,22 +16,25 @@ FILE(GLOB ros_files ${ROS_ECHRONOS_DIR}/arch/tm4c/*.cpp ${ROS_ECHRONOS_DIR}/*.cp
 FILE(GLOB ros_include_files ${ROS_INCLUDE_DIR}/*.hpp ${ROS_INCLUDE_DIR}/templates/*.hpp )
 
 # define the doxygen target if there isn't one already
-#if(NOT TARGET ros-echronos-docs)
-#    find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
-#    set(DOXYGEN_OUTPUT_DIRECTORY ../../../docs/doxygen)
-#    doxygen_add_docs(
-#            ros-echronos-docs
-#            ${ros_files}
-#            ${ros_include_files}
-#
-#    )
-#    add_custom_target(
-#            ros-echronos-doc-gen ALL
-#            COMMAND doxygen Doxyfile.ros-echronos-docs
-#            COMMAND cp -r html ../../../docs/doxygen
-#            DEPENDS ros-echronos-docs
-#    )
-#endif()
+if(NOT TARGET ros-echronos-docs)
+
+    find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
+    if( COMMAND doxygen_add_docs )
+        set(DOXYGEN_OUTPUT_DIRECTORY ../../../docs/doxygen)
+        doxygen_add_docs(
+                ros-echronos-docs
+                ${ros_files}
+                ${ros_include_files}
+
+        )
+        add_custom_target(
+                ros-echronos-doc-gen ALL
+                COMMAND doxygen Doxyfile.ros-echronos-docs
+                COMMAND cp -r html ../../../docs/doxygen
+                DEPENDS ros-echronos-docs
+        )
+    endif()
+endif()
 
 function(build_ros_echronos echronos_build_dir module_name echronos_target node_id serial_on)
     set(ROS_BUILD_DIR ${echronos_build_dir}/lib/ros-echronos)
@@ -62,10 +65,7 @@ set(MSG_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/msg_gen/cpp/")
 function(generate_msgs ros_pkg msgs)
     foreach(msg ${msgs})
         add_custom_command(
-                OUTPUT ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp ${MSG_OUTPUT_DIR}/include/${ros_pkg}/${msg}.hpp
-                COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${ROS_ECHRONOS_DIR}/build_tools/genmsg_cpp.py ${ros_pkg} ${msg}
-                COMMENT "Generating C++ code for msg ${ros_pkg}::${msgs}"
-        )
+                OUTPUT ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp ${MSG_OUTPUT_DIR}/include/${ros_pkg}/${msg}.hpp COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${ROS_ECHRONOS_DIR}/build_tools/genmsg_cpp.py ${ros_pkg} ${msg} COMMENT "Generating C++ code for msg ${ros_pkg}::${msgs}")
 #        add_custom_target(
 #                ${ros_pkg}/${msg}
 #                DEPENDS ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp

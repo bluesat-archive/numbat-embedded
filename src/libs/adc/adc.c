@@ -1,45 +1,60 @@
-//------------------------------INCLUDES------------------------------//
+/**
+ * Date Started: 05/2018
+ *
+ * @author: wmpmiles [William Miles]
+ *
+ * @description: This is a simplified interface for the ADC input peripheral
+ * on the TM4C123GH6GPE and TM4C123GH6PM ARM microcontrollers that utilises the
+ * Tiva libraries provided by TI. It covers only a small subset of the features
+ * of the ADC peripheral, more fine-tuned use should be done directly with the 
+ * Tiva libraries or via direct hardware register manipulation.
+ *
+ * @copyright: This code is released under the BSD and AGPL Licenses. Copyright 
+ * BLUEsat UNSW, 2018
+ */
 #include "adc.h"
 
-//---------------------------ERROR_HANDLING---------------------------//
+// error handling/debugging macros & functions
+#define c_assert(e)    ((e) ? (true) : (tst_debugging("%s,%d: assertion '%s' failed\n", __FILE__, __LINE__, #e), false)) 
+#define adc_assert(e)    if (c_assert(e) == false) return ADC_FAILURE
 
-//---------------------------SIZE_CONSTANTS---------------------------//
-#define PC 8              /* ADC pin count */
+void tst_debugging(char *frmt_str, char *file, char *line, char *err) {
+#ifdef DEBUG
+    UARTprintf(frmt_str, file, line, err);
+#endif
+}
+
+#define PC 8              /* ADC PIN count */
 #define GPIO_PORT_COUNT 2 /* number of GPIO ports used by ADC */
 
 
-//-------------------------------ENUMS--------------------------------//
 enum {
     PRE_INIT,
     POST_INIT
-};
+}; // adc state
 
-//------------------------------STRUCTS-------------------------------//
 struct gpio_port {
-    const uint32_t sysctl;
-    const uint32_t base;
+    const uint32_t SYSCTL;
+    const uint32_t BASE;
 }; /* struct for data required for manipulating GPIO ports */
 
 struct gpio_pin {
-    const struct gpio_port port;
-    const uint8_t pin;
+    const struct gpio_port PORT;
+    const uint8_t PIN;
 };
 
 
-//---------------------SHARED_HARDWARE_CONSTANTS----------------------//
 /* ADC configuration arguments */
-const uint32_t adc_clock_div = 1;
-const uint32_t adc_clock_config =
-    ADC_CLOCK_SRC_PIOSC | ADC_CLOCK_RATE_FULL;
-const uint32_t sequence_num = 0;
-const uint32_t adc_sc_module = SYSCTL_PERIPH_ADC0;
+const uint32_t ADC_CLOCK_DIV = 1;
+const uint32_t ADC_CLOCK_CONFIG = ADC_CLOCK_SRC_PIOSC | ADC_CLOCK_RATE_FULL;
+const uint32_t SEQUENCE_NUM = 0;
+const uint32_t ADC_SC_MODULE = SYSCTL_PERIPH_ADC0;
 
 
-//----------------------BOARD_SPECIFIC_CONSTANTS----------------------//
 #ifdef PART_TM4C123GH6PM
-const uint32_t adc_reference = ADC_REF_INT;
+const uint32_t ADC_REFERENCE = ADC_REF_INT;
 
-const struct gpio_pin gpio_lut[PC] = {
+const struct gpio_pin GPIO_LUT[PC] = {
     {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_3},
     {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_2},
     {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_1},
@@ -50,9 +65,9 @@ const struct gpio_pin gpio_lut[PC] = {
     {{SYSCTL_PERIPH_GPIOB, GPIO_PORTB_BASE}, GPIO_PIN_4}};
 #endif
 #ifdef PART_TM4C123GH6PGE
-const uint32_t adc_reference = ADC_REF_EXT_3V;
+const uint32_t ADC_REFERENCE = ADC_REF_EXT_3V;
 
-const struct gpio_pin gpio_lut[PC] = {
+const struct gpio_pin GPIO_LUT[PC] = {
     {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_3},
     {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_2},
     {{SYSCTL_PERIPH_GPIOE, GPIO_PORTE_BASE}, GPIO_PIN_1},
@@ -64,14 +79,12 @@ const struct gpio_pin gpio_lut[PC] = {
 #endif
 
 
-//------------------------------GLOBALS-------------------------------//
 int status = PRE_INIT;
 uint8_t active_pins = 0;
 uint32_t *adc_buffer = (void *)0;
 void (*adc_callback)(void) = (void *)0;
 
 
-//--------------------------LOCAL_FUNCTIONS---------------------------//
 /* If a module is not already enabled: enables it, then waits until it
  * is responding as ready. */
 void init_module(uint32_t sysctl_module) {
@@ -83,62 +96,54 @@ void init_module(uint32_t sysctl_module) {
 }
 
 
-//-------------------------EXTERNAL_FUNCTIONS-------------------------//
-/* Interrupt handler that needs to be configured in a module's prx file
- * if the interrupt mode is used.
- */
 void adc_irq_handler(void) {
     /* Clear interrupt flag so we don't instantly return to the handler */
-    ADCIntClear(ADC0_BASE, sequence_num);
-    ADCSequenceDataGet(ADC0_BASE, sequence_num, adc_buffer);
-    /* call the callback */
+    ADCIntClear(ADC0_BASE, SEQUENCE_NUM);
+
+    ADCSequenceDataGet(ADC0_BASE, SEQUENCE_NUM, adc_buffer);
+
     adc_callback();
 }
 
 enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins, bool interrupt_mode) {
-//        adc_assert(status == PRE_INIT);
-//        adc_assert(num_pins < 9);
-//        adc_assert(pins != (void *)0);
+        adc_assert(status == PRE_INIT);
+        adc_assert(num_pins < 9);
+        adc_assert(pins != (void *)0);
 
         active_pins = num_pins;
 
-        /* initialise ADC module */
-        init_module(adc_sc_module);
-        ADCIntDisable(ADC0_BASE, sequence_num);
+        init_module(ADC_SC_MODULE);
+        ADCIntDisable(ADC0_BASE, SEQUENCE_NUM);
 
-        /* configure ADC module */
-        ADCClockConfigSet(ADC0_BASE, adc_clock_config, adc_clock_div);
-        ADCReferenceSet(ADC0_BASE, adc_reference);
+        ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_CONFIG, ADC_CLOCK_DIV);
+        ADCReferenceSet(ADC0_BASE, ADC_REFERENCE);
 
-        /* pin initialisation and configuration */
         for (int i = 0; i < num_pins; i++) {
             /* initialise GPIO module */
-            init_module(gpio_lut[pins[i]].port.sysctl);
-            /* configure ADC/GPIO pins */
-            GPIOPinTypeADC(gpio_lut[pins[i]].port.base, gpio_lut[pins[i]].pin);
+            init_module(GPIO_LUT[pins[i]].PORT.SYSCTL);
+
+            GPIOPinTypeADC(GPIO_LUT[pins[i]].PORT.BASE, GPIO_LUT[pins[i]].PIN);
         }
 
         /* disable before configuring sequencer */
-        ADCSequenceDisable(ADC0_BASE, sequence_num);
+        ADCSequenceDisable(ADC0_BASE, SEQUENCE_NUM);
 
         /* setup ADC sample sequencer, trigger manually in software */
-        ADCSequenceConfigure(ADC0_BASE, sequence_num,
-            ADC_TRIGGER_PROCESSOR, 0);
+        ADCSequenceConfigure(ADC0_BASE, SEQUENCE_NUM, ADC_TRIGGER_PROCESSOR, 0);
 
         /* configure each step of sequence to be an analog input source */
-        int i = 0;
-        for (i = 0; i < num_pins-1; i++) {
-            ADCSequenceStepConfigure(ADC0_BASE, sequence_num, i, pins[i]);
+        for (int i = 0; i < num_pins-1; i++) {
+            ADCSequenceStepConfigure(ADC0_BASE, SEQUENCE_NUM, i, pins[i]);
         }
+
         /* last step is end of sequence, generate an interrupt here */
-        ADCSequenceStepConfigure(ADC0_BASE, sequence_num, i,
-            pins[i] | ADC_CTL_IE | ADC_CTL_END);
-        /* never use this function, echronos handles irq registration */
-        // ADCIntRegister(ADC0_BASE, sequence_num, adc_irq_handler);
-        ADCSequenceEnable(ADC0_BASE, sequence_num);
+        ADCSequenceStepConfigure(ADC0_BASE, SEQUENCE_NUM, num_pins, pins[num_pins] | ADC_CTL_IE | ADC_CTL_END);
+
+        ADCSequenceEnable(ADC0_BASE, SEQUENCE_NUM);
+
         /* enable interrupts if in interrupt mode */
         if (interrupt_mode) {
-            ADCIntEnable(ADC0_BASE, sequence_num);
+            ADCIntEnable(ADC0_BASE, SEQUENCE_NUM);
             IntEnable(INT_ADC0SS0);
         }
         /* ready for capture */
@@ -147,34 +152,42 @@ enum adc_return adc_init_pins(enum adc_pin *pins, uint8_t num_pins, bool interru
 }
 
 enum adc_return adc_capture_interrupt(uint32_t *buffer, void (*callback)(void)) {
-//    adc_assert(status == POST_INIT);
-//    adc_assert(buffer != (void *)0);
-//    adc_assert(callback !=(void *)0);
+    adc_assert(status == POST_INIT);
+    adc_assert(buffer != (void *)0);
+    adc_assert(callback !=(void *)0);
+
     adc_buffer = buffer;
     adc_callback = callback;
-    ADCProcessorTrigger(ADC0_BASE, sequence_num);
+    ADCProcessorTrigger(ADC0_BASE, SEQUENCE_NUM);
+
     return ADC_SUCCESS;
 }
 
 
-
 uint32_t adc_capture_polling(uint32_t *buffer) {
-//    adc_assert(status == POST_INIT);
-    ADCProcessorTrigger(ADC0_BASE, sequence_num);
-    while (!ADCIntStatus(ADC0_BASE, sequence_num, false)) {};
-    uint32_t num_samples = ADCSequenceDataGet(ADC0_BASE, sequence_num, buffer);
+    adc_assert(status == POST_INIT);
+
+    ADCProcessorTrigger(ADC0_BASE, SEQUENCE_NUM);
+
+    // Waits until a sample has been captured.
+    while (!ADCIntStatus(ADC0_BASE, SEQUENCE_NUM, false)) {};
+
+    uint32_t num_samples = ADCSequenceDataGet(ADC0_BASE, SEQUENCE_NUM, buffer);
+
     return num_samples;
 }
 
 
 enum adc_return adc_interrupt_disable() {
-    ADCIntDisable(ADC0_BASE, sequence_num);
+    ADCIntDisable(ADC0_BASE, SEQUENCE_NUM);
     IntDisable(INT_ADC0SS0);
+
     return ADC_SUCCESS;
 }
 
 enum adc_return adc_interrupt_enable() {
-    ADCIntEnable(ADC0_BASE, sequence_num);
+    ADCIntEnable(ADC0_BASE, SEQUENCE_NUM);
     IntEnable(INT_ADC0SS0);
+
     return ADC_SUCCESS;
 }

@@ -19,7 +19,6 @@ include_directories(
 set(BUILD_TOOLS_DIR ../../../build-tools)
 include(${BUILD_TOOLS_DIR}/module_template.cmake)
 
-#set(CPP_FILES adc_test.cpp can_wait_task.cpp)
 set(CPP_FILES adc_test.cpp)
 add_module(adc_test 4 1 0 "${CPP_FILES}")
 target_link_libraries(adc_test adc m)
