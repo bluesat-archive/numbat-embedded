@@ -1,3 +1,15 @@
+/**
+ * Date Started: 8/18
+ *
+ * @author: wmpmiles [William Miles]
+ *
+ * @description: A GPCB module that utilises the ADC peripheral to measure a 
+ * voltage and publish the raw ADC output (a 12-bit integer).
+ *
+ * @copyright: This code is released under the BSD and AGPL Licenses. Copyright 
+ * BLUEsat UNSW, 2018
+ */
+
 #include <rtos-kochab.h>
 #include "boilerplate.h"
 #include "ros.hpp"
@@ -42,19 +54,20 @@ extern "C" void callback(void) {
 extern "C" void task_voltmeter_fn(void) {
 
     // this creates a node handle
-    ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
+    ros_echronos::ROS_INFO("Entered CAN task. Initializing...\t");
     ros_echronos::NodeHandle nh;
     nh.init("voltmeter_fn", "voltmeter_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
-    ros_echronos::ROS_INFO("Done init\n");
+    ros_echronos::ROS_INFO("Done.\n");
     nh_ptr = &nh;
 
     // publisher
-    ros_echronos::ROS_INFO("pub init\n");
+    ros_echronos::ROS_INFO("Initializing publisher...\t");
     ros_echronos::Publisher<std_msgs::Float64> _pub("/sensor/voltmeter", (std_msgs::Float64*)vm_buffer, 5, false);
     pub = &_pub;
     pub->init(nh);
+    ros_echronos::ROS_INFO("Done\n");
 
-    ros_echronos::ROS_INFO("starting the main loop\n");
+    ros_echronos::ROS_INFO("Starting voltmeter main loop\n");
     std_msgs::Float64 msg;
     msg.data = 0.0;
     adc_interrupt_enable();
@@ -90,6 +103,7 @@ int main(void) {
     InitializeUARTStdio();
 
     init_can();
+
     enum adc_pin pin[1] = {AIN3};
     adc_init_pins(pin, 1, true);
 
