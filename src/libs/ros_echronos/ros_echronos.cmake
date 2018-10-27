@@ -65,10 +65,7 @@ set(MSG_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/msg_gen/cpp/")
 function(generate_msgs ros_pkg msgs)
     foreach(msg ${msgs})
         add_custom_command(
-                OUTPUT ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp ${MSG_OUTPUT_DIR}/include/${ros_pkg}/${msg}.hpp
-                COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${ROS_ECHRONOS_DIR}/build_tools/genmsg_cpp.py ${ros_pkg} ${msg}
-                COMMENT "Generating C++ code for msg ${ros_pkg}::${msgs}"
-        )
+                OUTPUT ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp ${MSG_OUTPUT_DIR}/include/${ros_pkg}/${msg}.hpp COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${ROS_ECHRONOS_DIR}/build_tools/genmsg_cpp.py ${ros_pkg} ${msg} COMMENT "Generating C++ code for msg ${ros_pkg}::${msgs}")
 #        add_custom_target(
 #                ${ros_pkg}/${msg}
 #                DEPENDS ${MSG_OUTPUT_DIR}/${ros_pkg}/${msg}.cpp
