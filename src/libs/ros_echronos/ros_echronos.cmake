@@ -30,7 +30,6 @@ if(NOT TARGET ros-echronos-docs)
         add_custom_target(
                 ros-echronos-doc-gen ALL
                 COMMAND doxygen Doxyfile.ros-echronos-docs
-                COMMAND cp -r html ../../../docs/doxygen
                 DEPENDS ros-echronos-docs
         )
     endif()
