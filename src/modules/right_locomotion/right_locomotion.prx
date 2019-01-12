@@ -44,7 +44,7 @@
                     <name>task_right_locomotion</name>
                     <function>task_right_locomotion_fn</function>
                     <priority>30</priority>
-                    <stack_size>2048</stack_size>
+                    <stack_size>4096</stack_size>
                 </task>
                 <task>
                     <name>task_can_wait</name>

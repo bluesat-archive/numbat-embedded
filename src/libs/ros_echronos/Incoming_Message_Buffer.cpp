@@ -24,9 +24,8 @@ _Incoming_Message_Buffer::_Incoming_Message_Buffer() :
 }
 
 ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked() {
-    ros_echronos::can::can_ros_message msg;
     ros_echronos::can::can_receive_lock();
-    msg = pop();
+    const ros_echronos::can::can_ros_message msg = pop();
     ros_echronos::can::can_receive_unlock();
 
     return msg;

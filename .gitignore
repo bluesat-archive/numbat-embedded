@@ -189,3 +189,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# vscode :(
+.vscode/
+
+# kdevelop
+.kdev4/
+*.kdev4

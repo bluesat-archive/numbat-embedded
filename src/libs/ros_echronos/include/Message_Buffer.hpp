@@ -36,7 +36,7 @@ class Message_Buffer {
          *
          * @pre isEmpty() == False
          */
-        T pop();
+        const T pop();
         /**
          * Adds a message to the buffer
          * @param msg the message to store
@@ -100,8 +100,8 @@ template <class T> Message_Buffer<T>::Message_Buffer(T *const buffer, const uint
 
 }
 
-template <class T> T Message_Buffer<T>::pop() {
-        T msg = (*buffer_head);
+template <class T> const T Message_Buffer<T>::pop() {
+        const T msg = (*buffer_head);
         --buffer_head;
         if(buffer_head < buffer_start) {
             buffer_head = buffer_end-1;
