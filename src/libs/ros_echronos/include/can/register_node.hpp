@@ -22,7 +22,7 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Register_Header;
 
-            constexpr CAN_Header _register_ctrl_fields = {
+            constexpr CAN_Header register_ctrl_fields = {
                     .fields = {
                             .f2_ctrl_msg_fields = {
                                     ((unsigned int) REGISTER_NODE), 0
@@ -31,7 +31,7 @@ namespace ros_echronos {
             };
 
             const CAN_Header REGISTER_BASE_FIELDS = {
-                    .bits = CAN_CTRL_BASE_FIELDS.bits || _register_ctrl_fields.bits
+                    .bits = CAN_CTRL_BASE_FIELDS.bits || register_ctrl_fields.bits
             };
 
             typedef union _register_response {

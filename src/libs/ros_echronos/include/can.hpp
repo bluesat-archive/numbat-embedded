@@ -77,6 +77,8 @@ namespace ros_echronos {
                 HEARTBEAT = 9,
                 EXTENDED = 10
          } Ctrl_Function;
+	 
+	 constexpr unsigned int BASE_FIELD_SIZE = 4;
 
         /**
          * Represents a can header as per the ros over can protocol
@@ -92,12 +94,13 @@ namespace ros_echronos {
                     unsigned int priority : 2;
                     unsigned int ros_function : 2;
                     unsigned int seq_num : 3;
+		    unsigned int mode_specific : 28 - BASE_FIELD_SIZE;
                 } __attribute__((packed)) base_fields;
                 /**
                  * Header fields for ROS msgs
                  */
                 struct _ros_msg_fields {
-                    unsigned int : sizeof(base_fields);
+                    unsigned int : BASE_FIELD_SIZE;
                     unsigned int message_num : 2;
                     unsigned int topic : 7;
                     unsigned int message_length : 8;
@@ -108,9 +111,9 @@ namespace ros_echronos {
                  * Header fields for control msgs
                  */
                 struct _ros_ctrl_fields {
-                    unsigned int : sizeof(base_fields);
+                    unsigned int : BASE_FIELD_SIZE;
                     unsigned int mode : 4;
-                    unsigned int control_specific : 28 - sizeof(base_fields) - 4;
+                    unsigned int control_specific : 28 - BASE_FIELD_SIZE - 4;
                 } __attribute__((packed)) f2_ctrl_msg_fields;
             } __attribute__((packed)) fields;
         } CAN_Header;
@@ -133,7 +136,8 @@ namespace ros_echronos {
                     ((unsigned int) ROS_CAN_MODE),
                     0,
                     ((unsigned int) FN_ROS_CONTROL_MSG),
-                    0
+                    0,
+		    0
                 }
             }
         };

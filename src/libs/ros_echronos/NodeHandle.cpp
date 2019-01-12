@@ -51,13 +51,16 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     reg_header_mask.bits = _CTRL_HEADER_MASK_BASE_FIELDS.bits
                     | _CTRL_HEADER_MASK_F2_FIELDS.bits
                     | _register_header_mask_reg_fields.bits;
-    Register_Header reg_specific_header;
+    Register_Header reg_specific_header = {0};
     reg_specific_header.fields.hash = hash(node_name);
     reg_specific_header.fields.step = 0;
 
+    ROS_INFO("\nmsg.mode %ul\n\n", register_ctrl_fields.fields.f2_ctrl_msg_fields.mode);
     // build the message to send
-    CAN_ROS_Message msg;
-    msg.head.bits = reg_specific_header.bits | REGISTER_BASE_FIELDS.bits;
+    CAN_ROS_Message msg = {
+      .head = register_ctrl_fields
+    };
+    msg.head.bits |= reg_specific_header.bits | CAN_CTRL_BASE_FIELDS.bits;
     strncpy(reinterpret_cast<char *>(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
 
     // build the header to match response, it will be the same apart from the step number
