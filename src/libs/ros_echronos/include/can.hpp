@@ -111,7 +111,7 @@ namespace ros_echronos {
                  * Header fields for control msgs
                  */
                 struct _ros_ctrl_fields {
-                    unsigned int : BASE_FIELD_SIZE;
+                    unsigned int empty: BASE_FIELD_SIZE;
                     unsigned int mode : 4;
                     unsigned int control_specific : 28 - BASE_FIELD_SIZE - 4;
                 } __attribute__((packed)) f2_ctrl_msg_fields;
@@ -148,7 +148,7 @@ namespace ros_echronos {
         constexpr CAN_Header _CTRL_HEADER_MASK_BASE_FIELDS {
             .fields = {
                 .base_fields = {
-                    1, 0xFFFF, 0xFFFF, 0xFFF
+                    1, 0xFFFF, 0xFFFF, 0xFFF, 0x0
                 }
             }
         };
@@ -156,7 +156,7 @@ namespace ros_echronos {
         constexpr CAN_Header _CTRL_HEADER_MASK_F2_FIELDS {
             .fields = {
                 .f2_ctrl_msg_fields = {
-                    0xFFF, 0xFFF
+                    0x0, 0xFFF, 0xFFF
                 }
             }
         };

@@ -46,27 +46,33 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     using namespace ros_echronos::can;
     // register the check before we send so we don't mis it
     // we register the signal here so we can catch it anyway
-    CAN_Header reg_header_mask;
+    CAN_Header reg_header_mask = {0};
     // for some reason static initilisation of this does not work
     reg_header_mask.bits = _CTRL_HEADER_MASK_BASE_FIELDS.bits
                     | _CTRL_HEADER_MASK_F2_FIELDS.bits
                     | _register_header_mask_reg_fields.bits;
+    ROS_INFO("C_H_M_B_F 0x%x, C_H_M_F_F 0x%x R_H_M_R_F 0x%x\n", _CTRL_HEADER_MASK_BASE_FIELDS.bits
+                    , _CTRL_HEADER_MASK_F2_FIELDS.bits
+                    , _register_header_mask_reg_fields.bits);
     Register_Header reg_specific_header = {0};
     reg_specific_header.fields.hash = hash(node_name);
     reg_specific_header.fields.step = 0;
+    ROS_INFO("r_s_g 0x%x\n", reg_specific_header.bits);
 
     ROS_INFO("\nmsg.mode %ul\n\n", register_ctrl_fields.fields.f2_ctrl_msg_fields.mode);
     // build the message to send
     CAN_ROS_Message msg = {
       .head = register_ctrl_fields
     };
+    
     msg.head.bits |= reg_specific_header.bits | CAN_CTRL_BASE_FIELDS.bits;
-    strncpy(reinterpret_cast<char *>(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
+    strncpy((char *)(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
 
     // build the header to match response, it will be the same apart from the step number
     Register_Header match_reg_specific_head = reg_specific_header;
     match_reg_specific_head.fields.step = 1;
-    CAN_Header match_head = REGISTER_BASE_FIELDS;
+    CAN_Header match_head = {};
+    match_head.bits = CAN_CTRL_BASE_FIELDS.bits | register_ctrl_fields.bits; //REGISTER_BASE_FIELDS;
     match_head.bits |= match_reg_specific_head.bits;
 
     ROS_INFO("Registering %x mask %x", match_head.bits, reg_header_mask.bits);

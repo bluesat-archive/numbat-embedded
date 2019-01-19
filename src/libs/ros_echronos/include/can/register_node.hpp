@@ -16,7 +16,7 @@ namespace ros_echronos {
             typedef union _reigster_header {
                 uint32_t bits;
                 struct _fields {
-                    unsigned int : HEADER_COMMON_BITS;
+                    unsigned int empty : HEADER_COMMON_BITS;
                     unsigned int step : 1;
                     unsigned int hash : 8;
                 } fields __attribute__((packed));
@@ -25,13 +25,13 @@ namespace ros_echronos {
             constexpr CAN_Header register_ctrl_fields = {
                     .fields = {
                             .f2_ctrl_msg_fields = {
-                                    ((unsigned int) REGISTER_NODE), 0
+                                    0x0, ((unsigned int) REGISTER_NODE), 0
                             }
                     }
             };
 
             const CAN_Header REGISTER_BASE_FIELDS = {
-                    .bits = CAN_CTRL_BASE_FIELDS.bits || register_ctrl_fields.bits
+                    .bits = CAN_CTRL_BASE_FIELDS.bits | register_ctrl_fields.bits
             };
 
             typedef union _register_response {
@@ -44,7 +44,7 @@ namespace ros_echronos {
 
             constexpr Register_Header _register_header_mask_reg_fields {
                 .fields = {
-                    0xFFFF, 0xFFFF
+                    0x0, 0xFFFF, 0xFFFF
                 }
             };
 
