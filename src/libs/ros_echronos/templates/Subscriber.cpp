@@ -156,7 +156,7 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     const size_t msg_name_len = strlen(T::NAME);
 
     // build the request header
-    Subscribe_Header msg_head;
+    Subscribe_Header msg_head = {0};
     msg_head.fields.step = 0;
     msg_head.fields.node_id = nh->get_node_id();
     msg_head.fields.length = (topic_length + msg_name_len + 1) / CAN_MESSAGE_MAX_LEN;
@@ -173,13 +173,13 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     Subscribe_Header response_head = msg_head;
     response_head.fields.step = 1;
     CAN_Header can_response_head;
-    can_response_head.bits = response_head.bits | SUB_CTRL_HEADER.bits;
+    can_response_head.bits = response_head.bits | sub_ctrl_fields.bits | msg_head.bits;
     promise::CANPromise * const promise = nh->promise_manager.match(can_response_head, mask);
 
     // build the strings and send messages
-    CAN_ROS_Message msg;
-    msg.head = SUB_CTRL_HEADER;
-    msg.head.bits |= msg_head.bits;
+    CAN_ROS_Message msg = {0};
+    msg.head = add_common_headers(msg_head);
+    ROS_INFO("header.mode %x", msg.head.fields.base_fields.mode);
     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
     const uint8_t index_offset = send_string(msg, msg_head, topic_name, topic_length, 0);
     const uint8_t index = send_string(msg, msg_head, T::NAME, msg_name_len, index_offset+1);

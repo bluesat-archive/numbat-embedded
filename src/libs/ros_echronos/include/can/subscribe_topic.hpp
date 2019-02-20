@@ -32,7 +32,7 @@ namespace ros_echronos {
             /**
              * Ctrl message specific fields that are common
              */
-            constexpr CAN_Header _sub_ctrl_fields = {
+            constexpr CAN_Header sub_ctrl_fields = {
                 .fields = {
                     .f2_ctrl_msg_fields = {
                         0x0, ((unsigned int)SUBSCRIBE_TOPIC), 0
@@ -40,12 +40,6 @@ namespace ros_echronos {
                 }
             };
 
-            /**
-             * Merged CAN Header
-             */
-            const CAN_Header SUB_CTRL_HEADER {
-                .bits = CAN_CTRL_BASE_FIELDS.bits | _sub_ctrl_fields.bits
-            };
 
             /**
              * Mask for the subscriber ctrl header
@@ -63,6 +57,13 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Response_Body;
 
+            inline const CAN_Header add_common_headers(const Subscribe_Header & subscribe_header) {
+                return {
+                        .bits = CAN_CTRL_BASE_FIELDS.bits | subscribe_header.bits | sub_ctrl_fields.bits
+                    };
+
+            }
+
             inline uint8_t send_string(can::CAN_ROS_Message & msg, can::control_2_subscribe::Subscribe_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
                 using namespace ros_echronos::can;
                 using namespace ros_echronos::can::control_2_subscribe;
@@ -76,17 +77,18 @@ namespace ros_echronos {
                         msg.body_bytes = CAN_MESSAGE_MAX_LEN;
                         send_can(msg);
                         ++(msg_head.fields.step);
-                        msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+                        msg.head = add_common_headers(msg_head);
                         memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
                     }
                 }
                 ++index;
                 msg.body[index] = '\0';
+                ++index;
                 if(index == (CAN_MESSAGE_MAX_LEN-1)) {
                     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
                     send_can(msg);
                     ++(msg_head.fields.step);
-                    msg.head.bits = SUB_CTRL_HEADER.bits | msg_head.bits;
+                    msg.head = add_common_headers(msg_head);
                     memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
                     index = 0;
                 }

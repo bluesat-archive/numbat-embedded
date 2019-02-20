@@ -10,7 +10,6 @@
 #ifndef NUMBAT_EMBEDDED_ROS_HPP
 #define NUMBAT_EMBEDDED_ROS_HPP
 
-#include <cstdarg>
 #include "boilerplate.h"
 #include "alloc.hpp"
 

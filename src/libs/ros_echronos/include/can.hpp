@@ -78,7 +78,7 @@ namespace ros_echronos {
                 EXTENDED = 10
          } Ctrl_Function;
 	 
-	 constexpr unsigned int BASE_FIELD_SIZE = 4;
+	 constexpr unsigned int BASE_FIELD_SIZE = 8;
 
         /**
          * Represents a can header as per the ros over can protocol
@@ -94,7 +94,7 @@ namespace ros_echronos {
                     unsigned int priority : 2;
                     unsigned int ros_function : 2;
                     unsigned int seq_num : 3;
-		    unsigned int mode_specific : 28 - BASE_FIELD_SIZE;
+                    unsigned int mode_specific : 28 - BASE_FIELD_SIZE;
                 } __attribute__((packed)) base_fields;
                 /**
                  * Header fields for ROS msgs

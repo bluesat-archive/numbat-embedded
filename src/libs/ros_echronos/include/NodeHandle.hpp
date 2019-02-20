@@ -10,7 +10,6 @@
 #ifndef NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 #define NUMBAT_EMBEDDED_NODE_HANDLE_HPP
 
-#include <cstdint>
 #include <stdlib.h>
 #include "ListNode.hpp"
 #include "rtos-kochab.h"
