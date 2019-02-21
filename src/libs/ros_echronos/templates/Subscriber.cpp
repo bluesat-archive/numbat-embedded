@@ -159,12 +159,13 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     Subscribe_Header msg_head = {0};
     msg_head.fields.step = 0;
     msg_head.fields.node_id = nh->get_node_id();
-    msg_head.fields.length = (topic_length + msg_name_len + 1) / CAN_MESSAGE_MAX_LEN;
+    const size_t  lengths = (topic_length + msg_name_len + 1);
+    msg_head.fields.length = (lengths % CAN_MESSAGE_MAX_LEN) ? lengths / CAN_MESSAGE_MAX_LEN + 1 : lengths / CAN_MESSAGE_MAX_LEN;
     msg_head.fields.hash = hash(topic_name); // this gets truncated but that's fine
     msg_head.fields.seq_num = 0;
 
     // build the response mask
-    CAN_Header mask;
+    CAN_Header mask = {0};
     mask.bits = _CTRL_HEADER_MASK_BASE_FIELDS.bits
                         | _CTRL_HEADER_MASK_F2_FIELDS.bits
                         | SUB_CTRL_HEADER_MASK.bits;
@@ -172,8 +173,7 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     // build the expected response header
     Subscribe_Header response_head = msg_head;
     response_head.fields.step = 1;
-    CAN_Header can_response_head;
-    can_response_head.bits = response_head.bits | sub_ctrl_fields.bits | msg_head.bits;
+    CAN_Header can_response_head = add_common_headers(response_head);
     promise::CANPromise * const promise = nh->promise_manager.match(can_response_head, mask);
 
     // build the strings and send messages
@@ -181,11 +181,12 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     msg.head = add_common_headers(msg_head);
     ROS_INFO("header.mode %x", msg.head.fields.base_fields.mode);
     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
-    const uint8_t index_offset = send_string(msg, msg_head, topic_name, topic_length, 0);
-    const uint8_t index = send_string(msg, msg_head, T::NAME, msg_name_len, index_offset+1);
+    const uint8_t index_offset = send_string(msg, msg_head, topic_name, topic_length+1, 0);
+    const uint8_t index = send_string(msg, msg_head, T::NAME, msg_name_len+1, index_offset+1);
     // if we haven't just sent a message and its not the last null terminator, send
     if((index != (CAN_MESSAGE_MAX_LEN-1)) && (index != 0)) {
-        msg.body_bytes = index+1;
+        msg.body_bytes = index + 1;
+        ROS_INFO("last packet size %u", msg.body_bytes);
         send_can(msg);
     }
 

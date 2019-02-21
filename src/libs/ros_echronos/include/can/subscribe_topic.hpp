@@ -57,7 +57,7 @@ namespace ros_echronos {
                 } fields __attribute__((packed));
             } Response_Body;
 
-            inline const CAN_Header add_common_headers(const Subscribe_Header & subscribe_header) {
+            constexpr CAN_Header add_common_headers(const Subscribe_Header & subscribe_header) {
                 return {
                         .bits = CAN_CTRL_BASE_FIELDS.bits | subscribe_header.bits | sub_ctrl_fields.bits
                     };
@@ -81,9 +81,6 @@ namespace ros_echronos {
                         memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
                     }
                 }
-                ++index;
-                msg.body[index] = '\0';
-                ++index;
                 if(index == (CAN_MESSAGE_MAX_LEN-1)) {
                     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
                     send_can(msg);
