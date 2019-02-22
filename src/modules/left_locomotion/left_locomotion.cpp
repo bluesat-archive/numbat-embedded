@@ -58,17 +58,13 @@ extern "C" void task_left_locomotion_fn(void) {
     ros_echronos::ROS_INFO("Initalising left locomotion subscribers\n");
     // Create the subscribers
     std_msgs::Float64 front_left_drive_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("front_left_wheel_axel_controller/command", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
-    frontLeftDriveSub.set_topic_id(0);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("/front_left_wheel_axel_controller/command", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
     std_msgs::Float64 front_left_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("front_left_swerve_controller/command", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
-    frontLeftRotateSub.set_topic_id(4);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("/front_left_swerve_controller/command", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
     std_msgs::Float64 back_left_drive_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("back_left_wheel_axel_controller/command", back_left_drive_buffer_in, 5, backLeftDriveCallback);
-    backLeftDriveSub.set_topic_id(2);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("/back_left_wheel_axel_controller/command", back_left_drive_buffer_in, 5, backLeftDriveCallback);
     std_msgs::Float64 back_left_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("back_left_swerve_controller/command", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
-    backLeftRotateSub.set_topic_id(6);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("/back_left_swerve_controller/command", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
     frontLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     frontLeftRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     backLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);

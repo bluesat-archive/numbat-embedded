@@ -51,7 +51,8 @@ namespace ros_echronos {
              * Creates a new Subscriber instance
              * Does not register it with the node
              *
-             * @param topic_name the name of the topic to publish on as a null terminated string
+             * @param topic_name the name of the topic to publish on as a null terminated string.
+             *        the topic name *must* start with `/`
              * @param read_buffer the buffer used to store incoming messages. The caller should not use this pointer
              *  once it is passed. This buffer will be split and half used for message construction and half used for
          *      messages awaiting a callback

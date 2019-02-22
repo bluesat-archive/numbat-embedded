@@ -100,7 +100,7 @@ namespace ros_echronos {
                  * Header fields for ROS msgs
                  */
                 struct _ros_msg_fields {
-                    unsigned int : BASE_FIELD_SIZE;
+                    unsigned int base_specific : BASE_FIELD_SIZE;
                     unsigned int message_num : 2;
                     unsigned int topic : 7;
                     unsigned int message_length : 8;
@@ -179,13 +179,14 @@ namespace ros_echronos {
         };
         constexpr CAN_Header _TOPIC_BITMASK_F0 = {
             .fields = {
-                .f0_ros_msg_fields = { 0, 0xFFFF, 0, 0, 0}
+                .f0_ros_msg_fields = { 0x0, 0, 0xFFFF, 0, 0, 0}
             }
         };
 
-        const CAN_Header TOPIC_BITMASK_HEADER = {
-            .bits = _TOPIC_BITMASK_BASE.bits || _TOPIC_BITMASK_BASE.bits
-        };
+
+        inline const unsigned long getTopicHeaderBitmask() {
+            return _TOPIC_BITMASK_BASE.bits | _TOPIC_BITMASK_F0.bits;
+        }
 
 
         extern RtosInterruptEventId can_interupt_event;

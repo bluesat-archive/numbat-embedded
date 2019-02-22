@@ -37,19 +37,22 @@ template <class T> void Subscriber<T>::set_topic_id(int id) {
 
 template <class T>
 void Subscriber<T>::init(ros_echronos::NodeHandle &node_handle, RtosSignalId ctrl_wait_sig) {
-    can::can_ros_message msg;
+    can::can_ros_message msg = {0};
 
     nh = &node_handle;
     register_topic(ctrl_wait_sig);
     msg.head.fields.f0_ros_msg_fields.message_length = 0;
     msg.head.fields.f0_ros_msg_fields.message_num = 0;
     msg.head.fields.base_fields.mode = 1;
-    msg.head.fields.f0_ros_msg_fields.node_id = nh->get_node_id();
+    // this is the "sending" node id, so we don't want to match on it
+    msg.head.fields.f0_ros_msg_fields.node_id = 0;
     msg.head.fields.base_fields.priority = 0;
     msg.head.fields.base_fields.ros_function = can::FN_ROS_MESSAGE_TRANSMISSION;
     msg.head.fields.base_fields.seq_num = 0;
     msg.head.fields.f0_ros_msg_fields.topic = topic_id;
-    sub_id = can::subscribe_can(msg.head.bits, can::TOPIC_BITMASK_HEADER.bits); //TODO: add node id, function, etc
+    const unsigned long mask = can::getTopicHeaderBitmask();
+    // NOTE: the first parameter will in fact be '1' if the topic id is 0
+    sub_id = can::subscribe_can(msg.head.bits, mask);
     prev = NULL;
     if(nh->subscribers != NULL) {
         //ros_echronos::ROS_INFO("null\n");
@@ -201,12 +204,13 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
         Response_Body resp;
         ROS_INFO("CAN Received Header %x\n", msg.head.bits);
         memcpy(resp.bytes, msg.body, msg.body_bytes);
-        ((Subscriber*)data)->topic_id = resp.fields.topic_id;
+        ((Subscriber<T>*)data)->topic_id = resp.fields.topic_id;
         ROS_INFO("%s got topic id %d\n", ((Subscriber*)data)->topic_name, resp.fields.topic_id);
-
+        ROS_INFO("sub %x", data);
     }), this)->on_error([](can::CAN_ROS_Message & msg, void * data) {
         // all we can do is try again
         ((_Recurse_Data *) data)->this_obj->register_topic(((_Recurse_Data *) data)->sig);
     }, &recurse_data)->wait(signal_wait);
+    ROS_INFO("this 0x%x, topic id %d", this, topic_id);
 }
 //TODO: flush unfinished messages from the buffer or rerequest them

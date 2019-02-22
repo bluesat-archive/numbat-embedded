@@ -66,7 +66,11 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
     };
     
     msg.head.bits |= reg_specific_header.bits | CAN_CTRL_BASE_FIELDS.bits;
+
+    //TODO: handle node names shorter than the message length
     strncpy((char *)(msg.body), node_name, CAN_MESSAGE_MAX_LEN);
+    msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+
 
     // build the header to match response, it will be the same apart from the step number
     Register_Header match_reg_specific_head = reg_specific_header;
