@@ -26,7 +26,7 @@ namespace ros_echronos {
              * @note: the message class this class references may be in an inconsistent state
              *  until all messages are decoded
              */
-            void decode_msg(can::CAN_ROS_Message & msg);
+            void decode_msg(const can::CAN_ROS_Message &msg);
         //protected:
             /**
              * Creates a new Message Descriptor with references to the fields

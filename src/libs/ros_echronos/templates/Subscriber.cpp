@@ -75,7 +75,9 @@ template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_RO
     T * msg_ptr = NULL;
 
     // Step 1: Check if it is a new or existing message
-//    ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.seq_num);
+//    if(msg.head.fields.base_fields.seq_num != 0) {
+//        ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.base_fields.seq_num);
+//    }
     if (msg.head.fields.base_fields.seq_num == 0) {
         msg_ptr = new (next_construction_msg()) T();
     } else {
@@ -209,6 +211,7 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
         ROS_INFO("sub %x", data);
     }), this)->on_error([](can::CAN_ROS_Message & msg, void * data) {
         // all we can do is try again
+        ROS_INFO("Got an error retrying");
         ((_Recurse_Data *) data)->this_obj->register_topic(((_Recurse_Data *) data)->sig);
     }, &recurse_data)->wait(signal_wait);
     ROS_INFO("this 0x%x, topic id %d", this, topic_id);

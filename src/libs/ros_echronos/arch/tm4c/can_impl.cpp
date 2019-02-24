@@ -152,11 +152,30 @@ void ros_echronos::can::can_receive_lock() {
     IntDisable(INT_CAN0);
 }
 
+static inline void print_can_state() {
+    for(unsigned int i = 0; i < NUM_CAN_OBJS; ++i) {
+        ros_echronos::ROS_INFO("id %u: id %x, mask %x len %u, RX INT %d, EXT ID %d, FIFO %d ID FILTER %d",
+            i,
+            msgs[i].ui32MsgID,
+            msgs[i].ui32MsgIDMask,
+            msgs[i].ui32MsgLen,
+            msgs[i].ui32Flags & MSG_OBJ_RX_INT_ENABLE,
+            msgs[i].ui32Flags & MSG_OBJ_EXTENDED_ID,
+            msgs[i].ui32Flags & MSG_OBJ_FIFO,
+            msgs[i].ui32Flags & MSG_OBJ_USE_ID_FILTER
+        );
+    }
+}
+
 static inline void update_and_activate_sub(const can_sub_id id, uint32_t id_mask, uint32_t mask_bits) {
 
     msgs[id].ui32MsgID = id_mask;
     msgs[id].ui32MsgIDMask = mask_bits;
-    msgs[id].ui32Flags = MSG_OBJ_RX_INT_ENABLE;
+    msgs[id].ui32Flags |= MSG_OBJ_RX_INT_ENABLE;
     msgs[id].ui32MsgLen = CAN_MESSAGE_MAX_LEN; //TODO: check this allows shorter messages
     CANMessageSet(CAN_DEVICE_BASE, id, msgs + id, MSG_OBJ_TYPE_RX);
+#ifdef DEBUG_CAN_STATUS
+    ros_echronos::ROS_INFO("sub updated %u matching %x mask %x masked match %x", id, id_mask, mask_bits, id_mask & mask_bits);
+    print_can_state();
+#endif
 }

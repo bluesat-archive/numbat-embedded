@@ -26,7 +26,7 @@ namespace ros_echronos {
 
         public:
 
-            NodeHandle() : promise_manager(promise_buffer, 3) {}
+            NodeHandle() : promise_manager(promise_buffer, &promise_bitmask, 3) {}
             /**
              * Registers the ros node with the controller, setsup any CAN handlers required
              * @param node_name the name of the node
@@ -94,6 +94,7 @@ namespace ros_echronos {
 
             // we want an empty buffer, not one that has been initalised
             uint8_t promise_buffer[sizeof(promise::CANPromise)*3];
+            uint8_t promise_bitmask;
 
             /**
              * Register the node with the master

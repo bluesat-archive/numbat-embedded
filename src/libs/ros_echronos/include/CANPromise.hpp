@@ -25,15 +25,16 @@ namespace ros_echronos {
                 /**
                  * Creates a new promise manager
                  * @param buffer the buffer
+                 * @param bitmask a bitmask with at least as many bits as the size of the buffer
                  * @param buffer_size the size of the buffer in CANPromises
                  */
-                CANPromiseManager(void * buffer, size_t buffer_size);
+                CANPromiseManager(void * buffer, void * bitmask, size_t buffer_size);
                 /**
                  * Takes a message and matches it to the current list of promises
                  * @param msg the incoming msg
                  * @return if a match was found
                  */
-                bool match_message(can::CAN_ROS_Message msg);
+                bool match_message(const can::CAN_ROS_Message &msg);
 
                 /**
                  * Creates a new promise for the given match
@@ -44,6 +45,7 @@ namespace ros_echronos {
                 CANPromise * match(can::CAN_Header mask, can::CAN_Header filter);
             private:
                 void * buffer;
+                void * bitmask;
                 size_t buffer_size;
         };
 
@@ -74,7 +76,7 @@ namespace ros_echronos {
                  * @param signal the signal to use to manage this wait
                  * @return the message
                  */
-                can::CAN_ROS_Message wait(RtosSignalId signal);
+                can::CAN_ROS_Message wait(const RtosSignalId &signal);
 
                 /**
                  * Gets the value, blocks if its not ready
@@ -85,10 +87,6 @@ namespace ros_echronos {
 
             private:
 
-                /**
-                 * Indicates the promise has returned
-                 */
-                bool ready = false;
 
 
                 friend class CANPromiseManager;
@@ -98,7 +96,7 @@ namespace ros_echronos {
                  * @param mask the header mask
                  * @param filter the header filter
                  */
-                CANPromise(can::CAN_Header mask, can::CAN_Header filter);
+                CANPromise(can::CAN_Header &mask, can::CAN_Header &filter);
 
                 /**
                  * Checks if the header matches this promise.
@@ -106,14 +104,14 @@ namespace ros_echronos {
                  * @param header the header to check
                  * @return true on a match false otherwise
                  */
-                bool matches(can::CAN_Header & header);
+                bool matches(const can::CAN_Header &header);
 
                 /**
                  * Called by CANPromiseManager on a match
                  * @param msg the message
                  * @param error if there is an error
                  */
-                void trigger_match(can::CAN_ROS_Message msg, bool error);
+                void trigger_match(const can::CAN_ROS_Message &msg, const bool error);
 
                 PromiseFn then_fn;
                 void * then_data;
@@ -128,6 +126,10 @@ namespace ros_echronos {
 
                 const can::CAN_Header mask;
                 const can::CAN_Header filter;
+                /**
+                 * Indicates the promise has returned
+                 */
+                bool ready = false;
         };
     }
 }

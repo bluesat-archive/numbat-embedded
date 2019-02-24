@@ -203,13 +203,13 @@ static double wheel_to_servo_angle(double wheel_angle) {
 }
 
 void frontLeftDriveCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, speed_to_duty_pct(msg.data));
     UARTprintf("Front left drive received.\n");
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, speed_to_duty_pct(msg.data));
 }
   
 void frontLeftRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Front left swerve received.\n");
+    servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
 }
     
     

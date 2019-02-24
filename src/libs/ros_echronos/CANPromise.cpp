@@ -15,7 +15,7 @@
 
 using namespace ros_echronos::promise;
 
-CANPromise::CANPromise(can::CAN_Header mask, can::CAN_Header filter) :
+CANPromise::CANPromise(can::CAN_Header & mask, can::CAN_Header & filter) :
     mask(mask),
     filter(filter)
 {
@@ -35,7 +35,7 @@ CANPromise * CANPromise::on_error(PromiseFn func, void *data) {
     return this;
 }
 
-ros_echronos::can::CAN_ROS_Message CANPromise::wait(RtosSignalId signal) {
+ros_echronos::can::CAN_ROS_Message CANPromise::wait(const RtosSignalId &signal) {
     this->signal = signal;
     waiting = true;
     waiting_on = rtos_task_current();
@@ -56,12 +56,12 @@ ros_echronos::can::CAN_ROS_Message CANPromise::wait(RtosSignalId signal) {
     return m;
 }
 
-bool CANPromise::matches(can::CAN_Header &header) {
+bool CANPromise::matches(const can::CAN_Header &header) {
     //TODO: return something different if we have already matched
     return (header.bits & filter.bits) == (mask.bits & filter.bits);
 }
 
-void CANPromise::trigger_match(can::CAN_ROS_Message msg, bool error) {
+void CANPromise::trigger_match(const can::CAN_ROS_Message &msg, const bool error) {
     //TODO: handle if wait hasn't been called
     this->error = error;
     this->msg = msg;
@@ -76,8 +76,11 @@ CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filt
 
 
     for(CANPromise * local_buffer = static_cast<CANPromise *>(this->buffer); local_buffer < (this->buffer + buffer_size); ++local_buffer) {
-        if(!((uint16_t*)local_buffer)[0]) {
+        // NOTE: this will break if we support more than 64 promises!
+        const uint64_t buffer_free_mask = (1 << local_buffer - static_cast<CANPromise *>(this->buffer));
+        if(!(*(int64_t *)bitmask & buffer_free_mask)) {
             ret = new(local_buffer) CANPromise(mask, filter);
+            *(int64_t *)bitmask |= buffer_free_mask;
         } else {
             // space is occupied
             // the sum of the filters is the & of the ctrl masks
@@ -93,7 +96,13 @@ CANPromise * CANPromiseManager::match(can::CAN_Header mask, can::CAN_Header filt
     return ret;
 }
 
-bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
+bool CANPromiseManager::match_message(const can::CAN_ROS_Message & msg) {
+    // short circuit for message fast path
+    // check if the buffer is empty
+    if(!bitmask) {
+        return false;
+    }
+
     bool found = false;
     uint8_t promises = 0;
     // overall subscription masks & filters
@@ -104,12 +113,14 @@ bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
             (CANPromise*)current_buff < ((CANPromise*)buffer)+buffer_size;
             current_buff+=sizeof(CANPromise)*buffer_size
     ) {
-        // if the first two bytes are null
-        if(!current_buff[0] && !current_buff[1]) {
+        // NOTE: this will break if we support more than 64 promises!
+        const uint64_t buffer_free_mask = (1 << (CANPromise*)current_buff - static_cast<CANPromise *>(this->buffer));
+        if((*(int64_t *)bitmask & buffer_free_mask)) {
             CANPromise * pbuff = ((CANPromise *)current_buff);
             if(pbuff->matches(msg.head)) {
                 pbuff->trigger_match(msg, false);
                 found = true;
+                *(int64_t *)bitmask ^= buffer_free_mask;
             } else {
                 ++promises;
                 // space is occupied
@@ -134,10 +145,12 @@ bool CANPromiseManager::match_message(can::CAN_ROS_Message msg) {
     return found;
 }
 
-CANPromiseManager::CANPromiseManager(void *buffer, size_t buffer_size) :
+CANPromiseManager::CANPromiseManager(void *buffer, void *bitmask, size_t buffer_size) :
     buffer(buffer),
+    bitmask(bitmask),
     buffer_size(buffer_size)
 {
     // we use this to determine if the buffer is empty
     memset(buffer, 0, buffer_size*sizeof(CANPromise));
+    memset(bitmask, 0, buffer_size);
 }

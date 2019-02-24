@@ -162,20 +162,21 @@ void NodeHandle::run_handle_message_loop() {
             continue;
         }
 
-        if (msg.head.fields.base_fields.mode == (unsigned int)FN_ROS_MESSAGE_TRANSMISSION) {
-            _Subscriber *current;
-            for (current = subscribers; current; current = (_Subscriber *) current->next) {
+        if (msg.head.fields.base_fields.ros_function == (unsigned int)FN_ROS_MESSAGE_TRANSMISSION) {
+            for (_Subscriber  * current = subscribers; current; current = (_Subscriber *) current->next) {
                 if (msg.head.fields.f0_ros_msg_fields.topic == current->topic_id) {
                     current->receive_message(msg);
-//                ROS_INFO("Found a match!\n");
+//                    ROS_INFO("Found a match!\n");
                     break;
                 } else {
-                    //ROS_INFO("No match for topic %d w/ %d", msg.head.fields.topic, current->topic_id);
+//                    ROS_INFO("No match for topic %d w/ %d", msg.head.fields.f0_ros_msg_fields.topic, current->topic_id);
                 }
 
             }
-        } else if (msg.head.fields.base_fields.mode == (unsigned int)FN_ROS_CONTROL_MSG) {
+        } else if (msg.head.fields.base_fields.ros_function == (unsigned int)FN_ROS_CONTROL_MSG) {
             //TODO: do control message things...
+        } else {
+            ROS_INFO("Recived Unmatched Header %x", msg.head.bits);
         }
     }
 }
