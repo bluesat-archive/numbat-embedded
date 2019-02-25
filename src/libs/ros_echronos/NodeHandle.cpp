@@ -146,6 +146,7 @@ void NodeHandle::run_handle_message_loop() {
     }
     ros_echronos::ROS_INFO("NodeHandle init done\n");
     CAN_ROS_Message msg;
+    bool more = false;
     while(true) {
         rtos_signal_wait(can_receive_signal);
 
@@ -156,28 +157,31 @@ void NodeHandle::run_handle_message_loop() {
 //            //msg = *(msg_queue.front());
 //            msg_queue.pop();
 
-        msg = in_buff.pop_locked();
-        // if its a promised message, don't bother with the decoding
-        if(promise_manager.match_message(msg)) {
-            continue;
-        }
-
-        if (msg.head.fields.base_fields.ros_function == (unsigned int)FN_ROS_MESSAGE_TRANSMISSION) {
-            for (_Subscriber  * current = subscribers; current; current = (_Subscriber *) current->next) {
-                if (msg.head.fields.f0_ros_msg_fields.topic == current->topic_id) {
-                    current->receive_message(msg);
-//                    ROS_INFO("Found a match!\n");
-                    break;
-                } else {
-//                    ROS_INFO("No match for topic %d w/ %d", msg.head.fields.f0_ros_msg_fields.topic, current->topic_id);
-                }
-
+        do {
+            msg = in_buff.pop_locked(more);
+            // if its a promised message, don't bother with the decoding
+            if (promise_manager.match_message(msg)) {
+                continue;
             }
-        } else if (msg.head.fields.base_fields.ros_function == (unsigned int)FN_ROS_CONTROL_MSG) {
-            //TODO: do control message things...
-        } else {
-            ROS_INFO("Recived Unmatched Header %x", msg.head.bits);
-        }
+
+            if (msg.head.fields.base_fields.ros_function == (unsigned int) FN_ROS_MESSAGE_TRANSMISSION) {
+                for (_Subscriber *current = subscribers; current; current = (_Subscriber *) current->next) {
+                    if (msg.head.fields.f0_ros_msg_fields.topic == current->topic_id) {
+                        current->receive_message(msg);
+//                    ROS_INFO("Found a match!\n");
+                        break;
+                    } else {
+//                    ROS_INFO("No match for topic %d w/ %d", msg.head.fields.f0_ros_msg_fields.topic, current->topic_id);
+                    }
+
+                }
+            } else if (msg.head.fields.base_fields.ros_function == (unsigned int) FN_ROS_CONTROL_MSG) {
+                //TODO: do control message things...
+            } else {
+                ROS_INFO("Recived Unmatched Header %x", msg.head.bits);
+            }
+        } while (more);
+        // ^ the above loop allows us to handle big messages much more effectively
     }
 }
 

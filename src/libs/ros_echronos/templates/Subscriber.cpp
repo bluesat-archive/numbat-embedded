@@ -71,7 +71,7 @@ template <class T> void Subscriber<T>::unsubscribe() {
     }
 }
 
-template <class T> void Subscriber<T>::receive_message(ros_echronos::can::CAN_ROS_Message &msg) {
+template <class T> void Subscriber<T>::receive_message(const can::CAN_ROS_Message &msg) {
     T * msg_ptr = NULL;
 
     // Step 1: Check if it is a new or existing message

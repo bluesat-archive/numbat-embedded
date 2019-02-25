@@ -64,7 +64,7 @@ namespace ros_echronos {
              * Function to fill data from a can msg
              * @param msg the msg to fill from
              */
-            void fill(ros_echronos::can::CAN_ROS_Message & msg);
+            void fill(const can::CAN_ROS_Message &msg);
 
             /**
              * Getter function to determine which can msg this message is waiting for

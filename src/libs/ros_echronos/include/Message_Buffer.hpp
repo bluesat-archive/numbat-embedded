@@ -37,7 +37,7 @@ class Message_Buffer {
          *
          * @pre isEmpty() == False
          */
-        T pop() volatile;
+        T pop();
         /**
          * Adds a message to the buffer
          * @param msg the message to store
@@ -82,7 +82,17 @@ class _Incoming_Message_Buffer : public Message_Buffer<ros_echronos::can::can_ro
          *
          * @pre isEmpty() == False
          */
-        ros_echronos::can::can_ros_message pop_locked() volatile;
+        ros_echronos::can::can_ros_message pop_locked();
+
+
+        /**
+         * Removes the next message in the queue
+         * @param more reference to a boolean that will be set to true if the list is not empty
+         * @return the next message
+         *
+         * @pre isEmpty() == False
+         */
+        ros_echronos::can::can_ros_message pop_locked(bool & more);
         /**
          * Add a message to the queue
          * @param msg the message to add
@@ -101,7 +111,7 @@ template <class T> Message_Buffer<T>::Message_Buffer(T *const buffer, const uint
 
 }
 
-template <class T> T Message_Buffer<T>::pop() volatile {
+template <class T> T Message_Buffer<T>::pop() {
         T msg = (*buffer_head);
         --buffer_head;
         if(buffer_head < buffer_start) {
@@ -116,7 +126,7 @@ template <class T> T Message_Buffer<T>::pop() volatile {
 template <class T>
 T * Message_Buffer<T>::put(T *const msg) {
         (*buffer_tail) = *msg;
-        T * output = buffer_tail;
+        T * const output = buffer_tail;
         --buffer_tail;
         if(buffer_tail < buffer_start) {
             buffer_tail = buffer_end-1;

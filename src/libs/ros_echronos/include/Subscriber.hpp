@@ -30,7 +30,7 @@ namespace ros_echronos {
              * Handles receiving a message for a given topic
              * @param msg the message to receive
              */
-            virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg) = 0;
+            virtual void receive_message(const can::CAN_ROS_Message &msg) = 0;
 
             /**
              * Calls the callback for all waiting complete messages in the buffer
@@ -82,7 +82,7 @@ namespace ros_echronos {
              * Function called when a can message is received
              * @param msg the msg that has been recieved
              */
-            virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg);
+            virtual void receive_message(const can::CAN_ROS_Message &msg);
             virtual void call_callback();
             // TODO: remove this
             /**
@@ -130,7 +130,7 @@ namespace ros_echronos {
             /**
              * which error handling mode we are in
              */
-            Transmission_Mode mode = DROP_MISSING;
+            const Transmission_Mode mode = DROP_MISSING;
 
             /**
              * Empty message for fast clearing of slots

@@ -22,10 +22,20 @@ _Incoming_Message_Buffer::_Incoming_Message_Buffer() :
 
 }
 
-ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked() volatile {
+ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked() {
     ros_echronos::can::can_ros_message msg;
     ros_echronos::can::can_receive_lock();
     msg = pop();
+    ros_echronos::can::can_receive_unlock();
+
+    return msg;
+}
+
+ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked(bool & more) {
+    ros_echronos::can::can_ros_message msg;
+    ros_echronos::can::can_receive_lock();
+    msg = pop();
+    more = !is_empty();
     ros_echronos::can::can_receive_unlock();
 
     return msg;

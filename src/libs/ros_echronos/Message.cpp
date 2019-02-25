@@ -78,7 +78,7 @@ unsigned int Message::get_next_msg_index() {
     return next_message_index;
 }
 
-void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
+void Message::fill(const can::CAN_ROS_Message &msg) {
     //ros_echronos::ROS_INFO("fill\n");
     // if we don't have a descriptor yet generate one.
     // NOTE: a descriptor is not copied when a message is coppied, it will always start from
@@ -93,11 +93,15 @@ void Message::fill(ros_echronos::can::CAN_ROS_Message &msg) {
     }
     //ros_echronos::ROS_INFO("Decoding\n");
     desc->decode_msg(msg);
-    decode_index++;
+    ++decode_index;
     done = decode_index == size;
-    //ros_echronos::ROS_INFO("Decoding Done %d/%d seq %d\n", decode_index, size, msg.head.fields.seq_num);
+#ifdef DEBUG_MESSAGE_DECODE
+    ros_echronos::ROS_INFO("Decoding Done %d/%d seq %d\n", decode_index, size, msg.head.fields.seq_num);
+#endif //DEBUG_MESSAGE_DECODE
     if(done) {
+#ifdef DEBUG_MESSAGE_DECODE
         ros_echronos::ROS_INFO("Done! %d\n", is_done());
+#endif //DEBUG_MESSAGE_DECODE
         // we remove the descriptor here so we can start again
         // as we allocated the memory using tlsf rather than malloc/new
         // we have to deallocate using the deconstructor and alloc::free
