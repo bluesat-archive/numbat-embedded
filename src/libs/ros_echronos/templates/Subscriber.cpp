@@ -18,7 +18,7 @@
 using namespace ros_echronos;
 
 
-template <class T> Subscriber<T>::Subscriber(char *topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
+template <class T> Subscriber<T>::Subscriber(char *const topic_name, T *const read_buffer, int buffer_size, void (* callback)(const T &))
         : incoming_msgs(read_buffer),
           message_construction_buff_size(buffer_size/2),
           ready_msgs(incoming_msgs + message_construction_buff_size, buffer_size-message_construction_buff_size),
@@ -164,8 +164,8 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     Subscribe_Header msg_head = {0};
     msg_head.fields.step = 0;
     msg_head.fields.node_id = nh->get_node_id();
-    const size_t  lengths = (topic_length + msg_name_len + 1);
-    msg_head.fields.length = (lengths % CAN_MESSAGE_MAX_LEN) ? lengths / CAN_MESSAGE_MAX_LEN + 1 : lengths / CAN_MESSAGE_MAX_LEN;
+    const size_t  lengths = (topic_length + msg_name_len + 2);
+    msg_head.fields.length = (lengths % CAN_MESSAGE_MAX_LEN) ? (lengths / CAN_MESSAGE_MAX_LEN) + 1 : lengths / CAN_MESSAGE_MAX_LEN;
     msg_head.fields.hash = hash(topic_name); // this gets truncated but that's fine
     msg_head.fields.seq_num = 0;
 
@@ -184,7 +184,9 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     // build the strings and send messages
     CAN_ROS_Message msg = {0};
     msg.head = add_common_headers(msg_head);
-    ROS_INFO("header.mode %x", msg.head.fields.base_fields.mode);
+    ROS_INFO("header.mode %x len %d", msg.head.fields.base_fields.mode, msg_head.fields.length);
+    ROS_INFO("Register topic %s", topic_name);
+    ROS_INFO("Register msg name %s", T::NAME);
     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
     const uint8_t index_offset = send_string(msg, msg_head, topic_name, topic_length+1, 0);
     const uint8_t index = send_string(msg, msg_head, T::NAME, msg_name_len+1, index_offset+1);

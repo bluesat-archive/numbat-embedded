@@ -59,7 +59,7 @@ namespace ros_echronos {
              * @param buffer_size the size of incoming buffer
              * @param callback the callback to be called when a message is recieved
              */
-            Subscriber(char * topic_name, T * const read_buffer, int buffer_size, void (*callback)(const T &));
+            Subscriber(char *const topic_name, T * const read_buffer, int buffer_size, void (*callback)(const T &));
 
             /**
              * Destroys the subscriber, disconnects from the controller if it has been connected

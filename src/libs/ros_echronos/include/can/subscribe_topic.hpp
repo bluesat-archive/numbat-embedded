@@ -81,14 +81,6 @@ namespace ros_echronos {
                         memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
                     }
                 }
-                if(index == (CAN_MESSAGE_MAX_LEN-1)) {
-                    msg.body_bytes = CAN_MESSAGE_MAX_LEN;
-                    send_can(msg);
-                    ++(msg_head.fields.step);
-                    msg.head = add_common_headers(msg_head);
-                    memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
-                    index = 0;
-                }
                 return index;
             }
 
