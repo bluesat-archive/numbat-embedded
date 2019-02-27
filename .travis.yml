@@ -1,3 +1,4 @@
+language: c++
 addons:
   apt:
     packages:
@@ -6,4 +7,5 @@ addons:
       - doxygen
       - gcc-arm-none-eabi
       - gdb-arm-none-eabi
-script: catkin_make
+script:
+  - catkin_make
