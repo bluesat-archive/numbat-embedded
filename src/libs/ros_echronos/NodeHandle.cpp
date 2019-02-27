@@ -101,7 +101,7 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
         // but we can pass ourselves as a pointer
         ((NodeHandle*)data)->node_id = bdy.fields.node_id;
         ROS_INFO("CAN Success recv head: %x\n", msg.head.bits);
-    }), this)->on_error([](can::CAN_ROS_Message & msg, void * data){
+    }),  this)->on_error([](can::CAN_ROS_Message & msg, void * data){
         // all we can do is try again
         ((On_Error_Data*)data)->this_node->do_register_node(((On_Error_Data*)data)->node_name, ((On_Error_Data*)data)->msg_signal);
         ROS_INFO("CAN Error\n");
