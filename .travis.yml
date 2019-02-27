@@ -8,5 +8,6 @@ addons:
       - doxygen
       - gcc-arm-none-eabi
       - gdb-arm-none-eabi
+      - graphviz
 script:
   - catkin_make
