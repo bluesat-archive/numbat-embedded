@@ -30,7 +30,10 @@ namespace ros_echronos {
 
     class Message {
         public:
-
+            /**
+             * Bits in a message number
+             */
+            static constexpr size_t MESSAGE_NUM_WIDTH = 2;
             /**
              * Returns the next block of can messages.
              *
@@ -61,7 +64,7 @@ namespace ros_echronos {
              * Function to fill data from a can msg
              * @param msg the msg to fill from
              */
-            void fill(ros_echronos::can::CAN_ROS_Message & msg);
+            void fill(const can::CAN_ROS_Message &msg);
 
             /**
              * Getter function to determine which can msg this message is waiting for
@@ -84,11 +87,11 @@ namespace ros_echronos {
             /**
              * Indicates the node this message is from. Only valid for incoming messages.
              */
-            uint8_t from_node;
+            uint8_t from_node : NODE_ID_WIDTH;
             /**
              * Indicates the message number of an incoming message
              */
-            uint8_t from_msg_num;
+            uint8_t from_msg_num : MESSAGE_NUM_WIDTH;
 
             /**
              * The index for the next message to decode
@@ -104,6 +107,10 @@ namespace ros_echronos {
              */
             bool block_generated = false;
             /**
+             * If we are done
+             */
+            bool done = false;
+            /**
              * The current index of the block
              */
             volatile uint16_t offset = 0;
@@ -116,13 +123,9 @@ namespace ros_echronos {
              */
             uint8_t size = 0;
             /**
-             * If we are done
-             */
-            bool done = false;
-            /**
              * The next message we are waiting for, 0 if we are an outgoing message or have recived no data
              */
-             uint32_t next_message_index = 0;
+            uint32_t next_message_index = 0;
 
             /**
              * Overiden by subclasses to provide a means of deserialising fields

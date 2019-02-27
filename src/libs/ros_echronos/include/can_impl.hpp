@@ -38,7 +38,21 @@ namespace ros_echronos {
          *
          * @param can_sub_id the id to unsubscribes
          */
-         void unsubscribe_can(can_sub_id id);
+        void unsubscribe_can(can_sub_id id);
+
+        /**
+         * Sets the ctrl subscription.
+         * This is used by the promise manager to update the control subscription with the current combined mask/filter
+         * for all promises
+         * @param id_mask the id mask
+         * @param mask_bits the bits to be used for comparison
+         */
+        void set_ctrl_sub(uint32_t id_mask, uint32_t mask_bits);
+
+        /**
+         * Disables the ctrl subscription until `set_ctrl_sub` is called again
+         */
+        void clear_ctrl_sub();
 
         /**
          * Implementation specific lock that guarentees the code will not be
@@ -57,6 +71,10 @@ namespace ros_echronos {
          */
         extern _Incoming_Message_Buffer * incoming_msg_buffer;
 
+        /**
+         * The "subscription" that can be used for control messages
+         */
+        extern const can_sub_id CTRL_SUB_ID;
     }
 }
 

@@ -23,7 +23,7 @@
             <external_irqs>
                 <external_irq>
                     <number>39</number>
-                    <handler>can0_int_handler</handler>
+                    <handler>ros_can_interupt_handler</handler>
                 </external_irq>
             </external_irqs>
         </module>
@@ -46,6 +46,12 @@
                     <priority>30</priority>
                     <stack_size>512</stack_size>
                 </task>
+		 <task>
+                    <name>task_can_wait</name>
+                    <function>task_can_wait_fn</function>
+                    <priority>31</priority>
+                    <stack_size>512</stack_size>
+                </task>
             </tasks>
 
             <signal_labels>
@@ -54,6 +60,9 @@
                 </signal_label>
                 <signal_label>
                     <name>can_receive_signal</name>
+                </signal_label>
+                <signal_label>
+                    <name>ros_promise_signal</name>
                 </signal_label>
             </signal_labels>
 

@@ -36,7 +36,7 @@ extern "C" void task_ros_sub_test_fn(void) {
     // this creates a node handle
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
-    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
+    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SINGAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("Done init\n");
     nh_ptr = &nh;
 

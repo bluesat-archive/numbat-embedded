@@ -10,7 +10,6 @@
 #ifndef NUMBAT_EMBEDDED_ROS_HPP
 #define NUMBAT_EMBEDDED_ROS_HPP
 
-#include <cstdarg>
 #include "boilerplate.h"
 #include "alloc.hpp"
 
@@ -19,105 +18,10 @@
 
 namespace ros_echronos {
     /**
-     * Namespace for can specific functionality
+     * bits in a node id
      */
-    namespace can {
-        extern int can_error_flag;
+    constexpr uint8_t NODE_ID_WIDTH = 4;
 
-        /**
-         * The maximum length of a can message
-         */
-        const uint8_t CAN_MESSAGE_MAX_LEN = 8;
-
-        /**
-         * Value for the ros mode on the can bus
-         */
-        const uint8_t ROS_CAN_MODE = 1;
-        /**
-         * Indicates that the "seq_num" field of a can message header is in special mode
-         */
-        const uint8_t SEQ_NUM_SPECIAL_MODE = 7;
-
-        /**
-         * Possible function modes on the can buss
-         */
-        typedef enum _ROS_Function {
-            /**
-             * Means the can message is part of a message transmission
-             */
-            FN_ROS_MESSAGE_TRANSMISSION = 0,
-            /**
-             * Means the can message is part of a service call (Not implemented)
-             */
-            FN_ROS_SERVICE = 1,
-            /**
-             * Means the can message is a control message
-             */
-            FN_ROS_CONTROL_MSG = 2,
-            /**
-             * Undefined functionality, reserved for future expansion of the protocol
-             */
-            FN_ROS_RESERVED = 3
-        } ROS_Function;
-        /**
-         * Used to store the base register of the can bus (CAN0)
-         */
-        extern uint32_t can_base;
-
-        /**
-         * Represents a can header as per the ros over can protocol
-         */
-        typedef union can_header {
-            uint32_t bits;
-            struct _header_fields {
-                // these MUST be ints to make the compiler place them in the same 32-bit container
-                // See: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0491i/Babjddhe.html
-                // (Also gcc docs, but they are less clear)
-                unsigned int mode : 1;
-                unsigned int priority : 2;
-                unsigned int ros_function : 2;
-                unsigned int seq_num : 3;
-                unsigned int message_num : 2;
-                unsigned int topic : 7;
-                unsigned int message_length : 8;
-                unsigned int node_id : 4;
-                unsigned int not_in_range : 3;
-            }__attribute__((packed)) fields;
-        } CAN_Header;
-
-        /**
-         * Represents a can packet.
-         */
-        typedef struct can_ros_message {
-            CAN_Header head;
-            uint8_t body[CAN_MESSAGE_MAX_LEN];
-            uint8_t body_bytes;
-        } CAN_ROS_Message __attribute__((aligned(4)));
-
-
-        /**
-         * We can't use mutexes in buffers so we have to assume that we do not receive another message
-         * before this is written. I eventually want to replace this with a lockless queue.
-         */
-         typedef  struct _input_buffer {
-             CAN_ROS_Message buffer;
-             int start_counter = 0;
-             int end_counter = 0;
-         } input_buffer_t;
-
-        const CAN_Header TOPIC_BITMASK_HEADER = {
-                .fields={
-                    1, 0, 0xF, 0, 0, 0xFFFFF, 0, 0, 0
-                }
-        };
-
-
-        extern input_buffer_t input_buffer;
-//        extern rigtorp::SPSCQueue<CAN_ROS_Message, 5> msg_queue;
-
-        extern RtosInterruptEventId can_interupt_event;
-        extern volatile bool node_handle_ready;
-    }
     template <class T> class Publisher;
     template <class T> class Subscriber;
     class NodeHandle;
