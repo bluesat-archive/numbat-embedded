@@ -1,0 +1,9 @@
+addons:
+  apt:
+    packages:
+      - ros-desktop-full
+      - ros-desktop-full-dev
+      - doxygen
+      - gcc-arm-none-eabi
+      - gdb-arm-none-eabi
+script: catkin_make
