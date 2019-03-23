@@ -19,16 +19,16 @@ namespace ros_echronos {
      * Represents a ros::Duration object
      */
     typedef struct Duration {
-        uint64_t seconds;
-        uint64_t nanos;
+        uint32_t seconds;
+        uint32_t nanos;
     } __attribute__((packed));
 
     /**
      * Represents a ros::Time object
      */
     struct Time {
-        uint64_t seconds;
-        uint64_t nanos;
+        uint32_t seconds;
+        uint32_t nanos;
     } __attribute__((packed));
 
     /**
