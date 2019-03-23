@@ -80,3 +80,13 @@ void uart0_int_handler(void) {
     UARTStdioIntHandler();
 #endif
 }
+
+// apparently memset is missing
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58203
+void * memset(void * dst, int c, size_t n) {//__attribute__((used)) {
+    uint8_t * ptr = (uint8_t*) dst;
+    for(int i =0; i < n; ++i) {
+        ptr[i] = c;
+    }
+    return ptr;
+}

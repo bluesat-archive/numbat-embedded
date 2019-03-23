@@ -6,7 +6,6 @@
 #include "Publisher.hpp"
 #include "NodeHandle.hpp"
 
-ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -35,13 +34,12 @@ extern "C" void task_ros_sub_test_fn(void) {
 
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
-    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
+    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("Done init\n");
-    nh_ptr = &nh;
 
     ros_echronos::ROS_INFO("sub init\n");
     ros_echronos::Subscriber<owr_messages::pwm> sub("aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
-    sub.init(nh);
+    sub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("starting the main loop\n");
     owr_messages::pwm msg;
     while(true) {

@@ -68,10 +68,10 @@ extern "C" void task_ros_test_fn(void) {
     UARTprintf("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
     UARTprintf("Done init\n");
-    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
+    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
 
     UARTprintf("pub init\n");
-    pub->init(nh);
+    pub->init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     owr_messages::pwm msg;
     msg.currentPos=0.0;
     msg.targetPos=0.0;

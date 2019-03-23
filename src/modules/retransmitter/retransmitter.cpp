@@ -42,38 +42,6 @@ bool sent_message;
 
 static uint32_t error_flag;
 
-/**
- * Used to handle interups from can0
- */
-extern "C" void can0_int_handler(void) {
-    uint32_t can_status = 0;
-
-    // read the register
-    can_status = CANIntStatus(CAN0_BASE, CAN_INT_STS_CAUSE);
-
-    // in this case we are reciving a status interupt
-    if(can_status == CAN_INT_INTID_STATUS) {
-        // read the error status and store it to be handled latter
-        error_flag = CANStatusGet(CAN0_BASE, CAN_STS_CONTROL);
-        // clear so we can continue
-        CANIntClear(CAN0_BASE, 1);
-    } else {
-        // we are reciving a message, TODO: handle this
-        // for now we clear the interup so we can continue
-        CANIntClear(CAN0_BASE, 1);
-
-        // clear the error flag (otherwise we will store recive or write statuses)
-        error_flag = 0;
-
-        // if we haven't just sent a message read.
-        if(!sent_message) {
-            CANMessageGet(CAN0_BASE, can_status, &rx_object, 0);
-        }
-        sent_message = false;
-    }
-
-    //UARTprintf("A Error Code %x\n", can_status);
-}
 
 static void wait_for_msg() {
     while (true) {
@@ -103,7 +71,7 @@ extern "C" void task_retransmitter_fn(void) {
 
     ros_echronos::NodeHandle nh;
 
-    nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, 0);
+    nh.init("retransmit_fn", "retransmit_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::Publisher<std_msgs::Float64> * publishers[NUM_MSG];
 
     // you would have to use the new operator to initialise these in a loop and we can't do that
@@ -134,7 +102,7 @@ extern "C" void task_retransmitter_fn(void) {
 
 
     for (size_t i = 0; i < NUM_MSG; i++) {
-        publishers[i]->init(nh);
+        publishers[i]->init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     }
     
     std_msgs::Float64 msg;

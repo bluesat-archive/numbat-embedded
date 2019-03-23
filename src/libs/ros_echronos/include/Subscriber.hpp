@@ -24,13 +24,13 @@ namespace ros_echronos {
             /**
              * the topic id of the subscription
              */
-            uint8_t topic_id;
+            uint8_t topic_id : 6;
 
             /**
              * Handles receiving a message for a given topic
              * @param msg the message to receive
              */
-            virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg) = 0;
+            virtual void receive_message(const can::CAN_ROS_Message &msg) = 0;
 
             /**
              * Calls the callback for all waiting complete messages in the buffer
@@ -51,14 +51,15 @@ namespace ros_echronos {
              * Creates a new Subscriber instance
              * Does not register it with the node
              *
-             * @param topic_name the name of the topic to publish on as a null terminated string
+             * @param topic_name the name of the topic to publish on as a null terminated string.
+             *        the topic name *must* start with `/`
              * @param read_buffer the buffer used to store incoming messages. The caller should not use this pointer
              *  once it is passed. This buffer will be split and half used for message construction and half used for
          *      messages awaiting a callback
              * @param buffer_size the size of incoming buffer
              * @param callback the callback to be called when a message is recieved
              */
-            Subscriber(char * topic_name, T * const read_buffer, int buffer_size, void (*callback)(const T &));
+            Subscriber(char *const topic_name, T * const read_buffer, int buffer_size, void (*callback)(const T &));
 
             /**
              * Destroys the subscriber, disconnects from the controller if it has been connected
@@ -71,7 +72,7 @@ namespace ros_echronos {
              * @param node_handle the node handle to use
              * @precondition the Node Handle has been initalised and is in communication with the controller
              */
-            void init(ros_echronos::NodeHandle & node_handle);
+            void init(ros_echronos::NodeHandle &node_handle, RtosSignalId ctrl_wait_sig);
 
             /**
              * unsubscribes the subscriber
@@ -81,7 +82,7 @@ namespace ros_echronos {
              * Function called when a can message is received
              * @param msg the msg that has been recieved
              */
-            virtual void receive_message(ros_echronos::can::CAN_ROS_Message & msg);
+            virtual void receive_message(const can::CAN_ROS_Message &msg);
             virtual void call_callback();
             // TODO: remove this
             /**
@@ -95,7 +96,7 @@ namespace ros_echronos {
             /**
              * Buffer of incoming messages
              */
-            T * incoming_msgs;
+            T * const incoming_msgs;
             /**
              * Bitmask of free buffer slots in incoming messages
              */
@@ -103,7 +104,7 @@ namespace ros_echronos {
             /**
              * Max size of buffer
              */
-            size_t message_construction_buff_size;
+            const size_t message_construction_buff_size;
             /**
              * Buffer of ready messages
              */
@@ -120,15 +121,26 @@ namespace ros_echronos {
 
             inline T * next_construction_msg();
             inline void clear_slot(T * msg_ptr);
+
+            /**
+             * Internal function to register a node
+             * @param signal_wait the signal to wait on
+             */
+            void register_topic(const RtosSignalId signal_wait);
             /**
              * which error handling mode we are in
              */
-            Transmission_Mode mode = DROP_MISSING;
+            const Transmission_Mode mode = DROP_MISSING;
 
             /**
              * Empty message for fast clearing of slots
              */
             const T EMPTY_MSG;
+
+            /**
+             * The topic name
+             */
+            char *  const  topic_name;
 
     };
 }
