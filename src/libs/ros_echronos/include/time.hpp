@@ -36,7 +36,7 @@ namespace ros_echronos {
      * when it receives the message (it can try to account for transmission lag if possible)
      */
     constexpr Time CTRL_NOW = {
-        ULONG_MAX, ULONG_MAX
+        UINT_MAX, UINT_MAX
     };
 
 }
