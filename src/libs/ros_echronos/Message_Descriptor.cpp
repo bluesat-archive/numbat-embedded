@@ -77,6 +77,7 @@ void Message_Descriptor::decode_msg(const can::CAN_ROS_Message &msg) {
             //this should always be the first byte in the message
             field_size[field_offset] |= *curr_bdy;
             ++i;
+            decoding_len = false;
             continue;
         }
         curr_field_size-=field_internal_offset;
