@@ -23,4 +23,6 @@ set(CPP_FILES ros_sub_test.cpp)
 add_module(ros_sub_test 4 1 0 "${CPP_FILES}")
 target_link_libraries(ros_sub_test pwm servo m)
 
+generate_msgs(std_msgs String)
+depend_msgs(ros_sub_test std_msgs String)
 

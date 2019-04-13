@@ -536,7 +536,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     for field in spec.parsed_fields():
 
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
-        if is_array:
+        if is_array or (base_type == 'string'):
             sizes.append("%s.bytes+2" % field.name)
             output+='      memcpy(block+offset, &%s.size, sizeof(short));\n' % (field.name)
             output+='      memcpy(block+offset+sizeof(short), &%s.values, %s.bytes);\n' % (field.name, field.name)
@@ -559,7 +559,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     for field in spec.parsed_fields():
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
         s.write('    descriptor->fixed_field_ptrs[%d] = &%s;\n' % (i, field.name))
-        if is_array:
+        if is_array or (base_type == 'string'):
             s.write('    descriptor->fixed_field_sizes[%d] = 0;\n' % (i))
         else:
             s.write('    descriptor->fixed_field_sizes[%d] = sizeof(%s);\n' % (i, field.name))
