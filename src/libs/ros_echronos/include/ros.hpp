@@ -165,7 +165,7 @@ ros_echronos::Array<T>::Array(const Array & arr) : Array(arr.size) {
 #ifdef DEBUG_ARRAY
     ROS_INFO("Init array - cc. Size %d\n", arr.size);
 #endif
-    memcpy(values, arr.values, size);
+    memcpy(values, arr.values, bytes);
 }
 template <typename T> inline
 ros_echronos::Array<T>::~Array() {
@@ -193,7 +193,7 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
     if(size!=0) {
         bytes = size * sizeof(T);
         values = (T*) alloc::malloc(bytes);
-        memcpy(values, new_value.values, size);
+        memcpy(values, new_value.values, bytes);
     }
     return *this;
 }
