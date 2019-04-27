@@ -67,7 +67,7 @@ namespace ros_echronos {
             inline uint8_t send_string(can::CAN_ROS_Message & msg, can::control_2_subscribe::Subscribe_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
                 using namespace ros_echronos::can;
                 using namespace ros_echronos::can::control_2_subscribe;
-                uint8_t index;
+                uint8_t index = 0;
                 const char * const end_ptr = start_str_ptr+str_len;
                 for(const char * str_ptr = start_str_ptr; str_ptr < end_ptr; ++str_ptr) {
                     const uint32_t ptr_offset = (str_ptr - start_str_ptr) + index_offset;
