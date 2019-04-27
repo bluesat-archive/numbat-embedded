@@ -106,6 +106,8 @@ void NodeHandle::do_register_node(char *node_name, RtosSignalId msg_signal) {
         ((On_Error_Data*)data)->this_node->do_register_node(((On_Error_Data*)data)->node_name, ((On_Error_Data*)data)->msg_signal);
         ROS_INFO("CAN Error\n");
     }, &on_error_data)->wait(msg_signal);
+    
+    ROS_INFO("Node init done");
 }
 
 void NodeHandle::spin() {

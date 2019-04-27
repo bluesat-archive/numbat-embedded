@@ -24,8 +24,7 @@
 
 #define SYSTICKS_PER_SECOND     100
 
-#define CAN_BITRATE 500000
-#define CAN_MSG_LEN 8
+
 
 static tCANMsgObject rx_object;
 static uint8_t can_input_buffer[CAN_MSG_LEN];
@@ -150,7 +149,7 @@ int main(void) {
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
 
-    init_can();
+    init_can_common();
 
     alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
 
@@ -164,32 +163,6 @@ int main(void) {
     /* Should never reach here, but if we do, an infinite loop is
        easier to debug than returning somewhere random. */
     for (;;) ;
-}
-
-void init_can(void) {
-    // We enable GPIO E - E4 for RX and E5 for TX
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-    GPIOPinConfigure(GPIO_PE4_CAN0RX);
-    GPIOPinConfigure(GPIO_PE5_CAN0TX);
-
-    // enables the can function we have just configured on those pins
-    GPIOPinTypeCAN(GPIO_PORTE_BASE, GPIO_PIN_4 | GPIO_PIN_5);
-
-    //enable and initalise CAN0
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_CAN0);
-    CANInit(CAN0_BASE);
-
-    //TODO: change this to use the eChronos clock
-    // Set the bitrate for the CAN BUS. It uses the system clock
-    CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
-
-    // enable can interupts
-    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR); //| CAN_INT_STATUS);
-    IntEnable(INT_CAN0);
-
-    //start CAN
-    CANEnable(CAN0_BASE);
-
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
