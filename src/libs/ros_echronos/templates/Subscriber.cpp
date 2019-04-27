@@ -191,7 +191,7 @@ template <class T> void Subscriber<T>::register_topic(const RtosSignalId signal_
     const uint8_t index_offset = send_string(msg, msg_head, topic_name, topic_length+1, 0);
     const uint8_t index = send_string(msg, msg_head, T::NAME, msg_name_len+1, index_offset+1);
     // if we haven't just sent a message and its not the last null terminator, send
-    if((index != (CAN_MESSAGE_MAX_LEN-1)) && (index != 0)) {
+    if(index != (CAN_MESSAGE_MAX_LEN-1)) {
         msg.body_bytes = index + 1;
         ROS_INFO("last packet size %u", msg.body_bytes);
         send_can(msg);
