@@ -45,6 +45,12 @@ namespace ros_echronos {
             virtual void override_with_new_size(const size_t &size) = 0;
 
             /**
+             * Used by message descriptors to load data into empty array classes
+             * @param bytes the number of bytes to load
+             */
+            virtual void override_with_new_bytes(const size_t &bytes) = 0;
+
+            /**
              * Used by message descriptors to access the values array
              * @return ptr to Array.values
              */
@@ -105,6 +111,7 @@ namespace ros_echronos {
         protected:
 
             virtual void override_with_new_size(const size_t &size);
+            virtual void override_with_new_bytes(const size_t &bytes);
             virtual void * get_values_ptr();
 
     };
@@ -212,6 +219,9 @@ template <typename T> inline void ros_echronos::Array<T>::override_with_new_size
     } else {
         values = NULL;
     }
+}
+template <typename T> inline void ros_echronos::Array<T>::override_with_new_bytes(const size_t &new_bytes) {
+    override_with_new_size(new_bytes / sizeof(T));
 }
 
 template <typename T> inline void * ros_echronos::Array<T>::get_values_ptr() {
