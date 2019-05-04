@@ -112,10 +112,11 @@ template <class T> void Publisher<T>::register_topic(const RtosSignalId signal_w
     const size_t msg_name_len = strlen(T::NAME);
 
     // build the request header
-    Advertise_Header msg_head;
+    Advertise_Header msg_head = {0};
     msg_head.fields.step = 0;
     msg_head.fields.node_id = nh->get_node_id();
-    msg_head.fields.length = (topic_length + msg_name_len + 1) / CAN_MESSAGE_MAX_LEN;
+    const size_t  lengths = (topic_length + msg_name_len + 2);
+    msg_head.fields.length = (lengths % CAN_MESSAGE_MAX_LEN) ? (lengths / CAN_MESSAGE_MAX_LEN) + 1 : lengths / CAN_MESSAGE_MAX_LEN;
     msg_head.fields.hash = hash(topic_name); // this gets truncated but that's fine
     msg_head.fields.seq_num = 0;
 
@@ -128,17 +129,15 @@ template <class T> void Publisher<T>::register_topic(const RtosSignalId signal_w
     // build the expected response header
     Advertise_Header response_head = msg_head;
     response_head.fields.step = 1;
-    CAN_Header can_response_head;
-    can_response_head.bits = response_head.bits | ADV_CTRL_HEADER.bits;
+    CAN_Header can_response_head = ros_echronos::can::control_4_advertise::add_common_headers(response_head);
     promise::CANPromise * const promise = nh->promise_manager.match(can_response_head, mask);
 
     // build the strings and send messages
     CAN_ROS_Message msg;
-    msg.head = ADV_CTRL_HEADER;
-    msg.head.bits |= msg_head.bits;
+    msg.head = ros_echronos::can::control_4_advertise::add_common_headers(msg_head);
     msg.body_bytes = CAN_MESSAGE_MAX_LEN;
-    const uint8_t index_offset = control_4_advertise::send_string(msg, msg_head, topic_name, topic_length, 0);
-    const uint8_t index = control_4_advertise::send_string(msg, msg_head, T::NAME, msg_name_len, index_offset+1);
+    const uint8_t index_offset = control_4_advertise::send_string(msg, msg_head, topic_name, topic_length+1, 0);
+    const uint8_t index = control_4_advertise::send_string(msg, msg_head, T::NAME, msg_name_len+1, index_offset+1);
     // if we haven't just sent a message and its not the last null terminator, send
     if((index != (CAN_MESSAGE_MAX_LEN-1)) && (index != 0)) {
         msg.body_bytes = index+1;

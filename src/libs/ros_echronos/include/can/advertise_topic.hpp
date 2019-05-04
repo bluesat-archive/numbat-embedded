@@ -40,7 +40,7 @@ namespace ros_echronos {
             /**
              * Ctrl message specific fields that are common
              */
-            constexpr CAN_Header _adv_ctrl_fields = {
+            constexpr CAN_Header adv_ctrl_fields = {
                 .fields = {
                     .f2_ctrl_msg_fields = {
                         0x0, ((unsigned int)ADVERTISE_TOPIC), 0
@@ -52,7 +52,7 @@ namespace ros_echronos {
              * Merged CAN Header
              */
             const CAN_Header ADV_CTRL_HEADER {
-                .bits = CAN_CTRL_BASE_FIELDS.bits | _adv_ctrl_fields.bits
+                .bits = CAN_CTRL_BASE_FIELDS.bits | adv_ctrl_fields.bits
             };
 
             /**
@@ -68,6 +68,13 @@ namespace ros_echronos {
 
             inline uint8_t send_string(can::CAN_ROS_Message & msg, Advertise_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
                 return control_2_subscribe::send_string(msg, msg_head, start_str_ptr, str_len, index_offset);
+            }
+            
+            constexpr CAN_Header add_common_headers(const Advertise_Header & advertise_header) {
+                return {
+                        .bits = CAN_CTRL_BASE_FIELDS.bits | advertise_header.bits | adv_ctrl_fields.bits
+                    };
+
             }
         }
     }

@@ -25,6 +25,10 @@
                     <number>39</number>
                     <handler>ros_can_interupt_handler</handler>
                 </external_irq>
+                <external_irq>
+                    <number>5</number>
+                    <handler>uart0_int_handler</handler>
+                </external_irq>
             </external_irqs>
         </module>
         <module name="armv7m.semihost-debug" />
@@ -44,7 +48,7 @@
                     <name>task_ros_test</name>
                     <function>task_ros_test_fn</function>
                     <priority>30</priority>
-                    <stack_size>512</stack_size>
+                    <stack_size>2048</stack_size>
                 </task>
 		 <task>
                     <name>task_can_wait</name>
@@ -79,6 +83,9 @@
                 <mutex>
                     <name>alloc</name>
                 </mutex>
+                <mutex>
+                    <name>print</name>
+                </mutex>
             </mutexes>
 
             <mutex>
@@ -88,7 +95,7 @@
                 <interrupt_event>
                     <name>can_receive_event</name>
                     <sig_set>can_receive_signal</sig_set>
-                    <task>task_ros_test</task>
+                    <task>task_can_wait</task>
                 </interrupt_event>
             </interrupt_events>
         </module>
