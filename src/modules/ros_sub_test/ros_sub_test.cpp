@@ -2,6 +2,7 @@
 #include "boilerplate.h"
 #include "ros.hpp"
 #include "owr_messages/pwm.hpp"
+#include "owr_messages/tester.hpp"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
 #include "NodeHandle.hpp"
@@ -27,10 +28,25 @@ extern "C" bool tick_irq(void) {
 bool sent_message;
 
 static uint32_t error_flag;
-
+void callback2(const owr_messages::tester& msg) {}
 
 extern "C" void task_ros_sub_test_fn(void) {
-    owr_messages::pwm pwm_buffer[5];
+    owr_messages::tester buffer[5];
+
+    ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
+    ros_echronos::NodeHandle nh;
+    nh.init("ros_test_fn", "ros_test_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    ros_echronos::ROS_INFO("Done init\n");
+
+    ros_echronos::ROS_INFO("sub init\n");
+    ros_echronos::Subscriber<owr_messages::tester> sub("/aaa", (owr_messages::tester*)buffer, 5, callback2);
+    sub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    ros_echronos::ROS_INFO("starting the main loop\n");
+    while(true) {
+        nh.spin();
+    }
+    
+    /*owr_messages::pwm pwm_buffer[5];
 
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
