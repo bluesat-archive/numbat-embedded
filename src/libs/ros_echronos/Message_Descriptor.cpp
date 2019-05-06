@@ -61,7 +61,7 @@ void Message_Descriptor::decode_msg(const can::CAN_ROS_Message &msg) {
                 field_size[field_offset] = *((uint16_t *) (curr_bdy));
                 i+= sizeof(uint16_t);
                 // setup the array so we can copy into it, then switch it out for the actual array ptr
-                _Array * array = ((_Array *) field_ptrs[field_internal_offset]);
+                _Array * array = ((_Array *) field_ptrs[field_offset]);
                 array->override_with_new_bytes(field_size[field_offset]);
                 field_ptrs[field_offset] = array->get_values_ptr();
                 continue;
@@ -78,7 +78,7 @@ void Message_Descriptor::decode_msg(const can::CAN_ROS_Message &msg) {
             field_size[field_offset] |= *curr_bdy;
             ++i;
             decoding_len = false;
-            _Array * array = ((_Array *) field_ptrs[field_internal_offset]);
+            _Array * array = ((_Array *) field_ptrs[field_offset]);
             array->override_with_new_bytes(field_size[field_offset]);
             field_ptrs[field_offset] = array->get_values_ptr();
             continue;
