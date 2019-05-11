@@ -28,7 +28,20 @@ extern "C" bool tick_irq(void) {
 bool sent_message;
 
 static uint32_t error_flag;
-void callback2(const owr_messages::tester& msg) {}
+void print_str(const ros_echronos::String& s) {
+    using ros_echronos::ROS_INFO;
+    ROS_INFO("size: %u", s.size);
+    for (auto i = 0u; i < s.size; ++i) {
+        ROS_INFO("char at %u: %c (%d)", i, s.values[i], s.values[i]);
+    }
+}
+void callback2(const owr_messages::tester& msg) {
+    using ros_echronos::ROS_INFO;
+    ROS_INFO("d0:");
+    print_str(msg.d0);
+    ROS_INFO("d1:");
+    print_str(msg.d1);
+}
 
 extern "C" void task_ros_sub_test_fn(void) {
     owr_messages::tester buffer[5];
