@@ -57,7 +57,6 @@ import roslib.packages
 import roslib.gentools
 from rospkg import RosPack
 
-
 try:
     from cStringIO import StringIO #Python 2.x
 except ImportError:
@@ -221,6 +220,7 @@ def write_struct(s, spec, cpp_name_prefix, extra_deprecated_traits = {}):
     (cpp_msg_unqualified, cpp_msg_with_alloc, cpp_msg_base) = cpp_message_declarations(cpp_name_prefix, msg)
     s.write('  typedef %s * Ptr;\n'%(cpp_msg_with_alloc))
     s.write('  typedef %s * const ConstPtr;\n'%(cpp_msg_with_alloc))
+    s.write('  constexpr static char * NAME = "%s/%s";\n' % (spec.package, spec.short_name))
 
     s.write('}; // class %s\n'%(msg))
     
@@ -540,7 +540,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     for field in spec.parsed_fields():
 
         (base_type, is_array, array_len) = parse_type(field.type)
-        if is_array:
+        if is_array or (base_type == 'string'):
             sizes.append("%s.bytes+2" % field.name)
             output+='%smemcpy(block+offset, &%s.size, sizeof(short));\n' % (CPP_INDENT, field.name)
             if roslib.msgs.is_builtin(base_type):
@@ -584,7 +584,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     for field in spec.parsed_fields():
         (base_type, is_array, array_len) = parse_type(field.type)
         s.write('%sdescriptor->fixed_field_ptrs[%d] = &%s;\n' % (CPP_INDENT, i, field.name))
-        if is_array:
+        if is_array or (base_type == 'string'):
             s.write('%sdescriptor->fixed_field_sizes[%d] = 0;\n' % (CPP_INDENT, i))
         else:
             s.write('%sdescriptor->fixed_field_sizes[%d] = sizeof(%s);\n' % (CPP_INDENT, i, field.name))
@@ -654,6 +654,44 @@ def is_fixed_length(spec):
             return False
         
     return True
+    
+def write_deprecated_member_functions(s, spec, traits):
+    """
+    Writes the deprecated member functions for backwards compatibility
+    """
+    for field in spec.parsed_fields():
+        if (field.is_array):
+            s.write('  ROS_DEPRECATED uint32_t get_%s_size() const { return (uint32_t)%s.size(); }\n'%(field.name, field.name))
+            
+            if (field.array_len is None):
+                s.write('  ROS_DEPRECATED void set_%s_size(uint32_t size) { %s.resize((size_t)size); }\n'%(field.name, field.name))
+                s.write('  ROS_DEPRECATED void get_%s_vec(%s& vec) const { vec = this->%s; }\n'%(field.name, msg_type_to_cpp(field.type), field.name))
+                s.write('  ROS_DEPRECATED void set_%s_vec(const %s& vec) { this->%s = vec; }\n'%(field.name, msg_type_to_cpp(field.type), field.name))
+    
+    for k, v in traits.items():
+        s.write('private:\n')
+        s.write('  static const char* __s_get%s_() { return "%s"; }\n'%(k, v))
+        s.write('public:\n')
+        s.write('  ROS_DEPRECATED static const std::string __s_get%s() { return __s_get%s_(); }\n\n'%(k, k))
+        s.write('  ROS_DEPRECATED const std::string __get%s() const { return __s_get%s_(); }\n\n'%(k, k))
+    
+    s.write('  ROS_DEPRECATED virtual uint8_t *serialize(uint8_t *write_ptr, uint32_t seq) const\n  {\n')
+    s.write('    ros::serialization::OStream stream(write_ptr, 1000000000);\n')
+    for field in spec.parsed_fields():
+        s.write('    ros::serialization::serialize(stream, %s);\n'%(field.name))
+    s.write('    return stream.getData();\n  }\n\n')
+    
+    s.write('  ROS_DEPRECATED virtual uint8_t *deserialize(uint8_t *read_ptr)\n  {\n')
+    s.write('    ros::serialization::IStream stream(read_ptr, 1000000000);\n');
+    for field in spec.parsed_fields():
+        s.write('    ros::serialization::deserialize(stream, %s);\n'%(field.name))
+    s.write('    return stream.getData();\n  }\n\n')
+    
+    s.write('  ROS_DEPRECATED virtual uint32_t serializationLength() const\n  {\n')
+    s.write('    uint32_t size = 0;\n');
+    for field in spec.parsed_fields():
+        s.write('    size += ros::serialization::serializationLength(%s);\n'%(field.name))
+    s.write('    return size;\n  }\n\n')
 
 def compute_full_text_escaped(gen_deps_dict):
     """

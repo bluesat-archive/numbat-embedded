@@ -1,4 +1,7 @@
 #include "boilerplate.h"
+#define CAN_BITRATE 500000
+
+
 
 void nmi() { for(;;); }
 
@@ -79,4 +82,40 @@ void uart0_int_handler(void) {
 #ifdef UART_BUFFERED
     UARTStdioIntHandler();
 #endif
+}
+
+// apparently memset is missing
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58203
+void * memset(void * dst, int c, size_t n) {//__attribute__((used)) {
+    uint8_t * ptr = (uint8_t*) dst;
+    for(int i =0; i < n; ++i) {
+        ptr[i] = c;
+    }
+    return ptr;
+}
+
+void init_can_common(void) {
+    // We enable GPIO E - E4 for RX and E5 for TX
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+    GPIOPinConfigure(GPIO_PE4_CAN0RX);
+    GPIOPinConfigure(GPIO_PE5_CAN0TX);
+
+    // enables the can function we have just configured on those pins
+    GPIOPinTypeCAN(GPIO_PORTE_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+
+    //enable and initalise CAN0
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_CAN0);
+    CANInit(CAN0_BASE);
+
+    //TODO: change this to use the eChronos clock
+    // Set the bitrate for the CAN BUS. It uses the system clock
+    CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
+
+    // enable can interupts
+    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR); //| CAN_INT_STATUS);
+    IntEnable(INT_CAN0);
+
+    //start CAN
+    CANEnable(CAN0_BASE);
+
 }

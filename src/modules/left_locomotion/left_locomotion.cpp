@@ -17,7 +17,6 @@
 #define FRONT_LEFT_ROTATE_PIN PWM2
 #define BACK_LEFT_ROTATE_PIN PWM3
 
-ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define DRIVE_PWM_PERIOD 10.0
 
@@ -25,8 +24,7 @@ ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define SYSTICKS_PER_SECOND     100
 
-#define CAN_BITRATE 500000
-#define CAN_MSG_LEN 8
+
 
 static tCANMsgObject rx_object;
 static uint8_t can_input_buffer[CAN_MSG_LEN];
@@ -53,28 +51,23 @@ static uint32_t error_flag;
 extern "C" void task_left_locomotion_fn(void) {
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
-    nh.init("left_locomotion_fn", "left_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL);
+    nh.init("left_locomotion_fn", "left_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("Done init\n");
-    nh_ptr = &nh;
 
     ros_echronos::ROS_INFO("Initalising left locomotion subscribers\n");
     // Create the subscribers
     std_msgs::Float64 front_left_drive_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("front_left_wheel_axel_controller/command", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
-    frontLeftDriveSub.set_topic_id(0);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("/front_left_wheel_axel_controller/command", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
     std_msgs::Float64 front_left_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("front_left_swerve_controller/command", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
-    frontLeftRotateSub.set_topic_id(4);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("/front_left_swerve_controller/command", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
     std_msgs::Float64 back_left_drive_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("back_left_wheel_axel_controller/command", back_left_drive_buffer_in, 5, backLeftDriveCallback);
-    backLeftDriveSub.set_topic_id(2);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("/back_left_wheel_axel_controller/command", back_left_drive_buffer_in, 5, backLeftDriveCallback);
     std_msgs::Float64 back_left_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("back_left_swerve_controller/command", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
-    backLeftRotateSub.set_topic_id(6);
-    frontLeftDriveSub.init(nh);
-    frontLeftRotateSub.init(nh);
-    backLeftDriveSub.init(nh);
-    backLeftRotateSub.init(nh);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("/back_left_swerve_controller/command", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
+    frontLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    frontLeftRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    backLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    backLeftRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
 
     servo_init(HS_785HB, FRONT_LEFT_ROTATE_PIN);
     servo_init(HS_785HB, BACK_LEFT_ROTATE_PIN);
@@ -156,7 +149,7 @@ int main(void) {
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
 
-    init_can();
+    init_can_common();
 
     alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
 
@@ -172,32 +165,6 @@ int main(void) {
     for (;;) ;
 }
 
-void init_can(void) {
-    // We enable GPIO E - E4 for RX and E5 for TX
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-    GPIOPinConfigure(GPIO_PE4_CAN0RX);
-    GPIOPinConfigure(GPIO_PE5_CAN0TX);
-
-    // enables the can function we have just configured on those pins
-    GPIOPinTypeCAN(GPIO_PORTE_BASE, GPIO_PIN_4 | GPIO_PIN_5);
-
-    //enable and initalise CAN0
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_CAN0);
-    CANInit(CAN0_BASE);
-
-    //TODO: change this to use the eChronos clock
-    // Set the bitrate for the CAN BUS. It uses the system clock
-    CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
-
-    // enable can interupts
-    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR); //| CAN_INT_STATUS);
-    IntEnable(INT_CAN0);
-
-    //start CAN
-    CANEnable(CAN0_BASE);
-
-}
-
 static duty_pct speed_to_duty_pct(double speed) {
     duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
 
@@ -209,13 +176,13 @@ static double wheel_to_servo_angle(double wheel_angle) {
 }
 
 void frontLeftDriveCallback(const std_msgs::Float64 & msg) {
-    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, speed_to_duty_pct(msg.data));
     UARTprintf("Front left drive received.\n");
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, speed_to_duty_pct(msg.data));
 }
   
 void frontLeftRotateCallback(const std_msgs::Float64 & msg) {
-    servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Front left swerve received.\n");
+    servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
 }
     
     

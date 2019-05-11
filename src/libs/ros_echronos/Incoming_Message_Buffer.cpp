@@ -12,7 +12,6 @@
 //because templates
 #include "templates/Message_Buffer.cpp"
 
-ros_echronos::can::input_buffer_t ros_echronos::can::input_buffer;
 _Incoming_Message_Buffer * ros_echronos::can::incoming_msg_buffer;
 //rigtorp::SPSCQueue<ros_echronos::can::CAN_ROS_Message, 5> ros_echronos::can::msg_queue;
 
@@ -27,6 +26,16 @@ ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked() {
     ros_echronos::can::can_ros_message msg;
     ros_echronos::can::can_receive_lock();
     msg = pop();
+    ros_echronos::can::can_receive_unlock();
+
+    return msg;
+}
+
+ros_echronos::can::can_ros_message _Incoming_Message_Buffer::pop_locked(bool & more) {
+    ros_echronos::can::can_ros_message msg;
+    ros_echronos::can::can_receive_lock();
+    msg = pop();
+    more = !is_empty();
     ros_echronos::can::can_receive_unlock();
 
     return msg;

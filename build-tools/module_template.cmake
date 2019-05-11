@@ -6,6 +6,7 @@ set(BOILERPLATE_DIR ../boilerplate)
 
 set(MODULE_DEP_FILES
     ${BOILERPLATE_DIR}/boilerplate.c
+    ${BOILERPLATE_DIR}/can_wait_task.cpp
 )
 # NOTE: we don't include crtn or crti in the above because order is important
 
@@ -47,5 +48,13 @@ function(add_module module_name node_id serial serial_buffered files)
     install(TARGETS ${module_name}
             RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
     )
+    if(${PART} MATCHES "TM4C123GH6PGE")
+	message(AUTHOR_WARNING "\n\n* COMPILING FOR GENERIC PCB! *\n\n")
+    elseif(${PART} MATCHES "TM4C123GH6PM")
+	message(AUTHOR_WARNING "\n\n* COMPILING FOR TIVA BOARD! *\n\n")
+    else()
+	message(FATAL_ERROR "\n\n***********\nPART NOT DEFINED!")
+    endif()
+    
 
 endfunction()

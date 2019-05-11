@@ -47,6 +47,9 @@ SECTIONS
     .text :
     {
         *(.text.startup) *(.text)
+	/* Work around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58203 */
+	KEEP(*(.text.strlen))
+	KEEP(*(.text.strncpy))
         . = ALIGN(4);
     } AT > flash_region
 

@@ -23,6 +23,7 @@
 #include "driverlib/interrupt.h"
 #include "utils/uartstdio.h"
 
+#define CAN_MSG_LEN 8
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,11 @@ void InitializeFPU(void);
 
 
 void fatal(const uint8_t error_id);
+
+/**
+ * Common initialisation for can
+ */
+void init_can_common(void);
 
 #ifdef __cplusplus
 }

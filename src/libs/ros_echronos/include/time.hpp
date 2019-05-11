@@ -19,16 +19,16 @@ namespace ros_echronos {
      * Represents a ros::Duration object
      */
     struct Duration {
-        uint64_t seconds;
-        uint64_t nanos;
+        uint32_t seconds;
+        uint32_t nanos;
     } __attribute__((packed));
 
     /**
      * Represents a ros::Time object
      */
     struct Time {
-        uint64_t seconds;
-        uint64_t nanos;
+        uint32_t seconds;
+        uint32_t nanos;
     } __attribute__((packed));
 
     /**
@@ -36,7 +36,7 @@ namespace ros_echronos {
      * when it receives the message (it can try to account for transmission lag if possible)
      */
     constexpr Time CTRL_NOW = {
-        ULONG_MAX, ULONG_MAX
+        UINT_MAX, UINT_MAX
     };
 
 }
