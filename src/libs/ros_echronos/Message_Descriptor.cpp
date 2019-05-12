@@ -56,7 +56,7 @@ void Message_Descriptor::decode_msg(const can::CAN_ROS_Message &msg) {
 
         // if we are starting a field and the size needs to be calculated
         if(curr_field_size==0 && field_internal_offset == 0) {
-            if(msg.body_bytes-i > sizeof(uint16_t)) {
+            if(msg.body_bytes-i >= sizeof(uint16_t)) {
                 // we can't memcpy this as we are changing unsinged/signed and integer size
                 field_size[field_offset] = *((uint16_t *) (curr_bdy));
                 i+= sizeof(uint16_t);
@@ -66,16 +66,16 @@ void Message_Descriptor::decode_msg(const can::CAN_ROS_Message &msg) {
                 field_ptrs[field_offset] = array->get_values_ptr();
                 continue;
             } else {
-                // got to copy second byte
-                // shift it by one byte and convert to the right type
-                field_size[field_offset] = ((size_t)(*(curr_bdy))) << 8;
+                // copy least significant byte
+                field_size[field_offset] = *curr_bdy;
                 decoding_len = true;
                 // we have finished this message then
                 break;
             }
         } else if (decoding_len) {
-            //this should always be the first byte in the message
-            field_size[field_offset] |= *curr_bdy;
+            // this should always be the first byte in the message
+            // copy most significant byte
+            field_size[field_offset] |= (*curr_bdy) << 8;
             ++i;
             decoding_len = false;
             _Array * array = ((_Array *) field_ptrs[field_offset]);
