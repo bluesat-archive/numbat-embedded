@@ -16,14 +16,11 @@ Message_Descriptor::Message_Descriptor(
         void **field_ptrs,
         size_t *field_size,
         const size_t num_fields
-) : Message_Descriptor(field_ptrs, field_size, num_fields, true) {}
+) : Message_Descriptor(field_ptrs, field_size, nullptr, num_fields, true) {}
 
-Message_Descriptor::Message_Descriptor(
-        void **field_ptrs,
-        size_t *field_size,
-        const size_t num_fields,
-        const bool copy
-) : num_fields(num_fields), mem_manage_arrays(copy) {
+Message_Descriptor::Message_Descriptor(void **field_ptrs, size_t *field_size, Message_Descriptor **sub_descriptor_ptrs,
+                                       size_t num_fields, const bool copy)
+    : num_fields(num_fields), mem_manage_arrays(copy) {
     if(copy) {
         this->field_ptrs = (void **) alloc::malloc(sizeof(void *) * num_fields);
         this->field_size = (size_t *) alloc::malloc(sizeof(size_t) * num_fields);

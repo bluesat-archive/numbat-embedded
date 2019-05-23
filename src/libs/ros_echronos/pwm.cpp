@@ -30,8 +30,8 @@
       offset+=sizeof(targetPos);
   } // generate_block
   ros_echronos::Message_Descriptor * owr_messages::pwm_::generate_descriptor() {
-    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<6>));
-    ros_echronos::Message_Descriptor_Fixed<6> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<6>();
+    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<6, ros_echronos::Tuple>));
+    ros_echronos::Message_Descriptor_Fixed<6, ros_echronos::Tuple> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<6, ros_echronos::Tuple>();
     descriptor->fixed_field_ptrs[0] = &joint;
     descriptor->fixed_field_sizes[0] = sizeof(joint);
     descriptor->fixed_field_ptrs[1] = &pwm;

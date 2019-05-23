@@ -28,7 +28,6 @@ bool sent_message;
 
 static uint32_t error_flag;
 
-
 extern "C" void task_ros_sub_test_fn(void) {
     owr_messages::pwm pwm_buffer[5];
 

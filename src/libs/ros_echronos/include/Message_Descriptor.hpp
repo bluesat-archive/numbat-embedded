@@ -6,6 +6,7 @@
  * @copydetails: This code is released under the LGPLv3 and newer License and the BSD License
  * @copyright: Copyright BLUEsat UNSW 2017
  */
+#include <type_traits>
 #include "ros.hpp"
 #include "can.hpp"
 #ifndef NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP
@@ -58,8 +59,10 @@ namespace ros_echronos {
              * @param num_fields the number of fields in the message (and thus the number of elements in each array)
              * @param copy if the fields should be copied or just use the existing pointers
              */
-            Message_Descriptor(void ** field_ptrs, size_t * field_size, size_t num_fields, const bool copy);
+            Message_Descriptor(void **field_ptrs, size_t *field_size, Message_Descriptor **sub_descriptor_ptrs,
+                               size_t num_fields, const bool copy);
             void ** field_ptrs = NULL;
+            Message_Descriptor ** sub_descriptors = NULL;
             size_t * field_size = NULL;
             const size_t num_fields;
             /**
@@ -85,25 +88,83 @@ namespace ros_echronos {
 
     };
 
+    class Tuple {
+    public:
+        Tuple();
+
+        virtual void get_children(int size, Message_Descriptor ** ptrs) {
+
+        }
+    };
+
+//    template <typename  T, typename ... Ts> class Tuple_With_Data_1 : Tuple {
+//
+//        T value;
+//
+//    public:
+//        Tuple_With_Data_1(T value) : value(value) {
+//
+//        }
+//
+//        Tuple_With_Data_1();
+//
+//
+//        virtual void get_children(const size_t size, Message_Descriptor ** ptrs) {
+//            ptrs[0] = &value;
+//        }
+//
+//    };
+
+
+    template <typename  T, typename Ts > class Tuple_With_Data : Tuple {
+
+         T value;
+
+         Ts data;
+
+    public:
+        Tuple_With_Data(T value, Ts next) : value(value),  data(next) {
+
+        }
+
+        Tuple_With_Data();
+
+
+        void get_children(const size_t size, Message_Descriptor ** ptrs) {
+            ptrs[0] = &value;
+            data.get_children(size-1, ptrs+1);
+        }
+
+    };
+
+
+
     /**
      * Template used to avoid doing extra allocations for the fields. Since a message descriptor is initalised at
      * compile time this can be done
      * @tparam FIELDS the number of fields in this descriptor
      */
-    template <const int FIELDS>
+    template <const size_t FIELDS, typename SUB_DESC_TREE>
     class Message_Descriptor_Fixed : public Message_Descriptor {
 
-        public:
-            Message_Descriptor_Fixed();
-            void * fixed_field_ptrs[FIELDS];
-            size_t fixed_field_sizes[FIELDS];
+    public:
+        Message_Descriptor_Fixed();
+        void * fixed_field_ptrs[FIELDS];
+        size_t fixed_field_sizes[FIELDS];
+        SUB_DESC_TREE desc_tree;
+        Message_Descriptor * fixed_sub_descriptor_ptrs[FIELDS];
+
+    private:
     };
 
-    template <const int FIELDS>
-    inline Message_Descriptor_Fixed<FIELDS>::Message_Descriptor_Fixed() :
-            Message_Descriptor(fixed_field_ptrs, fixed_field_sizes, FIELDS, false) {
-
+    template <const size_t FIELDS, typename SUB_DESC_TREE>
+    inline Message_Descriptor_Fixed<FIELDS, SUB_DESC_TREE>::Message_Descriptor_Fixed() :
+        Message_Descriptor(fixed_field_ptrs, fixed_field_sizes, fixed_sub_descriptor_ptrs, FIELDS, false) {
+            desc_tree.get_children(FIELDS, fixed_sub_descriptor_ptrs);
     }
+
+    Message_Descriptor_Fixed<2, Tuple_With_Data<Message_Descriptor_Fixed<1, Tuple>, Tuple>> test;
+
 }
 
 #endif //NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP
