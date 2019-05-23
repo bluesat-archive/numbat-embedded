@@ -92,10 +92,11 @@ namespace ros_echronos {
     public:
         Tuple();
 
-        virtual void get_children(int size, Message_Descriptor ** ptrs) {
+        void get_children(int size, Message_Descriptor ** ptrs) {
 
         }
     };
+
 
 //    template <typename  T, typename ... Ts> class Tuple_With_Data_1 : Tuple {
 //
@@ -116,10 +117,11 @@ namespace ros_echronos {
 //    };
 
 
-    template <typename  T, typename Ts > class Tuple_With_Data : Tuple {
+    template <typename  T, typename Ts > class Tuple_With_Data {
 
          T value;
 
+    protected:
          Ts data;
 
     public:
@@ -135,6 +137,26 @@ namespace ros_echronos {
             data.get_children(size-1, ptrs+1);
         }
 
+    };
+
+    template <typename Ts>
+    class Tuple_Null {
+
+    private:
+        Ts data;
+    public:
+
+
+        Tuple_Null(Ts next) :  data(next) {
+
+        }
+
+        Tuple_Null();
+
+        void get_children(int size, Message_Descriptor ** ptrs) {
+            ptrs[0] = NULL;
+            data.get_children(size-1, ptrs+1);
+        }
     };
 
 
@@ -163,7 +185,7 @@ namespace ros_echronos {
             desc_tree.get_children(FIELDS, fixed_sub_descriptor_ptrs);
     }
 
-    Message_Descriptor_Fixed<2, Tuple_With_Data<Message_Descriptor_Fixed<1, Tuple>, Tuple>> test;
+    Message_Descriptor_Fixed<3, Tuple_With_Data<Message_Descriptor_Fixed<1, Tuple>, Tuple_Null<Tuple>>> test;
 
 }
 
