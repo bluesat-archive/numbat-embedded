@@ -25,4 +25,8 @@ target_link_libraries(left_locomotion pwm servo m)
 
 generate_msgs(std_msgs Float64)
 depend_msgs(left_locomotion std_msgs Float64)
+generate_msgs(std_msgs Header)
+depend_msgs(left_locomotion std_msgs Header)
+generate_msgs(owr_messages board)
+depend_msgs(left_locomotion owr_messages board)
 

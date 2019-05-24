@@ -185,7 +185,13 @@ namespace ros_echronos {
             desc_tree.get_children(FIELDS, fixed_sub_descriptor_ptrs);
     }
 
-    Message_Descriptor_Fixed<3, Tuple_With_Data<Message_Descriptor_Fixed<1, Tuple>, Tuple_Null<Tuple>>> test;
+    inline Tuple::Tuple() {}
+
+    template <typename Ts>
+    inline Tuple_Null<Ts>::Tuple_Null() {}
+    template <typename  T, typename Ts>
+    inline Tuple_With_Data<T, Ts>::Tuple_With_Data() {}
+
 
 }
 

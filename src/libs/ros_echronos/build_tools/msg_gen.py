@@ -553,8 +553,9 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
 
     num_fields = len(spec.parsed_fields())
     s.write('  ros_echronos::Message_Descriptor * %s%s_::generate_descriptor() {\n' % (cpp_name_prefix, msg))
-    s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d>));\n' % num_fields)
-    s.write('    ros_echronos::Message_Descriptor_Fixed<%d> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d>();\n' % (num_fields, num_fields))
+    sub_tree = sub_message_descriptor_defition(spec.parsed_fields())
+    s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d, %s>));\n' % (num_fields, sub_tree))
+    s.write('    ros_echronos::Message_Descriptor_Fixed<%d, %s> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d, %s>();\n' % (num_fields, sub_tree, num_fields, sub_tree))
     i = 0
     for field in spec.parsed_fields():
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
@@ -566,6 +567,41 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
         i+=1
     s.write('    return descriptor;\n')
     s.write('  }\n')
+
+def sub_message_descriptor_defition(fields):
+    if len(fields) == 0:
+        return "ros_echronos::Tuple"
+
+    field = fields[0]
+    fields = fields[1:]
+    (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+    if roslib.msgs.is_builtin(base_type):
+        return "ros_echronos::Tuple_Null<%s>" % (
+            sub_message_descriptor_defition(fields[1:])
+        )
+
+    return "ros_echronos::Tuple_With_Data<%s, %s>" % (
+        sub_message_descriptor(field),
+        sub_message_descriptor_defition(fields[1:])
+    )
+
+def sub_message_descriptor(field):
+    (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
+    # this should only be called for messages
+    assert (not roslib.msgs.is_builtin(base_type))
+
+    print base_type
+    (package, msg_name) = base_type.split('/')
+    (_, spec) = roslib.msgs.load_by_type(msg_name, package)
+
+    fields = spec.parsed_fields()
+    return "ros_echronos::Message_Descriptor_Fixed<%s, %s>" % (
+        len(fields),
+        sub_message_descriptor_defition(fields)
+    )
+
+
+
 
 def escape_string(str):
     str = str.replace('\\', '\\\\')
