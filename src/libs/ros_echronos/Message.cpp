@@ -85,6 +85,7 @@ void Message::fill(const can::CAN_ROS_Message &msg) {
     // scratch
     if(!desc) {
         desc = generate_descriptor();
+        populate_descriptor(desc);
         //set the from node
         from_node = msg.head.fields.f0_ros_msg_fields.node_id;
         from_msg_num = msg.head.fields.f0_ros_msg_fields.message_num;
@@ -93,8 +94,7 @@ void Message::fill(const can::CAN_ROS_Message &msg) {
     }
     //ros_echronos::ROS_INFO("Decoding\n");
     desc->decode_msg(msg);
-    ++decode_index;
-    done = decode_index == size;
+    record_fill();
 #ifdef DEBUG_MESSAGE_DECODE
     ros_echronos::ROS_INFO("Decoding Done %d/%d seq %d\n", decode_index, size, msg.head.fields.seq_num);
 #endif //DEBUG_MESSAGE_DECODE
@@ -125,6 +125,12 @@ Message::~Message() {
         alloc::free(block);
         block = NULL;
     }
+}
+
+bool Message::record_fill() {
+    ++decode_index;
+    done = decode_index == size;
+    return done;
 }
 
 void Message::generate_block() {

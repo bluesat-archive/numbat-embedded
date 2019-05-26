@@ -25,4 +25,6 @@ target_link_libraries(ros_sub_test pwm servo m)
 
 generate_msgs(std_msgs String)
 depend_msgs(ros_sub_test std_msgs String)
+generate_msgs(owr_messages pwm)
+depend_msgs(ros_sub_test owr_messages pwm)
 

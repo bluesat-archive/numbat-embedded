@@ -7,6 +7,7 @@
  * @copyright: Copyright BLUEsat UNSW 2017
  */
 #include <type_traits>
+#include <new>
 #include "ros.hpp"
 #include "can.hpp"
 #ifndef NUMBAT_EMBEDDED_MESSAGE_DESCRIPTOR_HPP
@@ -29,13 +30,6 @@ namespace ros_echronos {
              */
             void decode_msg(const can::CAN_ROS_Message &msg);
         //protected:
-            /**
-             * Creates a new Message Descriptor with references to the fields
-             * @param field_ptrs pointers to each of the fields in the message
-             * @param field_size the size of each field, 0 represents a variable length field
-             * @param num_fields the number of fields in the message (and thus the number of elements in each array)
-             */
-            Message_Descriptor(void ** field_ptrs, size_t * field_size, const size_t num_fields);
 
             /**
              * Destroys the descriptor
@@ -56,6 +50,7 @@ namespace ros_echronos {
              * pointers rather than copy them. This is designed for use with Message_Descriptor_Fixed to reduce mallocs.
              * @param field_ptrs pointers to each of the fields in the message
              * @param field_size the size of each field, 0 represents a variable length field
+             * @param sub_descriptor_ptrs the pointers for each subdescriptor, or null otherwise
              * @param num_fields the number of fields in the message (and thus the number of elements in each array)
              * @param copy if the fields should be copied or just use the existing pointers
              */
@@ -77,6 +72,7 @@ namespace ros_echronos {
              * If we have to split halfway through a length
              */
             bool decoding_len = false;
+            const bool is_cloned;
         private:
             /**
              * If we need to memory manage our arrays
@@ -86,77 +82,77 @@ namespace ros_echronos {
         // allow Messages to use our protected methofs
         //friend class Message;
 
+            /**
+             * Used by message descriptor's internal functions to create a clone
+             * of a sub-descriptor on the heap
+             * @return the cloned descriptor
+             */
+            virtual Message_Descriptor *clone();
+
+            bool decode_msg_inner_loop(int & i, const uint8_t *  &curr_bdy, const can::CAN_ROS_Message & msg);
     };
 
+    /**
+     * Base type for a tuple
+     */
     class Tuple {
-    public:
-        Tuple();
+        public:
+            Tuple();
 
-        void get_children(int size, Message_Descriptor ** ptrs) {
-
-        }
+            inline const void get_children(const size_t size, Message_Descriptor ** const ptrs) {
+            }
     };
 
-
-//    template <typename  T, typename ... Ts> class Tuple_With_Data_1 : Tuple {
-//
-//        T value;
-//
-//    public:
-//        Tuple_With_Data_1(T value) : value(value) {
-//
-//        }
-//
-//        Tuple_With_Data_1();
-//
-//
-//        virtual void get_children(const size_t size, Message_Descriptor ** ptrs) {
-//            ptrs[0] = &value;
-//        }
-//
-//    };
-
-
+    /**
+     * Element of a tuple with data
+     * @tparam T the type of the data
+     * @tparam Ts the next part of the tuple
+     */
     template <typename  T, typename Ts > class Tuple_With_Data {
 
-         T value;
+        private:
+            T value;
 
-    protected:
-         Ts data;
+        protected:
+             Ts data;
 
-    public:
-        Tuple_With_Data(T value, Ts next) : value(value),  data(next) {
+        public:
+            Tuple_With_Data(T value, Ts next) : value(value),  data(next) {
 
-        }
+            }
 
-        Tuple_With_Data();
+            Tuple_With_Data();
 
 
-        void get_children(const size_t size, Message_Descriptor ** ptrs) {
-            ptrs[0] = &value;
-            data.get_children(size-1, ptrs+1);
-        }
+            inline const void get_children(const size_t size, Message_Descriptor ** const ptrs) {
+                ptrs[0] = &value;
+                data.get_children(size-1, ptrs+1);
+            }
 
     };
 
+    /**
+     * Represents a tuple element where no data is present
+     * @tparam Ts the next element
+     */
     template <typename Ts>
     class Tuple_Null {
 
-    private:
-        Ts data;
-    public:
+        private:
+            Ts data;
+        public:
 
 
-        Tuple_Null(Ts next) :  data(next) {
+            Tuple_Null(Ts next) :  data(next) {
 
-        }
+            }
 
-        Tuple_Null();
+            Tuple_Null();
 
-        void get_children(int size, Message_Descriptor ** ptrs) {
-            ptrs[0] = NULL;
-            data.get_children(size-1, ptrs+1);
-        }
+            inline const void get_children(const size_t size, Message_Descriptor ** const ptrs) {
+                ptrs[0] = NULL;
+                data.get_children(size-1, ptrs+1);
+            }
     };
 
 
@@ -177,6 +173,7 @@ namespace ros_echronos {
         Message_Descriptor * fixed_sub_descriptor_ptrs[FIELDS];
 
     private:
+        virtual Message_Descriptor *clone();
     };
 
     template <const size_t FIELDS, typename SUB_DESC_TREE>
@@ -191,6 +188,12 @@ namespace ros_echronos {
     inline Tuple_Null<Ts>::Tuple_Null() {}
     template <typename  T, typename Ts>
     inline Tuple_With_Data<T, Ts>::Tuple_With_Data() {}
+
+    template <const size_t FIELDS, typename SUB_DESC_TREE>
+    inline Message_Descriptor* Message_Descriptor_Fixed<FIELDS, SUB_DESC_TREE>::clone() {
+        // sizeof is calculated at compile time so we need to override this
+        return new(alloc::malloc(sizeof(*this))) Message_Descriptor_Fixed<FIELDS, SUB_DESC_TREE>(*this);
+    }
 
 
 }

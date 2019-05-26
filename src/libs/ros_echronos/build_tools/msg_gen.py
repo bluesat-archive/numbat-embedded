@@ -415,6 +415,7 @@ def declare_virtual_functions(s, spec, cpp_name_prefix):
     # Default functions
     s.write('  virtual void generate_block_impl();\n')
     s.write('  virtual ros_echronos::Message_Descriptor * generate_descriptor();\n')
+    s.write('  virtual void populate_descriptor(void * desc);\n')
 
 def write_member(s, field):
     """
@@ -556,6 +557,11 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
     sub_tree = sub_message_descriptor_defition(spec.parsed_fields())
     s.write('    void * desc = alloc::malloc(sizeof(ros_echronos::Message_Descriptor_Fixed<%d, %s>));\n' % (num_fields, sub_tree))
     s.write('    ros_echronos::Message_Descriptor_Fixed<%d, %s> * descriptor = new (desc) ros_echronos::Message_Descriptor_Fixed<%d, %s>();\n' % (num_fields, sub_tree, num_fields, sub_tree))
+    s.write('    return descriptor;\n')
+    s.write('  }\n\n')
+
+    s.write('  void %s%s_::populate_descriptor(void * desc) {\n' % (cpp_name_prefix, msg))
+    s.write('    ros_echronos::Message_Descriptor_Fixed<%d, %s> * descriptor = (ros_echronos::Message_Descriptor_Fixed<%d, %s> *)desc;\n' % (num_fields, sub_tree, num_fields, sub_tree))
     i = 0
     for field in spec.parsed_fields():
         (base_type, is_array, array_len) = roslib.msgs.parse_type(field.type)
@@ -565,7 +571,6 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
         else:
             s.write('    descriptor->fixed_field_sizes[%d] = sizeof(%s);\n' % (i, field.name))
         i+=1
-    s.write('    return descriptor;\n')
     s.write('  }\n')
 
 def sub_message_descriptor_defition(fields):
