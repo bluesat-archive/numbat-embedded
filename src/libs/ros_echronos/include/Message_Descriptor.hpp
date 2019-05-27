@@ -99,7 +99,7 @@ namespace ros_echronos {
         public:
             Tuple();
 
-            inline const void get_children(const size_t size, Message_Descriptor ** const ptrs) {
+            inline void get_children(const size_t size, Message_Descriptor ** const ptrs) const {
             }
     };
 
@@ -124,7 +124,7 @@ namespace ros_echronos {
             Tuple_With_Data();
 
 
-            inline const void get_children(const size_t size, Message_Descriptor ** const ptrs) {
+            inline void get_children(const size_t size, Message_Descriptor ** const ptrs) {
                 ptrs[0] = &value;
                 data.get_children(size-1, ptrs+1);
             }
@@ -149,7 +149,7 @@ namespace ros_echronos {
 
             Tuple_Null();
 
-            inline const void get_children(const size_t size, Message_Descriptor ** const ptrs) {
+            inline void get_children(const size_t size, Message_Descriptor ** const ptrs) const {
                 ptrs[0] = NULL;
                 data.get_children(size-1, ptrs+1);
             }
@@ -170,7 +170,9 @@ namespace ros_echronos {
         void * fixed_field_ptrs[FIELDS];
         size_t fixed_field_sizes[FIELDS];
         SUB_DESC_TREE desc_tree;
-        Message_Descriptor * fixed_sub_descriptor_ptrs[FIELDS];
+        // we need to null intialize this so the parent constructor doesn't try
+        // to clone bad data
+        Message_Descriptor * fixed_sub_descriptor_ptrs[FIELDS] = {0x0};
 
     private:
         virtual Message_Descriptor *clone();

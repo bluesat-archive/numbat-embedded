@@ -40,7 +40,7 @@ void alloc::init_mm(const RtosMutexId alloc_mutex) {
 #endif
 }
 
-void * alloc::malloc(size_t size) {
+void * alloc::malloc(const size_t size) {
 #ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("alloc size %d\n",size);
 #endif
@@ -59,7 +59,7 @@ void * alloc::malloc(size_t size) {
     return val;
 }
 
-void alloc::free(void * ptr) {
+void alloc::free(void * const ptr) {
     rtos_mutex_lock(mutex);
 #ifdef DEBUG_ALLOC
     ros_echronos::ROS_INFO("A- Dealloc %p\n", ptr);

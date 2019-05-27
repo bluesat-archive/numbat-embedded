@@ -26,10 +26,10 @@ Message_Descriptor::Message_Descriptor(void **field_ptrs, size_t *field_size, Me
         memcpy(this->field_size, field_size, sizeof(size_t) * num_fields);
         for(int i = 0; i < num_fields; ++i) {
             if(sub_descriptor_ptrs[i]) {
-                sub_descriptors[i]  = sub_descriptor_ptrs[i]->clone();
+                this->sub_descriptors[i]  = sub_descriptor_ptrs[i]->clone();
             } else {
                 // ptr we are copying is null so we can be too
-                this->sub_descriptors = NULL;
+                this->sub_descriptors[i] = NULL;
             }
         }
     } else {
