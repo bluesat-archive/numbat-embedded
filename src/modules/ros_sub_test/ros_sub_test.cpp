@@ -12,9 +12,6 @@
 #define CAN_BITRATE 500000
 #define CAN_MSG_LEN 8
 
-static tCANMsgObject rx_object;
-static uint8_t can_input_buffer[CAN_MSG_LEN];
-
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 void callback(const owr_messages::pwm & msg);
@@ -23,10 +20,6 @@ extern "C" bool tick_irq(void) {
     rtos_timer_tick();
     return true;
 }
-
-bool sent_message;
-
-static uint32_t error_flag;
 
 extern "C" void task_ros_sub_test_fn(void) {
     owr_messages::pwm pwm_buffer[5];
@@ -40,7 +33,7 @@ extern "C" void task_ros_sub_test_fn(void) {
     ros_echronos::Subscriber<owr_messages::pwm> sub("/aaa", (owr_messages::pwm*)pwm_buffer, 5, callback);
     sub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("starting the main loop\n");
-    owr_messages::pwm msg;
+//    owr_messages::pwm msg;
     while(true) {
         nh.spin();
     }
@@ -109,7 +102,7 @@ int main(void) {
     // Initialize the UART for stdio so we can use UARTPrintf
     InitializeUARTStdio();
 
-    init_can();
+    init_can_common();
 
     alloc::init_mm(RTOS_MUTEX_ID_ALLOC);
 
@@ -124,30 +117,3 @@ int main(void) {
        easier to debug than returning somewhere random. */
     for (;;) ;
 }
-
-void init_can(void) {
-    // We enable GPIO E - E4 for RX and E5 for TX
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-    GPIOPinConfigure(GPIO_PE4_CAN0RX);
-    GPIOPinConfigure(GPIO_PE5_CAN0TX);
-
-    // enables the can function we have just configured on those pins
-    GPIOPinTypeCAN(GPIO_PORTE_BASE, GPIO_PIN_4 | GPIO_PIN_5);
-
-    //enable and initalise CAN0
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_CAN0);
-    CANInit(CAN0_BASE);
-
-    //TODO: change this to use the eChronos clock
-    // Set the bitrate for the CAN BUS. It uses the system clock
-    CANBitRateSet(CAN0_BASE, ROM_SysCtlClockGet(), CAN_BITRATE);
-
-    // enable can interupts
-    CANIntEnable(CAN0_BASE, CAN_INT_MASTER | CAN_INT_ERROR); //| CAN_INT_STATUS);
-    IntEnable(INT_CAN0);
-
-    //start CAN
-    CANEnable(CAN0_BASE);
-
-}
-

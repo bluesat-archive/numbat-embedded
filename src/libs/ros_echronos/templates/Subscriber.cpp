@@ -75,9 +75,11 @@ template <class T> void Subscriber<T>::receive_message(const can::CAN_ROS_Messag
     T * msg_ptr = NULL;
 
     // Step 1: Check if it is a new or existing message
-//    if(msg.head.fields.base_fields.seq_num != 0) {
-//        ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.base_fields.seq_num);
-//    }
+#ifdef DEBUG_RECEIVE_MESSAGE
+    if(msg.head.fields.base_fields.seq_num != 0) {
+        ros_echronos::ROS_INFO("Receiving seq %d\n", msg.head.fields.base_fields.seq_num);
+    }
+#endif // DEBUG_RECEIVE_MESSAGE
     if (msg.head.fields.base_fields.seq_num == 0) {
         msg_ptr = new (next_construction_msg()) T();
     } else {

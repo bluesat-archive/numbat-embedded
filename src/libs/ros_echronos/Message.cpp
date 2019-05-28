@@ -74,7 +74,7 @@ Message::Message(const Message & message) {
     desc = NULL;
 }
 
-unsigned int Message::get_next_msg_index() {
+unsigned int Message::get_next_msg_index() const {
     return next_message_index;
 }
 
