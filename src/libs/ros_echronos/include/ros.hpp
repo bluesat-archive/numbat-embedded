@@ -61,7 +61,11 @@ namespace ros_echronos {
 
     template <typename T> class Array : public _Array {
         public:
-            T operator[] (int index) {
+            T operator[] (const int index) {
+                return values[index];
+            }
+
+            const T operator[] (const int index) const {
                 return values[index];
             }
 
