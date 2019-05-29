@@ -596,6 +596,8 @@ def sub_message_descriptor(field):
     assert (not roslib.msgs.is_builtin(base_type))
 
     print base_type
+    if base_type == 'Header':
+        base_type = 'std_msgs/Header'
     (package, msg_name) = base_type.split('/')
     (_, spec) = roslib.msgs.load_by_type(msg_name, package)
 

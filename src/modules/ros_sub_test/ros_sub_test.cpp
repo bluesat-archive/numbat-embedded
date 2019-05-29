@@ -2,6 +2,7 @@
 #include "boilerplate.h"
 #include "ros.hpp"
 #include "owr_messages/board.hpp"
+#include "geometry_msgs/Vector3Stamped.hpp"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
 #include "NodeHandle.hpp"
@@ -15,6 +16,7 @@
 static void init_can(void);
 static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 void callback(const owr_messages::board & msg);
+void callback2(const geometry_msgs::Vector3Stamped & msg);
 
 extern "C" bool tick_irq(void) {
     rtos_timer_tick();
@@ -23,6 +25,7 @@ extern "C" bool tick_irq(void) {
 
 extern "C" void task_ros_sub_test_fn(void) {
     owr_messages::board board_buffer[5];
+    geometry_msgs::Vector3Stamped v3s_buffer[5];
 
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
@@ -32,6 +35,8 @@ extern "C" void task_ros_sub_test_fn(void) {
     ros_echronos::ROS_INFO("sub init\n");
     ros_echronos::Subscriber<owr_messages::board> sub("/aaa", (owr_messages::board*)board_buffer, 5, callback);
     sub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    ros_echronos::Subscriber<geometry_msgs::Vector3Stamped> sub2("/v3s", (geometry_msgs::Vector3Stamped*)v3s_buffer, 5, callback2);
+    sub2.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("starting the main loop\n");
 //    owr_messages::board msg;
     while(true) {
@@ -84,6 +89,23 @@ void callback(const owr_messages::board & outer_msg) {
     ros_echronos::ROS_INFO("\tpwm %d\n", msg.pwm);
     ros_echronos::ROS_INFO("\ttarget vel %lf\n", msg.targetVel);
     ros_echronos::ROS_INFO("\ttarget pos %lf\n", msg.targetPos);
+}
+
+void print_header(const std_msgs::Header & head) {
+    ros_echronos::ROS_INFO("\tprinting header\n");
+    ros_echronos::ROS_INFO("\t\tseq %d\n", head.seq);
+    ros_echronos::ROS_INFO("\t\tstamp  sec: %d ns: %d\n", head.stamp.seconds, head.stamp.nanos);
+    ros_echronos::ROS_INFO("\t\tframe '%s'\n", head.frame_id);
+
+}
+
+void callback2(const geometry_msgs::Vector3Stamped & msg) {
+    ros_echronos::ROS_INFO("\n\nReceived Full Message %d\n", msg.from_msg_num);
+    print_header(msg.header);
+    ros_echronos::ROS_INFO("\tvector\n");
+    ros_echronos::ROS_INFO("\tx %lf\n", msg.vector.x);
+    ros_echronos::ROS_INFO("\ty %lf\n", msg.vector.y);
+    ros_echronos::ROS_INFO("\tz %lf\n", msg.vector.z);
 }
 
 int main(void) {

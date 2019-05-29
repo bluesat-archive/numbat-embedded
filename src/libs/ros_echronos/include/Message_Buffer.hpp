@@ -13,7 +13,7 @@
 #include "ros.hpp"
 #include "can.hpp"
 
-#define ROS_CAN_INPUT_BUFFER_SIZE 8
+#define ROS_CAN_INPUT_BUFFER_SIZE 10
 
 template <class T>
 class Message_Buffer {

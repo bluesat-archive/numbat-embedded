@@ -32,3 +32,7 @@ depend_msgs(ros_sub_test owr_messages pwm)
 generate_msgs(owr_messages board)
 depend_msgs(ros_sub_test owr_messages board)
 
+generate_msgs(geometry_msgs Vector3)
+depend_msgs(ros_sub_test geometry_msgs Vector3)
+generate_msgs(geometry_msgs Vector3Stamped)
+depend_msgs(ros_sub_test geometry_msgs Vector3Stamped)
