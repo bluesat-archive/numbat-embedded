@@ -50,7 +50,8 @@ uint16_t Message::message_size() {
         // we don't know the size in messages until we have generated the block
         generate_block();
     }
-    return size / can::CAN_MESSAGE_MAX_LEN;
+    uint8_t floored = size / can::CAN_MESSAGE_MAX_LEN;
+    return size % can::CAN_MESSAGE_MAX_LEN == 0 ? floored : floored + 1;
 }
 
 Message::Message(const Message & message) {
