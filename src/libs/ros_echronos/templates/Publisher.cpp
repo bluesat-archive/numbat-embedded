@@ -139,7 +139,7 @@ template <class T> void Publisher<T>::register_topic(const RtosSignalId signal_w
     const uint8_t index_offset = control_4_advertise::send_string(msg, msg_head, topic_name, topic_length+1, 0);
     const uint8_t index = control_4_advertise::send_string(msg, msg_head, T::NAME, msg_name_len+1, index_offset+1);
     // if we haven't just sent a message and its not the last null terminator, send
-    if((index != (CAN_MESSAGE_MAX_LEN-1)) && (index != 0)) {
+    if(index != (CAN_MESSAGE_MAX_LEN-1)) {
         msg.body_bytes = index+1;
         send_can(msg);
     }
