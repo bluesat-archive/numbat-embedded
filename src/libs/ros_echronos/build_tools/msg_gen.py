@@ -539,7 +539,7 @@ def write_virtual_functions(s, spec, cpp_name_prefix):
         if is_array or (base_type == 'string'):
             sizes.append("%s.bytes+2" % field.name)
             output+='      memcpy(block+offset, &%s.size, sizeof(short));\n' % (field.name)
-            output+='      memcpy(block+offset+sizeof(short), &%s.values, %s.bytes);\n' % (field.name, field.name)
+            output+='      memcpy(block+offset+sizeof(short), %s.values, %s.bytes);\n' % (field.name, field.name)
             output+='      offset+=%s.bytes+sizeof(short);\n' % (field.name)
         else:
             sizes.append("sizeof(%s)" % field.name)
