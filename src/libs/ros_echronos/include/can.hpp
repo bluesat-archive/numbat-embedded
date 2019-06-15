@@ -74,7 +74,7 @@ namespace ros_echronos {
                 ADVERTISE_SERVICE = 6,
                 DEREGISTER_SERIVCE = 7,
                 MANAGE_PARAMETERS = 8,
-                HEARTBEAT = 9,
+                CHANNEL_CONTROL = 9,
                 EXTENDED = 10
          } Ctrl_Function;
 	 
