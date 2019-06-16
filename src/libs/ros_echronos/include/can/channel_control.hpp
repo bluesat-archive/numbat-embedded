@@ -38,7 +38,7 @@ namespace ros_echronos {
             constexpr CAN_Header CHANNEL_CTRL_CTRL_FIELDS_HEADER {
                 .fields = {
                     .f2_ctrl_msg_fields = {
-                        ((unsigned int)CHANNEL_CONTROL), 0u
+                        0u, ((unsigned int)CHANNEL_CONTROL), 0u
                     }
                 }
             };

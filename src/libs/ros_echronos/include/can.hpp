@@ -137,7 +137,7 @@ namespace ros_echronos {
                     0,
                     ((unsigned int) FN_ROS_CONTROL_MSG),
                     0,
-		    0
+                    0
                 }
             }
         };
