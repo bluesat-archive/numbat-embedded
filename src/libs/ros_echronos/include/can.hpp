@@ -148,7 +148,7 @@ namespace ros_echronos {
         constexpr CAN_Header _CTRL_HEADER_MASK_BASE_FIELDS {
             .fields = {
                 .base_fields = {
-                    1, 0xFFFF, 0xFFFF, 0xFFF, 0x0
+                    1, 0x0000, 0xFFFF, 0xFFF, 0x0
                 }
             }
         };
