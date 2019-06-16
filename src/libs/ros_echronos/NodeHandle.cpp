@@ -7,13 +7,17 @@
  * @copyright: Copyright BLUEsat UNSW, 2017
  */
 
+
 #include "boilerplate.h"
+#include "driverlib/sysctl.h"
+
 #include "include/NodeHandle.hpp"
 #include "include/Publisher.hpp"
 #include "include/Subscriber.hpp"
 #include "include/can_impl.hpp"
 #include "include/can.hpp"
 #include "include/can/register_node.hpp"
+#include "include/can/channel_control.hpp"
 #include <atomic>
 
 
@@ -29,6 +33,7 @@ ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 void NodeHandle::init(char *node_name, char *ros_task, RtosInterruptEventId can_interupt_event,
                       RtosSignalId can_interupt_signal, RtosSignalId register_node_signal) {
+    can::init_channel_ctrl_sub();
     ros_echronos::ROS_INFO("can interupt event %d\n", can_interupt_event);
     can::can_interupt_event = can_interupt_event;
     can_receive_signal = can_interupt_signal;
@@ -178,12 +183,28 @@ void NodeHandle::run_handle_message_loop() {
 
                 }
             } else if (msg.head.fields.base_fields.ros_function == (unsigned int) FN_ROS_CONTROL_MSG) {
-                //TODO: do control message things...
+                // handle channel control messages (messages not triggered by us)
+                if(msg.head.fields.f2_ctrl_msg_fields.mode == (unsigned int)CHANNEL_CONTROL) {
+                    handle_channel_msg(msg);
+                }
             } else {
                 ROS_INFO("Recived Unmatched Header %x", msg.head.bits);
             }
         } while (more);
         // ^ the above loop allows us to handle big messages much more effectively
+    }
+}
+
+void NodeHandle::handle_channel_msg(const ros_echronos::can::CAN_ROS_Message &msg) const {
+    using namespace ros_echronos::can::control_9_channel_control;
+
+    const Channel_Control_Header * const header = (Channel_Control_Header *) &msg;
+
+    if(header->fields.channel_ctrl_mode == RESET) {
+        ROS_INFO("Received reset control message");
+        SysCtlReset();
+    } else {
+        ROS_INFO("Received unrecognised channel control message %x", header->bits);
     }
 }
 

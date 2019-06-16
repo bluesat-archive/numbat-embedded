@@ -74,7 +74,7 @@ namespace ros_echronos {
                 ADVERTISE_SERVICE = 6,
                 DEREGISTER_SERIVCE = 7,
                 MANAGE_PARAMETERS = 8,
-                HEARTBEAT = 9,
+                CHANNEL_CONTROL = 9,
                 EXTENDED = 10
          } Ctrl_Function;
 	 
@@ -137,7 +137,7 @@ namespace ros_echronos {
                     0,
                     ((unsigned int) FN_ROS_CONTROL_MSG),
                     0,
-		    0
+                    0
                 }
             }
         };
@@ -148,7 +148,7 @@ namespace ros_echronos {
         constexpr CAN_Header _CTRL_HEADER_MASK_BASE_FIELDS {
             .fields = {
                 .base_fields = {
-                    1, 0xFFFF, 0xFFFF, 0xFFF, 0x0
+                    1, 0x0000, 0xFFFF, 0xFFF, 0x0
                 }
             }
         };

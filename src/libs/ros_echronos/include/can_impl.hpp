@@ -67,6 +67,11 @@ namespace ros_echronos {
         void can_receive_unlock();
 
         /**
+         * Creates a subscription for channel control messages
+         */
+        void init_channel_ctrl_sub();
+
+        /**
          * Incoming can msg buffer
          */
         extern _Incoming_Message_Buffer * incoming_msg_buffer;
@@ -75,6 +80,7 @@ namespace ros_echronos {
          * The "subscription" that can be used for control messages
          */
         extern const can_sub_id CTRL_SUB_ID;
+        extern const can_sub_id CHANNEL_CTRL_SUB_ID;
     }
 }
 

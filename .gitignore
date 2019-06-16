@@ -194,3 +194,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 .vscode/
+
+# ROS
+src/CMakeLists.txt
