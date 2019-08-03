@@ -6,5 +6,5 @@ enum qei_status {
     QEI_FAILURE,
 };
 
-void qei_init(uint16_t qei_num, uint32_t time_period, void *ext_int_handler());
+void qei_init(uint16_t qei_num, uint32_t time_period, void *handler(uint32_t));
 #endif

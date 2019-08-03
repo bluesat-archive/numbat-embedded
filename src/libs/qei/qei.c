@@ -9,10 +9,15 @@
 #include "driverlib/debug.h"
 
 const uint32_t sysctl_module = SYSCTL_PERIPH_QEI0;
-//void *ext_handler();
-//void int_handler(void *fp());
+void ext_handler();
+void (*int_handler)(uint32_t);
 
-void qei_init(uint16_t qei_num, uint32_t time_period, void *ext_int_handler()) {
+void ext_handler() {
+    uint32_t status = QEIIntStatus(QEI0_BASE, false);
+    int_handler(status);
+}
+
+int qei_init(uint16_t qei_num, uint32_t time_period, void *handler(uint32_t)) {
 
     //If peripheral is not enabled
     if (SysCtlPeripheralReady(sysctl_module) == false) {
@@ -44,11 +49,15 @@ void qei_init(uint16_t qei_num, uint32_t time_period, void *ext_int_handler()) {
     QEIConfigure(QEI0_BASE, QEI_CONFIG_CAPTURE_A | QEI_CONFIG_NO_RESET | QEI_CONFIG_QUADRATURE | QEI_CONFIG_NO_SWAP, 3999);
 
     //Enable velocity capture
-    QEIVELOCITYCONFIGURE(QEI0_BASE, QEI_VELDIV_1, time_period);
+    QEIVelocityConfigure(QEI0_BASE, QEI_VELDIV_1, time_period);
     QEIVelocityEnable(QEI0_BASE);
     QEIPositionSet(QEI0_BASE, 0);
     QEIEnable(QEI0_BASE);
 
     //Register the interrupt  handler
-    QEIIntRegister(QEI0_BASE,ext_int_handler);
+    int_handler = handler;  
+    QEIIntEnable(QEI0_BASE, QEI_INTERROR | QEI_INTTIMER);                                   
+    QEIIntRegister(QEI0_BASE, ext_handler);
+    
+    return QEI0_BASE;
 }
