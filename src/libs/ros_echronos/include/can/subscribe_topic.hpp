@@ -40,7 +40,6 @@ namespace ros_echronos {
                 }
             };
 
-
             /**
              * Mask for the subscriber ctrl header
              */
@@ -61,12 +60,9 @@ namespace ros_echronos {
                 return {
                         .bits = CAN_CTRL_BASE_FIELDS.bits | subscribe_header.bits | sub_ctrl_fields.bits
                     };
-
             }
 
             inline uint8_t send_string(can::CAN_ROS_Message & msg, can::control_2_subscribe::Subscribe_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
-                using namespace ros_echronos::can;
-                using namespace ros_echronos::can::control_2_subscribe;
                 uint8_t index = 0;
                 const char * const end_ptr = start_str_ptr+str_len;
                 for(const char * str_ptr = start_str_ptr; str_ptr < end_ptr; ++str_ptr) {
@@ -76,7 +72,7 @@ namespace ros_echronos {
                     if(index == (CAN_MESSAGE_MAX_LEN-1)) {
                         msg.body_bytes = CAN_MESSAGE_MAX_LEN;
                         send_can(msg);
-                        ++(msg_head.fields.step);
+                        ++(msg_head.fields.seq_num);
                         msg.head = add_common_headers(msg_head);
                         memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
                     }
@@ -85,7 +81,6 @@ namespace ros_echronos {
             }
 
         }
-
     }
 }
 #endif //PROJECT_SUBSCRIBE_TOPIC_H
