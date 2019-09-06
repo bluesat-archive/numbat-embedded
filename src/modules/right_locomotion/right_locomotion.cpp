@@ -17,16 +17,14 @@
 #define FRONT_RIGHT_ROTATE_PIN PWM2
 #define BACK_RIGHT_ROTATE_PIN PWM3
 
+ros_echronos::NodeHandle * volatile nh_ptr = NULL;
+
 #define PWM_PERIOD 10.0 // ms
 #define NEUTRAL_DUTY 15.0 // 1.5 ms / period ms * 100 %
 #define MAX_DUTY_AMPLITUDE 5.0 // (2.0 - 1.5) / period ms * 100%
-#define SPEED_MAX 3.0 // m/s
-
-
+#define SPEED_MAX 1.0 // m/s
 
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
-
-ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
 #define SYSTICKS_PER_SECOND     100
 
@@ -91,7 +89,6 @@ extern "C" void task_right_locomotion_fn(void) {
     pwm_set_duty(BACK_RIGHT_DRIVE_PIN, NEUTRAL_DUTY);
     pwm_enable(FRONT_RIGHT_DRIVE_PIN);
     pwm_enable(BACK_RIGHT_DRIVE_PIN);
-
 
     ros_echronos::ROS_INFO("starting the main loop\n");
     while(true) {
@@ -202,7 +199,6 @@ static duty_pct speed_to_duty_pct(double speed) {
     return NEUTRAL_DUTY + ((speed / SPEED_MAX) * MAX_DUTY_AMPLITUDE);  
 }
 
-
 static double wheel_to_servo_angle(double wheel_angle) {
     return wheel_angle * SERVO_ANGLE_CONVERSION_FACTOR;
 }
@@ -216,7 +212,6 @@ void frontRightRotateCallback(const std_msgs::Float64 & msg) {
     servo_write_rads(HS_785HB, FRONT_RIGHT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Front right swerve received. %lf\n", msg.data);
 }
-
 
 void backRightDriveCallback(const std_msgs::Float64 & msg) {
     pwm_set_duty(BACK_RIGHT_DRIVE_PIN, speed_to_duty_pct(msg.data));

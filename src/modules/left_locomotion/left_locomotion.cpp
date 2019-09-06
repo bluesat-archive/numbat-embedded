@@ -19,7 +19,10 @@
 
 ros_echronos::NodeHandle * volatile nh_ptr = NULL;
 
-#define DRIVE_PWM_PERIOD 10.0
+#define PWM_PERIOD 10.0 // ms
+#define NEUTRAL_DUTY 15.0 // 1.5 ms / period ms * 100 %
+#define MAX_DUTY_AMPLITUDE (-5.0) // (2.0 - 1.5) / period ms * 100%
+#define SPEED_MAX 1.0 // m/s
 
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
 
@@ -81,21 +84,15 @@ extern "C" void task_left_locomotion_fn(void) {
 
     pwm_init(FRONT_LEFT_DRIVE_PIN);
     pwm_init(BACK_LEFT_DRIVE_PIN);
-    pwm_set_period(PWM_PAIR0, DRIVE_PWM_PERIOD);
-    pwm_set_duty(FRONT_LEFT_DRIVE_PIN,15.0);
-    pwm_set_duty(BACK_LEFT_DRIVE_PIN,15.0);
+    pwm_set_period(PWM_PAIR0, PWM_PERIOD);
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, NEUTRAL_DUTY);
+    pwm_set_duty(BACK_LEFT_DRIVE_PIN, NEUTRAL_DUTY);
     pwm_enable(FRONT_LEFT_DRIVE_PIN);
     pwm_enable(BACK_LEFT_DRIVE_PIN);
 
-    
     ros_echronos::ROS_INFO("starting the main loop\n");
-    int i = 0;
     while(true) {
         nh.spin();
-//        if(i % 100) {
-//            ros_echronos::ROS_INFO("Alive %d\n", i);
-//        }
-//        ++i;
     }
     /*
     // create a test message
@@ -199,9 +196,7 @@ void init_can(void) {
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
-
-    return duty;
+    return NEUTRAL_DUTY + ((speed / SPEED_MAX) * MAX_DUTY_AMPLITUDE);  
 }
 
 static double wheel_to_servo_angle(double wheel_angle) {
@@ -212,18 +207,17 @@ void frontLeftDriveCallback(const std_msgs::Float64 & msg) {
     pwm_set_duty(FRONT_LEFT_DRIVE_PIN, speed_to_duty_pct(msg.data));
     UARTprintf("Front left drive received.\n");
 }
-  
+
 void frontLeftRotateCallback(const std_msgs::Float64 & msg) {
     servo_write_rads(HS_785HB, FRONT_LEFT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
-    UARTprintf("Front left swerve received.\n");
+    UARTprintf("Front left swerve received. %lf\n", msg.data);
 }
-    
-    
+
 void backLeftDriveCallback(const std_msgs::Float64 & msg) {
     pwm_set_duty(BACK_LEFT_DRIVE_PIN, speed_to_duty_pct(msg.data));
-    UARTprintf("Back left drive received.\n");
+    UARTprintf("Back left drive received. %lf\n", msg.data);
 }
-    
+
 void backLeftRotateCallback(const std_msgs::Float64 & msg) {
     servo_write_rads(HS_785HB, BACK_LEFT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
     UARTprintf("Back left swerve received.\n");
