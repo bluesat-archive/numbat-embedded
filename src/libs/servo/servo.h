@@ -8,10 +8,12 @@ typedef double servo_deg;
 typedef double servo_rad;
 
 #define PI ((double)3.14159265359)
-#define SERVO_COUNT 1
+#define SERVO_COUNT 3
 
 enum servos {
-    HS_785HB
+    HS_785HB,
+    HS_311,
+    GENERIC
 };
 
 // initialise servo signal and set to neutral

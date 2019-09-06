@@ -17,14 +17,11 @@
 #define FRONT_LEFT_ROTATE_PIN PWM2
 #define BACK_LEFT_ROTATE_PIN PWM3
 
-
 #define DRIVE_PWM_PERIOD 10.0
 
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
 
 #define SYSTICKS_PER_SECOND     100
-
-
 
 static tCANMsgObject rx_object;
 static uint8_t can_input_buffer[CAN_MSG_LEN];
@@ -47,23 +44,26 @@ bool sent_message;
 
 static uint32_t error_flag;
 
-
 extern "C" void task_left_locomotion_fn(void) {
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
+
     ros_echronos::NodeHandle nh;
     nh.init("left_locomotion_fn", "left_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+
     ros_echronos::ROS_INFO("Done init\n");
 
     ros_echronos::ROS_INFO("Initalising left locomotion subscribers\n");
-    // Create the subscribers
+
     std_msgs::Float64 front_left_drive_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("/front_left_wheel_axel_controller/command", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
     std_msgs::Float64 front_left_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("/front_left_swerve_controller/command", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
     std_msgs::Float64 back_left_drive_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("/back_left_wheel_axel_controller/command", back_left_drive_buffer_in, 5, backLeftDriveCallback);
     std_msgs::Float64 back_left_rotate_buffer_in[5];
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("/back_left_swerve_controller/command", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
+
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("/fld", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("/fls", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("/bld", back_left_drive_buffer_in, 5, backLeftDriveCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("/bls", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
+
     frontLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     frontLeftRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     backLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
@@ -74,60 +74,20 @@ extern "C" void task_left_locomotion_fn(void) {
 
     pwm_init(FRONT_LEFT_DRIVE_PIN);
     pwm_init(BACK_LEFT_DRIVE_PIN);
+
     pwm_set_period(PWM_PAIR0, DRIVE_PWM_PERIOD);
+
     pwm_set_duty(FRONT_LEFT_DRIVE_PIN,15.0);
     pwm_set_duty(BACK_LEFT_DRIVE_PIN,15.0);
+
     pwm_enable(FRONT_LEFT_DRIVE_PIN);
     pwm_enable(BACK_LEFT_DRIVE_PIN);
-
     
     ros_echronos::ROS_INFO("starting the main loop\n");
     int i = 0;
     while(true) {
         nh.spin();
-//        if(i % 100) {
-//            ros_echronos::ROS_INFO("Alive %d\n", i);
-//        }
-//        ++i;
     }
-    /*
-    // create a test message
-    owr_messages::pwm out_msg;
-    strncpy(out_msg.joint, "aaaa", 4);
-    out_msg.pwm = 0xDEADBEEF;
-
-    // create a publisher
-    Publisher<owr_messages::pwm> pub("null", pwm_buffer, 5, false);
-
-    //create some messages
-    ros_echronos::can::can_ros_message cmsgs[7];
-
-    // "publish them"
-    pub.publish(out_msg, 0);
-    bool has_next;
-    bool is_empty;
-    for(int i = 0; i < 7; ++i) {
-        cmsgs[i] = pub.get_next_message(has_next, is_empty);
-    }
-
-    // create a subscriber
-    owr_messages::pwm pwm_buffer_in[5];
-    Subscriber<owr_messages::pwm> sub("null", pwm_buffer_in, 5, callback);
-
-
-    // read them back
-    owr_messages::pwm in_msg;
-    for(int i = 0; i < 7; ++i) {
-        sub.receive_message(cmsgs[i]);
-    }
-    sub.call_callback();
-
-    //ros_echronos::ROS_INFO("Joint %s\n", in_msg.joint);
-    //ros_echronos::ROS_INFO("PWM %d\n", in_msg.pwm);
-
-    ros_echronos::ROS_INFO("Done\n");
-    while (true) {}*/
-
 }
 
 
