@@ -56,7 +56,7 @@ static uint32_t error_flag;
 extern "C" void task_right_locomotion_fn(void) {
     ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
     ros_echronos::NodeHandle nh;
-    nh.init("right_locomotion_fn", "right_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
+    nh.init("right", "right", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     ros_echronos::ROS_INFO("Done init\n");
 
     ros_echronos::ROS_INFO("Initalising right locomotion subscribers\n");
