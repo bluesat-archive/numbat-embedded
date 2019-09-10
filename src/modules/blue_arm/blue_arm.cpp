@@ -77,11 +77,11 @@ extern "C" void task_blue_arm_fn(void) {
     std_msgs::Float64 claw_rotate_buffer_in[5];
     std_msgs::Float64 claw_grip_buffer_in[5];
 
-    ros_echronos::Subscriber<std_msgs::Float64> armRotateSub("/arm_base_rotate_controller/command", arm_rotate_buffer_in, 5, armRotateCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> armTopSub("/arm_top_controller/command", arm_top_buffer_in, 5, armTopCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> armBottomSub("/arm_bottom_controller/command", arm_bottom_buffer_in, 5, armBottomCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> clawRotateSub("/claw_rotate_controller/command", claw_rotate_buffer_in, 5, clawRotateCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> clawGripSub("/claw_grip_controller/command", claw_grip_buffer_in, 5, clawGripCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> armRotateSub("/e/abr", arm_rotate_buffer_in, 5, armRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> armTopSub("/e/atl", arm_top_buffer_in, 5, armTopCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> armBottomSub("/e/abl", arm_bottom_buffer_in, 5, armBottomCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> clawRotateSub("/e/acr", claw_rotate_buffer_in, 5, clawRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> clawGripSub("/e/acg", claw_grip_buffer_in, 5, clawGripCallback);
 
     armRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     armTopSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);

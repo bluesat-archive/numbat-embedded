@@ -59,10 +59,10 @@ extern "C" void task_left_locomotion_fn(void) {
     std_msgs::Float64 back_left_drive_buffer_in[5];
     std_msgs::Float64 back_left_rotate_buffer_in[5];
 
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("/fld", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("/fls", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("/bld", back_left_drive_buffer_in, 5, backLeftDriveCallback);
-    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("/bls", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftDriveSub("/e/fld", front_left_drive_buffer_in, 5, frontLeftDriveCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> frontLeftRotateSub("/e/fls", front_left_rotate_buffer_in, 5, frontLeftRotateCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftDriveSub("/e/bld", back_left_drive_buffer_in, 5, backLeftDriveCallback);
+    ros_echronos::Subscriber<std_msgs::Float64> backLeftRotateSub("/e/bls", back_left_rotate_buffer_in, 5, backLeftRotateCallback);
 
     frontLeftDriveSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
     frontLeftRotateSub.init(nh, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
@@ -89,8 +89,6 @@ extern "C" void task_left_locomotion_fn(void) {
         nh.spin();
     }
 }
-
-
 
 int main(void) {
 
