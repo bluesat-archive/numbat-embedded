@@ -12,7 +12,7 @@
 
 //#define ALLOC_BUFFER_SIZE 4096
 //#define ALLOC_BUFFER_SIZE 8192
-#define ALLOC_BUFFER_SIZE (4096 + 2048)
+#define ALLOC_BUFFER_SIZE (4096+2048)
 #define ALLOC_MIN_ALLOC 16
 
 #include "rtos-kochab.h"

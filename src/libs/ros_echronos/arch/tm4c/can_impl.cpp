@@ -12,7 +12,7 @@
 #include "ros.hpp"
 
 #define NUM_CAN_OBJS 32
-#define CAN_FIFO_QUEUE_LENGTH 6
+#define CAN_FIFO_QUEUE_LENGTH 5
 // reserve a few messages for things like sending messages and control messages
 #define CAN_ID_START 4
 #define CAN_DEVICE_BASE CAN0_BASE
