@@ -17,22 +17,14 @@
 #define FRONT_RIGHT_ROTATE_PIN PWM2
 #define BACK_RIGHT_ROTATE_PIN PWM3
 
-#define PWM_PERIOD 10.0 // ms
-#define NEUTRAL_DUTY 15.0 // 1.5 ms / period ms * 100 %
-#define MAX_DUTY_AMPLITUDE 5.0 // (2.0 - 1.5) / period ms * 100%
-#define SPEED_MAX 3.0 // m/s
-
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
+#define PWM_PERIOD (10.0) // ms
+#define NEUTRAL_DUTY (15.0) // 1.5 ms / period ms * 100 %
+#define MAX_DUTY_AMPLITUDE (5.0) // (2.0 - 1.5) / period ms * 100%
+#define SPEED_MAX (1.0) // m/s
 
 #define SYSTICKS_PER_SECOND     100
 
-#define CAN_BITRATE 500000
-#define CAN_MSG_LEN 8
-
-static tCANMsgObject rx_object;
-static uint8_t can_input_buffer[CAN_MSG_LEN];
-
-static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 static duty_pct speed_to_duty_pct(double speed);
 static double wheel_to_servo_angle(double wheel_angle);
 void frontRightDriveCallback(const std_msgs::Float64 & msg);
@@ -45,12 +37,8 @@ extern "C" bool tick_irq(void) {
     return true;
 }
 
-bool sent_message;
-
-static uint32_t error_flag;
-
 extern "C" void task_right_locomotion_fn(void) {
-    ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
+    ros_echronos::ROS_INFO("Entered right locomotion task. Initializing...\n");
 
     ros_echronos::NodeHandle nh;
     nh.init("right_locomotion_fn", "right_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
@@ -88,8 +76,8 @@ extern "C" void task_right_locomotion_fn(void) {
     pwm_enable(FRONT_RIGHT_DRIVE_PIN);
     pwm_enable(BACK_RIGHT_DRIVE_PIN);
 
-    ros_echronos::ROS_INFO("starting the main loop\n");
-    while(true) {
+    ros_echronos::ROS_INFO("Starting the main loop\n");
+    for (;;) {
         nh.spin();
     }
 }
@@ -131,7 +119,6 @@ static duty_pct speed_to_duty_pct(double speed) {
     return NEUTRAL_DUTY + ((speed / SPEED_MAX) * MAX_DUTY_AMPLITUDE);  
 }
 
-
 static double wheel_to_servo_angle(double wheel_angle) {
     return wheel_angle * SERVO_ANGLE_CONVERSION_FACTOR;
 }
@@ -143,13 +130,12 @@ void frontRightDriveCallback(const std_msgs::Float64 & msg) {
 
 void frontRightRotateCallback(const std_msgs::Float64 & msg) {
     servo_write_rads(HS_785HB, FRONT_RIGHT_ROTATE_PIN, wheel_to_servo_angle(msg.data));
-    UARTprintf("Front right swerve received. %lf\n", msg.data);
+    UARTprintf("Front right swerve received.\n");
 }
-
 
 void backRightDriveCallback(const std_msgs::Float64 & msg) {
     pwm_set_duty(BACK_RIGHT_DRIVE_PIN, speed_to_duty_pct(msg.data));
-    UARTprintf("Back right drive received. %lf\n", msg.data);
+    UARTprintf("Back right drive received.\n");
 }
 
 void backRightRotateCallback(const std_msgs::Float64 & msg) {

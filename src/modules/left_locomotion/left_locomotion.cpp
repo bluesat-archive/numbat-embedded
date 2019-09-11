@@ -1,6 +1,8 @@
 // Module for left locomotion of the NUMBAT rover
 // Author: Elliott Smith
-// Date: 2/4/18
+// Date: 2018-04-02
+// Editor: William Miles
+// Updated: 2019-09-10
 #include <rtos-kochab.h>
 #include "boilerplate.h"
 #include "rtos-kochab.h"
@@ -17,17 +19,14 @@
 #define FRONT_LEFT_ROTATE_PIN PWM2
 #define BACK_LEFT_ROTATE_PIN PWM3
 
-#define DRIVE_PWM_PERIOD 10.0
-
 #define SERVO_ANGLE_CONVERSION_FACTOR 7.85 // 2826 deg. / 360 deg.
+#define PWM_PERIOD (10.0)
+#define NEUTRAL_DUTY (15.0)
+#define MAX_DUTY_AMPLITUDE (-5.0)
+#define SPEED_MAX (1.0)
 
 #define SYSTICKS_PER_SECOND     100
 
-static tCANMsgObject rx_object;
-static uint8_t can_input_buffer[CAN_MSG_LEN];
-
-static void init_can(void);
-static void write_can(uint32_t message_id, uint8_t *buffer, uint32_t buffer_size);
 static duty_pct speed_to_duty_pct(double speed);
 static double wheel_to_servo_angle(double wheel_angle);
 void frontLeftDriveCallback(const std_msgs::Float64 & msg);
@@ -40,12 +39,8 @@ extern "C" bool tick_irq(void) {
     return true;
 }
 
-bool sent_message;
-
-static uint32_t error_flag;
-
 extern "C" void task_left_locomotion_fn(void) {
-    ros_echronos::ROS_INFO("Entered CAN task. Initializing...\n");
+    ros_echronos::ROS_INFO("Entered left locomotion task. Initializing...\n");
 
     ros_echronos::NodeHandle nh;
     nh.init("left_locomotion_fn", "left_locomotion_fn", RTOS_INTERRUPT_EVENT_ID_CAN_RECEIVE_EVENT, RTOS_SIGNAL_ID_CAN_RECEIVE_SIGNAL, RTOS_SIGNAL_ID_ROS_PROMISE_SIGNAL);
@@ -75,23 +70,22 @@ extern "C" void task_left_locomotion_fn(void) {
     pwm_init(FRONT_LEFT_DRIVE_PIN);
     pwm_init(BACK_LEFT_DRIVE_PIN);
 
-    pwm_set_period(PWM_PAIR0, DRIVE_PWM_PERIOD);
+    pwm_set_period(PWM_PAIR0, PWM_PERIOD);
 
-    pwm_set_duty(FRONT_LEFT_DRIVE_PIN,15.0);
-    pwm_set_duty(BACK_LEFT_DRIVE_PIN,15.0);
+    pwm_set_duty(FRONT_LEFT_DRIVE_PIN, NEUTRAL_DUTY);
+    pwm_set_duty(BACK_LEFT_DRIVE_PIN, NEUTRAL_DUTY);
 
     pwm_enable(FRONT_LEFT_DRIVE_PIN);
     pwm_enable(BACK_LEFT_DRIVE_PIN);
     
-    ros_echronos::ROS_INFO("starting the main loop\n");
-    int i = 0;
-    while(true) {
+    ros_echronos::ROS_INFO("Starting the main loop.\n");
+
+    for (;;) {
         nh.spin();
     }
 }
 
 int main(void) {
-
     // Initialize the floating-point unit.
     InitializeFPU();
 
@@ -124,9 +118,7 @@ int main(void) {
 }
 
 static duty_pct speed_to_duty_pct(double speed) {
-    duty_pct duty = 15.0 + (speed / 3.0 * 5.0);
-
-    return duty;
+    return NEUTRAL_DUTY + ((speed / SPEED_MAX) * MAX_DUTY_AMPLITUDE);
 }
 
 static double wheel_to_servo_angle(double wheel_angle) {
