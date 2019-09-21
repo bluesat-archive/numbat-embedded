@@ -201,10 +201,12 @@ template <typename T> inline  ros_echronos::Array<T> & ros_echronos::Array<T>::o
         alloc::free(values);
     }
     size = new_value.size;
+    bytes = size * sizeof(T);
     if(size!=0) {
-        bytes = size * sizeof(T);
         values = (T*) alloc::malloc(bytes);
         memcpy(values, new_value.values, bytes);
+    } else {
+        values = NULL;
     }
     return *this;
 }

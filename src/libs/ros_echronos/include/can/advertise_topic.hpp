@@ -16,7 +16,7 @@
 namespace ros_echronos {
     namespace can {
         namespace control_4_advertise {
-            typedef union _subscribe_header {
+            typedef union _advertise_header {
                 uint32_t  bits;
                 struct _fields {
                     unsigned int : HEADER_COMMON_BITS;
@@ -29,13 +29,7 @@ namespace ros_echronos {
                      */
                     unsigned int length : 4;
                 } fields __attribute__((packed));
-            } Subscribe_Header;
-
-            /**
-             * The subscribe and advertise headers are identical.
-             * Represents a header message for advertising
-             */
-            typedef control_2_subscribe::Subscribe_Header Advertise_Header;
+            } Advertise_Header;
 
             /**
              * Ctrl message specific fields that are common
@@ -56,9 +50,9 @@ namespace ros_echronos {
             };
 
             /**
-             * Mask for the subscriber ctrl header
+             * Mask for the publisher ctrl header
              */
-            constexpr Subscribe_Header ADV_CTRL_HEADER_MASK {
+            constexpr Advertise_Header ADV_CTRL_HEADER_MASK {
                 .fields = {
                     0xF, 0xF, 0xF, 0
                 }
@@ -66,15 +60,28 @@ namespace ros_echronos {
 
             typedef control_2_subscribe::Response_Body Response_Body;
 
-            inline uint8_t send_string(can::CAN_ROS_Message & msg, Advertise_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
-                return control_2_subscribe::send_string(msg, msg_head, start_str_ptr, str_len, index_offset);
-            }
-            
             constexpr CAN_Header add_common_headers(const Advertise_Header & advertise_header) {
                 return {
                         .bits = CAN_CTRL_BASE_FIELDS.bits | advertise_header.bits | adv_ctrl_fields.bits
                     };
+            }
 
+            inline uint8_t send_string(can::CAN_ROS_Message & msg, Advertise_Header & msg_head, char  * const  start_str_ptr, const uint32_t str_len, const uint32_t index_offset) {
+                uint8_t index = 0;
+                const char * const end_ptr = start_str_ptr+str_len;
+                for(const char * str_ptr = start_str_ptr; str_ptr < end_ptr; ++str_ptr) {
+                    const uint32_t ptr_offset = (str_ptr - start_str_ptr) + index_offset;
+                    index = ptr_offset % (CAN_MESSAGE_MAX_LEN);
+                    msg.body[index] = *str_ptr;
+                    if(index == (CAN_MESSAGE_MAX_LEN-1)) {
+                        msg.body_bytes = CAN_MESSAGE_MAX_LEN;
+                        send_can(msg);
+                        ++(msg_head.fields.seq_num);
+                        msg.head = add_common_headers(msg_head);
+                        memset(msg.body, 0, CAN_MESSAGE_MAX_LEN);
+                    }
+                }
+                return index;
             }
         }
     }

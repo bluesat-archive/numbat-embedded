@@ -105,6 +105,12 @@ namespace ros_echronos {
 
             uint8_t node_id : NODE_ID_WIDTH;
 
+            /**
+             * Function for handling incoming channel control messages
+             * @param msg the message
+             */
+            void handle_channel_msg(const ros_echronos::can::CAN_ROS_Message & msg) const;
+
     };
 }
 
